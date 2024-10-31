@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ESNext", // Use the latest ECMAScript features
+    "module": "ESNext", // Use native ECMAScript modules
+    "moduleResolution": "node", // Resolve modules in Node.js style
+    "strict": true, // Enable all strict type-checking options
+    "esModuleInterop": true, // Enable interoperability between CommonJS and ES modules
+    "skipLibCheck": true, // Skip type checking of declaration files (.d.ts)
+    "forceConsistentCasingInFileNames": true, // Ensure consistent casing in imports
+    "outDir": "./dist" // Output directory for compiled JavaScript files
+  },
+  "include": ["**/*.ts"], // Include all TypeScript files in the project
+  "exclude": ["node_modules", "dist"] // Exclude specified directories
+}
