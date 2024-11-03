@@ -24,3 +24,10 @@ dist-ssr
 *.sw?
 
 .env
+
+# Ignore all PowerShell script files
+*.ps1
+
+# Ignore all filelist.txt files in any subfolder
+**/filelist.txt
+**/file_list.txt

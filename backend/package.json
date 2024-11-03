@@ -1,16 +1,35 @@
 {
+  "name": "research-collaboration-platform",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "start": "node --experimental-specifier-resolution=node dist/server.js",
+    "seed": "node --experimental-specifier-resolution=node dist/seed/importData.js",
+    "dev": "node --experimental-specifier-resolution=node dist/server.js"
+  },
   "type": "module",
   "dependencies": {
     "@types/moment": "^2.13.0",
     "@types/xss-filters": "^1.2.0",
     "argon2": "^0.41.1",
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "express-session": "^1.18.1",
     "moment": "^2.30.1",
+    "nodemailer": "^6.9.16",
     "xss": "^1.0.15"
   },
   "devDependencies": {
+    "@babel/cli": "^7.25.9",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-typescript": "^7.26.0",
     "@types/argon2": "^0.15.4",
+    "@types/connect-mongo": "^3.1.6",
     "@types/express": "^5.0.0",
+    "@types/express-rate-limit": "^6.0.2",
+    "@types/express-session": "^1.18.0",
     "@types/mongodb": "^4.0.7",
     "@types/node": "^22.8.4",
     "@types/nodemailer": "^6.4.16",

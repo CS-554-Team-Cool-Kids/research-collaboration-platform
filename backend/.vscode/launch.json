@@ -1,0 +1,32 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Compile and Debug Server",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": [
+        "--experimental-specifier-resolution=node",
+        "${workspaceFolder}/dist/server.js"
+      ],
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "console": "integratedTerminal",
+      "preLaunchTask": "Compile TypeScript" // Runs the TypeScript compilation task first
+    },
+    {
+      "name": "Debug Server",
+      "type": "node",
+      "request": "launch",
+      "runtimeArgs": [
+        "--experimental-specifier-resolution=node",
+        "${workspaceFolder}/dist/server.js"
+      ],
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "console": "integratedTerminal"
+    }
+  ]
+}
