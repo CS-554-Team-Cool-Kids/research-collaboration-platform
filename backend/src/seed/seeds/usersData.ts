@@ -4,20 +4,13 @@ interface UserPreferences {
   darkmode: number;
 }
 
-interface UserIdentification {
-  type: string;
-  number: string;
-}
-
 interface User {
   _id: ObjectId;
   firstname: string;
   lastname: string;
   email: string;
-  identification: UserIdentification;
   type: string;
   status: string;
-  registeredCourses: ObjectId[];
   password: string;
   preferences: UserPreferences;
 }
@@ -28,13 +21,8 @@ const users: User[] = [
     firstname: "Admin",
     lastname: "One",
     email: "admin@stevens.edu",
-    identification: {
-      type: "ssn",
-      number: "3333",
-    },
     type: "Admin",
     status: "Active",
-    registeredCourses: [],
     password:
       "$argon2id$v=19$m=65536,t=3,p=1$DxCgb1jWlWfAb6Cag0IXJA$7dutmGHJwQjrBBVkDV65h3Wt7zBX4pWVhQxVk5jJIbo",
     preferences: {
@@ -46,17 +34,8 @@ const users: User[] = [
     firstname: "Prof",
     lastname: "One",
     email: "prof1@stevens.edu",
-    identification: {
-      type: "ssn",
-      number: "3333",
-    },
     type: "Professor",
     status: "Active",
-    registeredCourses: [
-      new ObjectId("657faa045ca7fcd983909062"),
-      new ObjectId("657faa245ca7fcd983909063"),
-      new ObjectId("657faa815ca7fcd983909065"),
-    ],
     password:
       "$argon2id$v=19$m=65536,t=3,p=1$DxCgb1jWlWfAb6Cag0IXJA$7dutmGHJwQjrBBVkDV65h3Wt7zBX4pWVhQxVk5jJIbo",
     preferences: {
@@ -68,13 +47,8 @@ const users: User[] = [
     firstname: "Professor",
     lastname: "Professorson",
     email: "prof2@stevens.edu",
-    identification: {
-      type: "ssn",
-      number: "3333",
-    },
     type: "Professor",
     status: "Active",
-    registeredCourses: [new ObjectId("657faaca5ca7fcd983909067")],
     password:
       "$argon2id$v=19$m=65536,t=3,p=1$DxCgb1jWlWfAb6Cag0IXJA$7dutmGHJwQjrBBVkDV65h3Wt7zBX4pWVhQxVk5jJIbo",
     preferences: {
@@ -86,21 +60,10 @@ const users: User[] = [
     firstname: "Stud",
     lastname: "One",
     email: "student1@stevens.edu",
-    identification: {
-      type: "ssn",
-      number: "3333",
-    },
     type: "Student",
     status: "Active",
-    registeredCourses: [
-      new ObjectId("657f95198516a518ea54e32e"),
-      new ObjectId("657f966c8516a518ea54e333"),
-      new ObjectId("657faa045ca7fcd983909062"),
-      new ObjectId("657faaca5ca7fcd983909067"),
-      new ObjectId("657faa815ca7fcd983909065"),
-    ],
     password:
-      "$argon2id$v=19$m=65536,t=3,p=1$DxCgb1jWlWfAb6Cag0IXJA$7dutmGHJwQjrBBVk5jJIbo",
+      "$argon2id$v=19$m=65536,t=3,p=1$DxCgb1jWlWfAb6Cag0IXJA$7dutmGHJwQjrBBVkDV65h3Wt7zBX4pWVhQxVk5jJIbo",
     preferences: {
       darkmode: 1,
     },
@@ -110,13 +73,8 @@ const users: User[] = [
     firstname: "Stud",
     lastname: "Two",
     email: "student2@stevens.edu",
-    identification: {
-      type: "ssn",
-      number: "3333",
-    },
     type: "Student",
     status: "Active",
-    registeredCourses: [new ObjectId("657faa045ca7fcd983909062")],
     password:
       "$argon2id$v=19$m=65536,t=3,p=1$DxCgb1jWlWfAb6Cag0IXJA$7dutmGHJwQjrBBVkDV65h3Wt7zBX4pWVhQxVk5jJIbo",
     preferences: {
@@ -128,13 +86,8 @@ const users: User[] = [
     firstname: "Stud",
     lastname: "Three",
     email: "student3@stevens.edu",
-    identification: {
-      type: "ssn",
-      number: "3333",
-    },
     type: "Student",
     status: "Active",
-    registeredCourses: [new ObjectId("657faa045ca7fcd983909062")],
     password:
       "$argon2id$v=19$m=65536,t=3,p=1$DxCgb1jWlWfAb6Cag0IXJA$7dutmGHJwQjrBBVkDV65h3Wt7zBX4pWVhQxVk5jJIbo",
     preferences: {

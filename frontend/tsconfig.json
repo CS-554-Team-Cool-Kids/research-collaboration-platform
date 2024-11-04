@@ -8,8 +8,9 @@
     "outDir": "./dist",
     "baseUrl": "./src",
     "esModuleInterop": true,
-    "sourceMap": true // Ensure source maps are generated
+    "sourceMap": true,
+    "jsx": "react-jsx" // Add this to support React's JSX
   },
-  "include": ["src/**/*.ts"], // Include JSON files for type checking
+  "include": ["src/**/*.ts", "src/**/*.tsx"], // Include TSX
   "exclude": ["node_modules"]
 }
