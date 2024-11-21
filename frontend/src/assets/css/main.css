@@ -1,0 +1,161 @@
+/* #Primary
+================================================== */
+:root {
+  --transparent: #00000000;
+  --black1: #14151a;
+  --white1: #fff;
+  --purple1: #8167a9;
+  --green1: #00bf98;
+  --fadeGrey: #a1a1a147;
+  --glass1: #ffffff40;
+  --glass2: #29292936;
+  --stripeTableColor1: #0000000f;
+  --stripeTableColor2: #ffffff1a;
+  --shadow1: #5959594f;
+  --shadow2: #2c2c2c4f;
+
+  --toastRed1: #e84848;
+
+  /* theming */
+  --activeShadowColor: var(--shadow1);
+  --activeTextColor: var(--black1);
+  --activeBgColor: var(--white1);
+  --activeStripeTableColor: var(--stripeTableColor1);
+  --activeGlassColor: var(--glass1);
+}
+
+body {
+  font-weight: 400;
+  color: var(--activeTextColor);
+  background-color: var(--activeBgColor);
+  transition: all 0.2s linear;
+}
+
+.card-header {
+  font-size: 20px;
+  padding: 15px;
+}
+
+input,
+button {
+  border: 1px solid var(--activeTextColor);
+  background: var(--activeBgColor);
+  color: var(--activeTextColor);
+}
+
+input {
+  border: 0 !important;
+  border-radius: 0px !important;
+  border-bottom: 1.5px solid var(--activeTextColor) !important;
+  box-shadow: none !important;
+}
+
+input:focus {
+  border-bottom-color: var(--green1) !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--activeTextColor) !important;
+  background-color: var(--activeBgColor) !important;
+}
+
+/* Autofill styles */
+input.autofill,
+input.autofill:hover,
+input.autofill:focus,
+input.autofill:active {
+  -webkit-text-fill-color: var(--activeTextColor) !important;
+  background-color: var(--activeBgColor) !important;
+}
+
+/* Specificity for autofill */
+.form-control.autofill,
+.form-control.autofill:hover,
+.form-control.autofill:focus,
+.form-control.autofill:active {
+  -webkit-text-fill-color: var(--activeTextColor) !important;
+  background-color: var(--activeBgColor) !important;
+}
+
+/* Autofill styles with pseudo-element */
+input.autofill::after,
+input.autofill:hover::after,
+input.autofill:focus::after,
+input.autofill:active::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--activeBgColor) !important;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.form-control,
+.form-control:focus {
+  color: var(--activeTextColor) !important;
+  background-color: var(--activeBgColor) !important;
+}
+
+.opacityMin {
+  opacity: 0;
+}
+
+.opacityMax {
+  opacity: 1;
+}
+
+.glassEffect {
+  background-color: var(--activeGlassColor) !important;
+  box-shadow: 0 2px 10px var(--activeShadowColor) !important;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border: 1px solid #ffffff73;
+}
+
+a,
+a:hover,
+a:focus {
+  color: inherit;
+  text-decoration: none;
+}
+
+.btn-success {
+  background-color: #aff69d !important;
+  color: black !important;
+  opacity: 1 !important;
+}
+
+.btn-danger {
+  background-color: #ff7676 !important;
+  color: black !important;
+  opacity: 1 !important;
+}
+
+.btn-warning {
+  background-color: #f9de92 !important;
+  color: black !important;
+  opacity: 1 !important;
+}
+
+.btn-info {
+  background-color: #6cc8ec !important;
+  color: black !important;
+  opacity: 1 !important;
+}
+
+.btn {
+  transition: all 0.2s linear;
+}
+.btn:hover {
+  filter: brightness(1.2);
+}
+
+.invertColor {
+  filter: invert(1);
+}
