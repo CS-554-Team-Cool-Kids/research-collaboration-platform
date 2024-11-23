@@ -1,8 +1,8 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "./components/Home";
-import Login from "./components/authentication/Login";
-import Navbar from "./components/Navbar";
+import Login from "./components/auth/Login";
+import Navbar from "./components/layout/Navbar";
 import NotFound from "./components/NotFound";
 
 const App = () => {
