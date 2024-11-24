@@ -6,15 +6,13 @@
   --white1: #fff;
   --purple1: #8167a9;
   --green1: #00bf98;
-  --fadeGrey: #a1a1a147;
+
   --glass1: #ffffff40;
   --glass2: #29292936;
   --stripeTableColor1: #0000000f;
   --stripeTableColor2: #ffffff1a;
   --shadow1: #5959594f;
   --shadow2: #2c2c2c4f;
-
-  --toastRed1: #e84848;
 
   /* theming */
   --activeShadowColor: var(--shadow1);
@@ -24,8 +22,28 @@
   --activeGlassColor: var(--glass1);
 }
 
+/* Define font faces */
+@font-face {
+  font-family: "OneUI1";
+  src: url("/src/assets/fonts/SamsungOneLatinWeb-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "OneUI2";
+  src: url("/src/assets/fonts/SamsungSharpSansBd.woff2") format("woff2");
+}
+
+/* Apply fonts via classes */
+.font-oneui1 {
+  font-family: "OneUI1", sans-serif;
+}
+
+.font-oneui2 {
+  font-family: "OneUI2", sans-serif;
+}
+
+/* Default body style */
 body {
-  font-weight: 400;
   color: var(--activeTextColor);
   background-color: var(--activeBgColor);
   transition: all 0.2s linear;
@@ -153,7 +171,7 @@ a:focus {
   transition: all 0.2s linear;
 }
 .btn:hover {
-  filter: brightness(1.2);
+  filter: brightness(1.5);
 }
 
 .invertColor {
