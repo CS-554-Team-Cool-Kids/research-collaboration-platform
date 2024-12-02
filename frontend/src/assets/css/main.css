@@ -9,6 +9,7 @@
   --yellow: #F6D350;
   --green1: #00bf98;
   --fadeGrey: #a1a1a147;
+  --lightGrey1: #ededed;
   --glass1: #ffffff40;
   --glass2: #29292936;
   --stripeTableColor1: #0000000f;
@@ -333,5 +334,41 @@ footer{
   }
   .tile-img img{
     width:300px;
+  }
+}
+
+
+/* User Dashboard Styles
+================================================== */
+.dashboard{
+  display:flex;
+  flex-direction:column-reverse;
+  background-color:var(--lightGrey1);
+}
+/* Card Styles */
+.card{
+  background-color:var(--white1);
+  color:var(--black1);
+  border-radius:15px;
+  border:1px solid var(--lightGrey1);
+}
+.card-header{
+  padding:1em;
+  border-bottom:1px solid var(--purple1);
+  display:flex;
+  justify-content:space-between;
+  text-align:left;
+}
+.card-body{
+  padding:1em;
+}
+@media(min-width:768px){
+  .dashboard{
+    flex-direction:row;
+  }
+}
+@media(min-width:992px){
+  .d-table{
+    display:flex;
   }
 }
