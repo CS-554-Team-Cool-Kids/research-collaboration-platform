@@ -10,7 +10,10 @@ function UserDashboard(props){
     /*const {loading, error, data} = useQuery(queries.GET_USER_BY_ID, {
         variables: { id },
         fetchPolicy: 'cache-and-network'
-    });*/
+    });
+    
+    
+    */
     const loading = false;
     const error = false;
     const data={
@@ -162,6 +165,7 @@ function UserDashboard(props){
         return(
             <main className="dashboard">
                 <ActionBar role={user.role}/>
+                <h1>Welcome {user.firstName} {user.lastName}</h1>
                 <div class="dashboard-table">
                     {/* Main Cards */}
                     <div className="d-column">
@@ -199,8 +203,18 @@ function UserDashboard(props){
                     {/* Side Cards */}
                     <div className="d-column">
                         <div className="d-card sm">
-                            <div className="d-card-header"></div>
-                            <div className="d-card-body"></div>
+                            <div className="d-card-header">
+                                <h2>Applications</h2>
+                            </div>
+                            <div className="d-card-body">
+                                <table className="d-table">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>

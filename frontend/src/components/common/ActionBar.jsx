@@ -47,3 +47,5 @@ function ActionBar(props){
         </aside>
     );
 }
+
+export default ActionBar;
