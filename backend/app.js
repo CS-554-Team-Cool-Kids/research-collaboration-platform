@@ -1,7 +1,7 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 
-import { typeDefs } from "./typeDefs.js";
+import { typeDefs } from "./graphQl/typeDefs.js";
 // import { resolvers } from "./resolvers.js";
 import { resolvers } from "./resolvers/index.js";
 
