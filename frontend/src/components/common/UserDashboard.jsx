@@ -1,22 +1,32 @@
 import React, {useState} from 'react';
 import { Link, useParams } from 'react-router-dom';
-import {useQuery} from '@apollo/client'; 
-import queries from '../queries';
+import {useQuery, useLazyQuery} from '@apollo/client'; 
+import queries from '../../queries';
 import ActionBar from './ActionBar';
+import EditUser from '../modals/EditUser';
 
 function UserDashboard(props){
     const {id} = useParams();
 
-    /*const {loading, error, data} = useQuery(queries.GET_USER_BY_ID, {
+    /*const userData = useQuery(queries.GET_USER_BY_ID, {
         variables: { id },
         fetchPolicy: 'cache-and-network'
     });
+    const user = userData.data.user;
     
-    
+    const projectData = useQuery(queries.GET_PROJECTS, {
+        fetchPolicy: 'cache-and-network'
+    });
+    const projects = projectData.data.projects;
+
+    const updateData = useQuery(queries.GET_UPDATES, {
+        fetchPolicy: 'cache-and-network'
+    });
+    const updates = applicationDdata.data.updates;
     */
     const loading = false;
     const error = false;
-    const data={
+    const userData={
         user: {
             _id: "00001",
             firstName: "John",
@@ -159,62 +169,260 @@ function UserDashboard(props){
             numOfProjects: 1
         }
     }
+    const updatesData = {
+        updates: [
+            {
+                _id: "8001",
+                posterId: "1001",
+                subject: "Update One",
+                content: "Update One: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                projectId: "003",
+                postedDate: "11/29/2024",
+                comments: [
+                    {
+                        _id: "9001", 
+                        comment: "Comment A: Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                        commentDate: "11/20/2024",
+                        commentor: "Jaida Kitchen"
+                    },
+                    {
+                        _id: "9002", 
+                        comment: "Comment B: Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                        commentDate: "11/08/2024",
+                        commentor: "Esme Adkins"
+                    }
+                ],
+                numOfComments: 2
+            },
+            {
+                _id: "8002",
+                posterId: "5002",
+                subject: "Update Two",
+                content: "Update Two: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                projectId: "004",
+                postedDate: "11/10/2024",
+                comments: [
+                    {
+                        _id: "9001", 
+                        comment: "Comment A: Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                        commentDate: "11/20/2024",
+                        commentor: "Jaida Kitchen"
+                    }
+                ],
+                numOfComments: 1
+            },
+            {
+                _id: "8003",
+                posterId: "5003",
+                subject: "Update Three",
+                content: "Update Three: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                projectId: "004",
+                postedDate: "11/19/2024",
+                comments: [
+                    {
+                        _id: "9001", 
+                        comment: "Comment A: Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                        commentDate: "11/20/2024",
+                        commentor: "Jaida Kitchen"
+                    },
+                    {
+                        _id: "9002", 
+                        comment: "Comment B: Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                        commentDate: "11/08/2024",
+                        commentor: "Esme Adkins"
+                    },
+                    {
+                        _id: "9003", 
+                        comment: "Comment B: Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                        commentDate: "11/08/2024",
+                        commentor: "Esme Adkins"
+                    }
+                ],
+                numOfComments: 3
+            }
+        ]
+    }
 
-    if(data){
-        const user = data.user;
+    const {user} = userData;
+    const {updates} = updatesData;
+
+    if(user){
         return(
             <main className="dashboard">
                 <ActionBar role={user.role}/>
-                <h1>Welcome {user.firstName} {user.lastName}</h1>
-                <div class="dashboard-table">
-                    {/* Main Cards */}
-                    <div className="d-column">
-                        <div className="d-card lg">
-                            <div className="d-card-header">
-                                <h2>Project List</h2>
+                <div className="main-content">
+                    <h1>Welcome {user.firstName} {user.lastName}</h1>
+                    <div className="dashboard-table">
+                        {/* MAIN CARDS (Column) */}
+                        <div className="d-column">
+
+                            {/* PROJECTS CARD */}
+                            <div className="d-card">
+                                <div className="d-card-header">
+                                    <h2>Project List</h2>
+                                </div>
+                                <div className="d-card-body">
+                                    <table className="d-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Title</th>
+                                                <th>Professors</th>
+                                                <th>Students</th>
+                                                <th>Creation Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {user.projects && user.projects.map((project) => {
+                                                return(
+                                                    <tr key={project._id}>
+                                                        <td>{project.title}</td>
+                                                        <td>{project.professors.length}</td>
+                                                        <td>{project.students.length}</td>
+                                                        <td>{project.createdDate}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                            <div className="d-card-body">
-                                <table className="d-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Title</th>
-                                            <th>Professors</th>
-                                            <th>Students</th>
-                                            <th>Creation Date</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {user.projects && user.projects.map((project) => {
-                                            return(
-                                                <tr>
-                                                    <td>{project.title}</td>
-                                                    <td>{project.professors.length}</td>
-                                                    <td>{project.students.length}</td>
-                                                    <td>{project.createdDate}</td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
+
+                            {/* APPLICATIONS CARD */}
+                            <div className="d-card">
+                                <div className="d-card-header">
+                                    <h2>Applications List</h2>
+                                </div>
+                                <div className="d-card-body">
+                                    <table className="d-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Project Name</th>
+                                                <th>Creation Date</th>
+                                                <th>Last Application Date</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {user.applications && user.applications.map( (application) => {
+                                                return (
+                                                    <tr key={application._id}>
+                                                        <td>Project Name Pending...</td>
+                                                        <td>{application.applicationDate}</td>
+                                                        <td>{application.lastUpdatedDate}</td>
+                                                        <td>{application.status}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Side Cards */}
-                    <div className="d-column">
-                        <div className="d-card sm">
-                            <div className="d-card-header">
-                                <h2>Applications</h2>
+                        {/* SIDE CARDS */}
+                        <div className="d-column">
+
+                            {/* USER INFORMATION */}
+                            <div className="d-card">
+                                <div className="d-card-header">
+                                    <h2>User Information</h2>
+                                    <Link className="card-header-link" to="/edituser/">
+                                        Edit
+                                    </Link>
+                                </div>
+                                <div className="d-card-body">
+                                    <dl className="desc-list">
+                                        <div>
+                                            <dt>Name:</dt>
+                                            <dd>{user.firstName} {user.lastName}</dd>
+                                        </div>
+                                        <div>
+                                            <dt>Email:</dt>
+                                            <dd>{user.email}</dd>
+                                        </div>
+                                        <div>
+                                            <dt>Role:</dt>
+                                            <dd>{user.role}</dd>
+                                        </div>
+                                        <div>
+                                            <dt>Department: </dt>
+                                            <dd>{user.department}</dd>
+                                        </div>
+                                        <div>
+                                            <dt>Applications:</dt>
+                                            <dd>{user.numOfApplications}</dd>
+                                        </div>
+                                        <div>
+                                            <dt>Projects:</dt>
+                                            <dd>{user.numOfProjects}</dd>
+                                        </div>
+                                    </dl>
+                                </div>
                             </div>
-                            <div className="d-card-body">
-                                <table className="d-table">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                </table>
+
+                            {/* NEWS FEED CARD */}
+                            <div className="d-card">
+                                <div className="d-card-header">
+                                    <h2>News Feed</h2>
+                                    <Link className="card-header-link" to="/newsfeed/">View All</Link>
+                                </div>
+                                <div className="d-card-body">
+                                    <ul className="news-list">
+                                        {updates && updates.map( (update) => {
+                                            return(
+                                                <li key={update._id}>
+                                                    <div className="news-text">
+                                                        <p className="news-list-header">{update.subject}</p>
+                                                        <p>{update.content}</p>
+                                                    </div>
+                                                    <p>{update.postedDate}</p>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </div>
                             </div>
+
+                            {/* CHAT CARD */}
+                            <div className="d-card">
+                                <div className="d-card-header">
+                                    <h2>Chat (pending...)</h2>
+                                    <Link className="card-header-link" to="/chat/">View All</Link>
+                                </div>
+                                <div className="d-card-body">
+                                    <ul className="chat-list">
+                                        <li>
+                                            <p className="chat-list-header">Chat Poster Name</p>
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                        </li>
+                                        <li>
+                                            <p className="chat-list-header">Chat Poster Name</p>
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                        </li>
+                                        <li>
+                                            <p className="chat-list-header">Chat Poster Name</p>
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                        </li>
+                                        <li>
+                                            <p className="chat-list-header">Chat Poster Name</p>
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                        </li>
+                                        <li>
+                                            <p className="chat-list-header">Chat Poster Name</p>
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                        </li>
+                                        <li>
+                                            <p className="chat-list-header">Chat Poster Name</p>
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                        </li>
+                                        <li>
+                                            <p className="chat-list-header">Chat Poster Name</p>
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>

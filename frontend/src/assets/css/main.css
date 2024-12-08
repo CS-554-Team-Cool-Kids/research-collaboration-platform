@@ -199,6 +199,62 @@ a:focus {
 nav .navbar-collapse{
   flex-grow:initial;
 }
+
+/* ActionBar Styles
+================================================== */
+.action-bar{
+  background-color:var(--purple1);
+  padding:1em;
+  border-bottom:1px solid #fff;
+  position:fixed;
+  left:0;
+  bottom:0;
+  right:0;
+}
+.action-bar-list{
+  padding:0;
+  list-style-type:none;
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:0;
+}
+.action-bar-list li{
+  display:block;
+}
+.action-link{
+  text-decoration:none;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+}
+.action-link svg{
+  width:35px;
+  height:35px;
+}
+.action-link span{
+  display:none;
+}
+@media(min-width:768px){
+  .action-bar{
+    border-bottom:none;
+    position:initial;
+  }
+  .action-bar-list{
+    flex-direction:column;
+    margin-top:2em;
+  }
+  .action-bar-list li{
+    margin-bottom:4em;
+  }
+  .action-link span{
+    display:block;
+    margin-top:.75em;
+    font-size:.8em;
+  }
+}
+
 /* Footer Styles
 ================================================== */
 footer{
@@ -344,31 +400,117 @@ footer{
   display:flex;
   flex-direction:column-reverse;
   background-color:var(--lightGrey1);
+  padding:0;
+}
+.dashboard h1{
+  padding:.5em 1em;
+  margin:0;
+}
+.d-column{
+  padding:1em;
+}
+
+.main-content{
+  width:100%;
 }
 /* Card Styles */
-.card{
+.d-card{
   background-color:var(--white1);
   color:var(--black1);
-  border-radius:15px;
+  border-radius:10px;
   border:1px solid var(--lightGrey1);
+  margin-bottom:1em;
 }
-.card-header{
-  padding:1em;
+.d-card-header{
+  padding:.75em 1em;
   border-bottom:1px solid var(--purple1);
   display:flex;
   justify-content:space-between;
   text-align:left;
 }
-.card-body{
+.d-card-header h2{
+  font-size:1.1em;
+  margin-bottom:0;
+}
+.d-card-body{
   padding:1em;
 }
+
+/* User Info Styles */
+.desc-list div{
+  display:flex;
+  margin-bottom:1em;
+}
+.desc-list div dt{
+  padding-right:.5em;
+}
+
+/* Newsfeed Styles */
+.news-list{
+  padding:0;
+  list-style-type:none;
+}
+.news-list li{
+  border-bottom:1px solid var(--purple1);
+  margin-bottom: 1em;
+  display:flex;
+  align-items:center;
+}
+.news-text{
+  width:70%;
+}
+.news-text+p{
+  width:30%;
+  text-align:right;
+}
+.news-list-header{
+  font-weight:800;
+  margin-bottom:.5em;
+}
+.news-list-header+p{
+  white-space:nowrap;
+  width:250px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Chat Styles */
+.chat-list{
+  padding:0;
+  list-style-type:none;
+}
+.chat-list li{
+  box-shadow:0px 3px 10px rgba(0,0,0,0.2);
+  padding:.8em;
+  border-left:8px solid var(--purple1);
+  margin-bottom:1em;
+}
+.chat-list-header{
+  font-weight:800;
+  margin-bottom:4px;
+}
+.chat-list-header+p{
+  white-space:nowrap;
+  width:250px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  margin-bottom:0;
+  font-weight:300;
+}
+
 @media(min-width:768px){
   .dashboard{
     flex-direction:row;
   }
 }
 @media(min-width:992px){
-  .d-table{
+  .dashboard-table{
     display:flex;
+  }
+  .dashboard-table .d-column:first-child{
+    width:60%;
+  }
+  .dashboard-table .d-column:nth-child(2){
+    width:40%;
   }
 }
