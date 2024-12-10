@@ -65,19 +65,6 @@ function checkArg(argument, type, argumentName) {
     }
 
 
-    if (argumentName === 'name') {
-
-        const nameRegex = /^[a-zA-Z\s\-]+$/;
-
-        if (!nameRegex.test(argument)) {
-            throw new GraphQLError(`The argument (${argument}) contains invalid characters. Names should only include letters, spaces, and hyphens.`, {
-                extensions: { code: 'BAD_USER_INPUT' }
-            });
-        }
-
-    }
-
-
     if (argumentName === 'name' || argumentName === 'title') {
 
         const nameRegex = /^[a-zA-Z\s\-]+$/;
@@ -126,6 +113,16 @@ function checkArg(argument, type, argumentName) {
         
     }
 
+    if (argumentName === 'content') {
+
+        if(argument.length > 250){
+            throw new GraphQLError(`The provided commnet must be 250 characters or less.) `, {
+                extensions: { code: 'BAD_USER_INPUT' }
+            });
+        }
+        
+    }
+
     //ENUM CHECKS
 
     if (argumentName === 'department'){
@@ -142,6 +139,10 @@ function checkArg(argument, type, argumentName) {
     
     if (argumentName === 'role'){
         checkRole(argument);
+    }
+
+    if (argumentName === 'commentDestination'){
+        checkCommentDestination(argument);
     }
 
     if (argumentName === 'applicationStatus'){
@@ -196,7 +197,7 @@ function checkDepartment(department) {
             'PHYSICS',
             'SYSTEMS_AND_ENTERPRISES'];
     
-    if (!validDepartments.includes(department.trim())) {
+    if (!validDepartments.includes(department.trim().toUpperCase())) {
         throw new GraphQLError(`Invalid department: ${department}. Must be one of ${validDepartments.join(", ")}.`, {
             extensions: { code: 'BAD_USER_INPUT' }
         });
@@ -223,8 +224,24 @@ function checkSubject(subject) {
         'PROJECT_COMPLETION'
     ];
     
-    if (!validSubjects.includes(subject.trim())) {
+    if (!validSubjects.includes(subject.trim().toUpperCase())) {
         throw new GraphQLError(`Invalid subject: ${subject}. Must be one of ${validSubjects.join(", ")}.`, {
+            extensions: { code: 'BAD_USER_INPUT' }
+        });
+    }
+    
+}
+
+// Function to validate subject against predefined departments
+function checkCommentDestination(commentDestination) {
+
+    const validDestination = [  
+        'UPDATE', 
+        'APPLICATION'
+    ];
+    
+    if (!validDestination.includes(commentDestination.trim().toUpperCase())) {
+        throw new GraphQLError(`Invalid comment destination: ${commentDestination}. Must be one of ${validDestination.join(", ")}.`, {
             extensions: { code: 'BAD_USER_INPUT' }
         });
     }
@@ -273,5 +290,6 @@ export {
     checkDepartment,
     checkSubject,
     checkYearRange, 
-    checkRole
+    checkRole, 
+    checkCommentDestination
 };
