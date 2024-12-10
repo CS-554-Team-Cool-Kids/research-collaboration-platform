@@ -16,7 +16,7 @@ args - Used for passing any arguments in from the client
     //GraphQLError: Used for handling GraphQL-specific errors
     import { GraphQLError } from 'graphql'; 
 
-    //MongoDB: collections for authors, books, and publishers
+    //MongoDB: collections for users, projects, updates, and applications
     import {
         users as userCollection,
         projects as projectCollection,
@@ -52,6 +52,15 @@ export const resolvers = {
   
     //QUERIES
     Query: {
+
+        //WELCOME MESSAGES
+            welcome_student: async () => {
+                return "Welcome! Enjoy our research collaboration platform from student";
+            },
+
+            welcome_professor: async () => {
+                return "Welcome! Enjoy our research collaboration platform from professor";
+              },
     
         //FETCH ALL
 
@@ -59,23 +68,23 @@ export const resolvers = {
             //Purpose: Fetch all users from MongoDB
             //Cache: Cached by list of users in Redis for one hour
                 
-            authors: async () => {
+            users: async () => {
                     
                 //Cache key constructor and check
                 const cacheKey = 'users';
                 const cachedUsers = await redisClient.get(cacheKey);
         
-                //If authors are cached, return the parsed JSON (JSON string to object)
+                //If users are cached, return the parsed JSON (JSON string to object)
                 if (cachedUsers) {
                     console.log("Returning users from cache.");
                     return JSON.parse(cachedUsers);
                 }
         
-                //If not cached, pull userCollection and the find all [find({})] authors
+                //If not cached, pull userCollection and the find all [find({})] users
                 const users = await userCollection();
                 const allUsers = await users.find({}).toArray();
         
-                //If no authors, throw GraphQLError 
+                //If no users, throw GraphQLError 
                 if (allUsers.length === 0) {
                     throw new GraphQLError('Users not able to be pulled from database.', {
                         
@@ -103,17 +112,17 @@ export const resolvers = {
                 const cacheKey = 'projects';
                 const cachedProjects = await redisClient.get(cacheKey);
         
-                //If books are cached, return the parsed JSON (JSON string to object)
+                //If projects are cached, return the parsed JSON (JSON string to object)
                 if (cachedProjects) {
                     console.log("Returning projects from cache.");
                     return JSON.parse(cachedProjects);
                 }
         
-                //If not cached, pull bookCollection and the find all [find({})] books
-                const projects = await projectsCollection();
+                //If not cached, pull projectCollection and the find all [find({})] projects
+                const projects = await projectCollection();
                 const allProjects = await projects.find({}).toArray();
         
-                //If no books, throw GraphQLError 
+                //If no projects, throw GraphQLError 
                 if (allProjects.length === 0) { 
                     throw new GraphQLError('Internal Server Error', {
                         //INTERNAL_SERVER_ERROR = status code 500
@@ -132,7 +141,7 @@ export const resolvers = {
         
             //updates: [Update]
             //Purpose: Fetch all updates from MongoDB
-            //Cache: Cached by list of publishers in Redis for one hour
+            //Cache: Cached by list of updates in Redis for one hour
                 
             updates: async () => {
                 
@@ -140,16 +149,16 @@ export const resolvers = {
                 const cacheKey = 'updates';
                 const cachedUpdates = await redisClient.get(cacheKey);
         
-                //If books are publishers, return the parsed JSON (JSON string to object) 
+                //If projects are updates, return the parsed JSON (JSON string to object) 
                 if (cachedUpdates) {
-                    console.log("Returning publishers from cache.");
+                    console.log("Returning updates from cache.");
                     return JSON.parse(cachedUpdates);
                 }
         
                 const updates = await updateCollectionCollection();
-                const allUpdates = await publishers.find({}).toArray();
+                const allUpdates = await updates.find({}).toArray();
                 
-                //If no publishers, throw GraphQLError 
+                //If no updates, throw GraphQLError 
                 if (allUpdates.length === 0) {
                     throw new GraphQLError('Internal Server Error', {
                         //INTERNAL_SERVER_ERROR = status code 500
@@ -157,18 +166,18 @@ export const resolvers = {
                     });
                 }
         
-                //Cache pulled publishers, set to cachekey
+                //Cache pulled updates, set to cachekey
                 //Expiration: 1 hour (60 x 60 = 3600 seconds)
                 await redisClient.set(cacheKey, JSON.stringify(allUpdates), { EX: 3600 });
                 console.log("Updates have been fetched from database and are now cached.");
                 
-                //Return publishers
+                //Return updates
                 return allUpdates;
             },
 
             //applications: [Application]
             //Purpose: Fetch all updates from MongoDB
-            //Cache: Cached by list of publishers in Redis for one hour
+            //Cache: Cached by list of updates in Redis for one hour
                 
             applications: async () => {
                 
@@ -176,7 +185,7 @@ export const resolvers = {
                 const cacheKey = 'applications';
                 const cachedApplications = await redisClient.get(cacheKey);
         
-                //If books are publishers, return the parsed JSON (JSON string to object) 
+                //If projects are updates, return the parsed JSON (JSON string to object) 
                 if (cachedUpdates) {
                     console.log("Returning applications from cache.");
                     return JSON.parse(cachedUpdates);
@@ -185,7 +194,7 @@ export const resolvers = {
                 const applications = await updateCollectionCollection();
                 const allApplications = await applications.find({}).toArray();
                 
-                //If no publishers, throw GraphQLError 
+                //If no updates, throw GraphQLError 
                 if (allApplications.length === 0) {
                     throw new GraphQLError('Internal Server Error', {
                         //INTERNAL_SERVER_ERROR = status code 500
@@ -198,8 +207,46 @@ export const resolvers = {
                 await redisClient.set(cacheKey, JSON.stringify(allApplications), { EX: 3600 });
                 console.log("Applications have been fetched from database and are now cached.");
                 
-                //Return publishers
+                //Return applications
                 return allApplications;
+            },
+
+            //Query: comments: [Comment]
+            //Purpose: Fetch all comments from MongoDB
+            //Cache: Cached by list of comments in Redis for one hour
+                
+            users: async () => {
+                    
+                //Cache key constructor and check
+                const cacheKey = 'comments';
+                const cachedComments = await redisClient.get(cacheKey);
+        
+                //If comments are cached, return the parsed JSON (JSON string to object)
+                if (cachedComments) {
+                    console.log("Returning comments from cache.");
+                    return JSON.parse(cachedComments);
+                }
+        
+                //If not cached, pull commentCollection and the find all [find({})] users
+                const comments = await commentCollection();
+                const allComments = await comments.find({}).toArray();
+        
+                //If no comments, throw GraphQLError 
+                if (allComments.length === 0) {
+                    throw new GraphQLError('Comments not able to be pulled from database.', {
+                        
+                        //INTERNAL_SERVER_ERROR = status code 500
+                        extensions: { code: 'INTERNAL_SERVER_ERROR' }
+                    });
+                }
+        
+                //Cache pulled users, set to cachekey
+                //Expiration: 1 hour (60 x 60 = 3600 seconds)
+                await redisClient.set(cacheKey, JSON.stringify(allComments), { EX: 3600 });
+                console.log("Comments have been fetched from database and are now cached.");
+                
+                //Return allUsers
+                return allComments;
             },
 
         //GET BY ID
@@ -247,8 +294,8 @@ export const resolvers = {
                     return JSON.parse(cachedUser);
                 }
         
-                //If not cached, pull user collection and then findOne specific author
-                const users = await usersCollection();
+                //If not cached, pull user collection and then findOne specific user
+                const users = await userCollection();
                 const user = await users.findOne({ _id: new ObjectId(args._id) });
         
                 //If no user, throw GraphQLError
@@ -265,7 +312,7 @@ export const resolvers = {
                 await redisClient.set(cacheKey, JSON.stringify(user));
                 console.log("User has been fetched from database and is now cached.");
                 
-                //Return author
+                //Return user
                 return user;
 
             },
@@ -311,7 +358,7 @@ export const resolvers = {
                     const projects = await projectCollectionCollection();
                     const project = await projects.findOne({ _id: new ObjectId(args._id) });
             
-                    //If no book, throw GraphQLError
+                    //If no project, throw GraphQLError
 
                     if (!project) {
                         throw new GraphQLError('Project Not Found', {
@@ -426,7 +473,7 @@ export const resolvers = {
                     const cacheKey = `application:${args._id}`;
                     const cachedApplication = await redisClient.get(cacheKey);
             
-                    //If the publisher is cached, return the parsed JSON (JSON string to object)
+                    //If the application is cached, return the parsed JSON (JSON string to object)
                     if (cachedApplication) {
                         console.log("Returning application from cache.");
                         return JSON.parse(cachedApplication);
@@ -452,6 +499,66 @@ export const resolvers = {
                     return application;
 
                 },
+
+            //getCommentById(_id: String!): Comment
+            //Purpose: Fetch a comment by ID from MongoDB; check Redis cache first
+            //Cache: Cached by comment ID in Redis indefinitely
+
+            getCommentById: async (_, args) => {
+                    
+                // Check if required fields are present
+                if (!args._id) {
+                    throw new GraphQLError('The _id field is required.', {
+                        extensions: { code: 'BAD_USER_INPUT' }
+                    });
+                }
+
+                // Check for extra fields
+                const fieldsAllowed = ['_id'];
+                for (let key in args) {
+                    if (!fieldsAllowed.includes(key)) {
+                        throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                            extensions: { code: 'BAD_USER_INPUT' }
+                        });
+                    }
+                }
+
+                //Helpers: check objectId
+                helpers.checkArg(args._id, 'string', 'id');
+            
+                //Cache key constructor and check
+                //Why use 'comment:': ensures seperation between types with ids (users, projects, etc); clarity
+                const cacheKey = `comment:${args._id}`;
+                const cachedComment = await redisClient.get(cacheKey);
+        
+                //If the cachedUser is cached, return the parsed JSON (JSON string to object)
+                if (cachedComment) {
+                    console.log("Returning comment from cache.");
+                    return JSON.parse(cachedComment);
+                }
+        
+                //If not cached, pull comment collection and then findOne specific comment
+                const comments = await commentCollection();
+                const comment = await comments.findOne({ _id: new ObjectId(args._id) });
+        
+                //If no comment, throw GraphQLError
+                if (!comment) {
+                    throw new GraphQLError('Comment not found in the database.', {
+                        
+                        //Optional object: extra information. NOT_FOUND = status code 404
+                        extensions: { code: 'BAD_USER_INPUT' }
+                    });
+                }
+        
+                //Set comment into redis Cache; set to cacheKey
+                //No expiration on cache
+                await redisClient.set(cacheKey, JSON.stringify(comment));
+                console.log("Comment has been fetched from database and is now cached.");
+                
+                //Return comment
+                return comment;
+
+            },
 
         //ADDITIONAL SEARCH FUNCTIONALITIES
 
@@ -492,7 +599,7 @@ export const resolvers = {
                 //If not cached, pull entire project collction
                 const projects = await projectCollection();
                 
-                //Pull all chapters associated with the provided projectId using find.
+                //Pull all projects associated with the provided projectId using find.
                 //Change the string projectId argument into an objectId
                 const project = await projects.findOne({ _id: new ObjectId(args.projectId) });
 
@@ -544,7 +651,7 @@ export const resolvers = {
                 //If not cached, pull entire project collction
                 const projects = await projectCollection();
                 
-                //Pull all chapters associated with the provided projectId using find.
+                //Pull all projects associated with the provided projectId using find.
                 //Change the string projectId argument into an objectId
                 const project = await projects.findOne({ _id: new ObjectId(args.projectId) });
 
@@ -557,8 +664,112 @@ export const resolvers = {
                 // Return the list of professors
                 return students;
 
-            },  
-    
+            }, 
+            
+        // getCommentsByUpdateId(updateId: String!): [Comment]
+        // Purpose: Fetch all comments of an update by the update ID
+
+            getCommentsByUpdateId: async (_, args) => {
+                
+            // Check if required field 'projectId' is present
+            if (!args.updateId) {
+                throw new GraphQLError('The updateId field is required.', {
+                    extensions: { code: 'BAD_USER_INPUT' }
+                });
+            }
+
+            // Check for extra fields
+            const fieldsAllowed = ['updateId'];
+            for (let key in args) {
+                if (!fieldsAllowed.includes(key)) {
+                    throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                        extensions: { code: 'BAD_USER_INPUT' }
+                    });
+                }
+            }
+
+            //Check objectID
+            helpers.checkArg(args.updateId, 'string', 'id');
+
+            // Cache key constructor and check
+            const cacheKey = `comments:${args.updateId}`;
+            const cachedComments = await redisClient.get(cacheKey);
+
+            //If comments are cached, then return
+            if (cachedComments) {
+                return JSON.parse(cachedComments);
+            }
+
+            //If not cached, pull entire update collction
+            const updates = await updateCollection();
+            
+            //Pull all updates associated with the provided updateId using find.
+            //Change the string update argument into an objectId
+            const update = await updates.findOne({ _id: new ObjectId(args.updateId) });
+
+            // Extract comments field
+            const comments = update.comments || [];
+
+            // Cache the result
+            await redisClient.set(cacheKey, JSON.stringify(comments));
+
+            // Return the list of comments
+            return comments;
+
+        },
+
+        // getCommentsByApplicationId(updateId: String!): [Comment]
+        // Purpose: Fetch all comments of an application by the application ID
+
+        getCommentsByApplicationId: async (_, args) => {
+                
+            // Check if required field 'applicationId' is present
+            if (!args.applicationId) {
+                throw new GraphQLError('The applicationId field is required.', {
+                    extensions: { code: 'BAD_USER_INPUT' }
+                });
+            }
+
+            // Check for extra fields
+            const fieldsAllowed = ['applicationId'];
+            for (let key in args) {
+                if (!fieldsAllowed.includes(key)) {
+                    throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                        extensions: { code: 'BAD_USER_INPUT' }
+                    });
+                }
+            }
+
+            //Check objectID
+            helpers.checkArg(args.applicationId, 'string', 'id');
+
+            // Cache key constructor and check
+            const cacheKey = `comments:${args.applicationId}`;
+            const cachedComments = await redisClient.get(cacheKey);
+
+            //If comments are cached, then return
+            if (cachedComments) {
+                return JSON.parse(cachedComments);
+            }
+
+            //If not cached, pull entire application collction
+            const applications = await applicationCollection();
+            
+            //Pull the application associated with the provided applicationId using find.
+            //Change the string update argument into an objectId
+            const application = await applications.findOne({ _id: new ObjectId(args.applicationId) });
+
+            // Extract comments field
+            const comments = application.comments || [];
+
+            // Cache the result
+            await redisClient.set(cacheKey, JSON.stringify(comments));
+
+            // Return the list of comments
+            return comments;
+
+        },
+
         //projectsByDepartment(department: Department!): [Project]
         //Purpose: Fetch all projects that match the specified department
         //Cache: Cached by department in Redis for one hour
@@ -604,7 +815,7 @@ export const resolvers = {
                 //If no projects by department found, retrun an empty array
                 if (projectsByDepartmnet.length === 0) {
                     console.log("No projects found for the department."); 
-                    //Why empty array and not throw error? Allowing the possibility that books of this department simply not added yet.
+                    //Why empty array and not throw error? Allowing the possibility that projects of this department simply not added yet.
                     return [];  
                 }
         
@@ -613,7 +824,7 @@ export const resolvers = {
                 await redisClient.set(cacheKey, JSON.stringify(projectsByDepartmnet), { EX: 3600 });
                 console.log("Projects by department have been fetched from database and are now cached.");
 
-                //Return the booksByGenre
+                //Return the projectsByDepartment
                 return projectsByDepartmnet;
             },
 
@@ -672,7 +883,7 @@ export const resolvers = {
                 await redisClient.set(cacheKey, JSON.stringify(updatesBySubject), { EX: 3600 });
                 console.log("Updates by subject have been fetched from database and are now cached.");
 
-                //Return the booksByGenre
+                //Return the updatesBySubject
                 return updatesBySubject;
             },
     
@@ -780,7 +991,7 @@ export const resolvers = {
                 const lowercaseSearchTerm = args.searchTerm.toLowerCase().trim();
                 
                 // Cache key constructor and check
-                // Cache key: note as search term for book
+                // Cache key: note as search term for project
                 const cacheKey = `search:project:${lowercaseSearchTerm}`;
                 const cachedProjectsByTitle = await redisClient.get(cacheKey);
 
@@ -790,7 +1001,7 @@ export const resolvers = {
                     return JSON.parse(cachedProjectsByTitle);
                 }
         
-                //If projects not cached based on search term, pull the book collection
+                //If projects not cached based on search term, pull the project collection
                 const projects = await projectCollection();
                 
                 //Use the '.find' function again
@@ -841,11 +1052,11 @@ export const resolvers = {
                 const lowercaseSearchTerm = args.searchTerm.toLowerCase().trim();
                 
                 // Cache key constructor and check
-                // Cache key: note as search term for author
+                // Cache key: note as search term for user
                 const cacheKey = `search:user:${lowercaseSearchTerm}`;
                 const cachedUsersBySearch = await redisClient.get(cacheKey);
 
-                //If authors cachedUsersBySearch by searchTerm, return
+                //If users cachedUsersBySearch by searchTerm, return
                 if (cachedUsersBySearch) {
                     console.log("Returning searched users from cache.");
                     return JSON.parse(cachedUsersBySearch);
@@ -861,7 +1072,7 @@ export const resolvers = {
                 }).toArray();
 
 
-                //If no author for search term, return an empty array
+                //If no user for search term, return an empty array
                 if (usersBySearch.length === 0) {
                     console.log("A user was not found matching the search criteria.");
                     return [];
@@ -873,7 +1084,7 @@ export const resolvers = {
                 await redisClient.set(cacheKey, JSON.stringify(usersBySearch), { EX: 3600 });
                 console.log("Searched users were fetched from database and are now cached.");
                 
-                //Return the authors pulled based on search term (name)
+                //Return the users pulled based on search term (name)
                 return usersBySearch;
 
             },
@@ -886,7 +1097,7 @@ export const resolvers = {
             // numOfApplications
             // Purpose: Compute the number of applications a user has submitted by counting the applications with the matching userId
             // parentValue = User object; numOfApplications appears in the User object
-            // How this works: queries applicationCollections and counts collections with that authorId
+            // How this works: queries applicationCollections and counts collections with that userId
             
             numOfApplications: async (parentValue) => {
                 
@@ -923,7 +1134,7 @@ export const resolvers = {
 
                 });
                 
-                //Return the count of the number of books, to then be used as numOfBooks in author object
+                //Return the count of the number of projects, to then be used as numOfProjects in user object
                 return numOfProjects || 0;
 
             },
@@ -936,7 +1147,7 @@ export const resolvers = {
                 //Pull project collection
                 const projects = await projectCollection();
                 
-                //Use find to pull matches when the projects's author's id matches the parent value's id
+                //Use find to pull matches when the projects's user's id matches the parent value's id
                 const userProjects = await projects
                     .find({
                     
@@ -950,7 +1161,7 @@ export const resolvers = {
                     //Notes: MongoDb returns a cursor (pointer to the answer), toArray provides this as an array
                     .toArray();
                 
-                    //Return the array of projects, to then be used as projects in author object
+                    //Return the array of projects, to then be used as projects in user object
                     return userProjects || [];
             }
 
@@ -965,7 +1176,7 @@ export const resolvers = {
                 //Pull project collection
                 const applications = await applicationCollection();
                 
-                //Use find to pull matches when the projects's author's id matches the parent value's id
+                //Use find to pull matches when the projects's user's id matches the parent value's id
                 const userApplications = await applications   
                     .find({    
                        "applicant._id": new ObjectId(parentValue._id)
@@ -1019,6 +1230,21 @@ export const resolvers = {
                 //Return the count of the number of applications, to then be used as numOfUpdates in project object
                 return numOfUpdates || 0;
             },
+
+        },
+
+        Application: {
+            
+            // numOfComments
+            // Purpose: Compute the number of comments under each application
+            // parentValue = application object, numOfComments appears in the application object
+            
+            numOfComments: async (parentValue) => {
+                
+                //If there are comments, return the length or zero.
+                return parentValue.comments ? parentValue.comments.length : 0;
+
+            }
 
         },
     
@@ -1116,7 +1342,7 @@ export const resolvers = {
                     const cacheKey = `user:${toAddUser._id}`; 
                     await redisClient.set(cacheKey, JSON.stringify(toAddUser));
                     
-                    // Clear the 'authors' in the cache bc this is no longer accurate
+                    // Clear the 'users' in the cache bc this is no longer accurate
                     await redisClient.del('users')
                     
                 } catch (error) {
@@ -1260,7 +1486,7 @@ export const resolvers = {
                     
                 } else {
 
-                    //Throw GraphQLError if something went wrong when pulling and updating the author Id
+                    //Throw GraphQLError if something went wrong when pulling and updating the user Id
                         throw new GraphQLError(`The user was not successfully updated. Either the user wasn't found or the update for user with ID of ${args._id} was unsucessful.`, 
                             //Similar status code: 404
                             {extensions: { code: 'BAD_USER_INPUT' }}
@@ -1327,13 +1553,13 @@ export const resolvers = {
 
                 //Remove applications associated with the user 
 
-                //Use find and toArray to pull all books by the author
+                //Use find and toArray to pull all projects by the user
                 const userApplications = await applications.deleteMany({ "applicant._id" : userId });
                 console.log(`Deleted applications associated with the user.`);
 
               
 
-                // Delete the authors and books cache, as they are no longer accurate; and individual user cache
+                // Delete the users and projects cache, as they are no longer accurate; and individual user cache
                 try {
                     await redisClient.del('users');
                     await redisClient.del('applications');
@@ -1348,7 +1574,7 @@ export const resolvers = {
                     });
                 }
 
-                //Return the value of the deleted author
+                //Return the value of the deleted user
                 return deletedUser.value;
 
             },
@@ -1417,7 +1643,7 @@ export const resolvers = {
                     numOfUpdates: 0
                 };
 
-                //Use insertOne to place the new object into the MongoDB for publishers
+                //Use insertOne to place the new object into the MongoDB for applications
                 let insertedProject = await projects.insertOne(newProject);
                 
                 //Confirm it was added. If it was not, throw an error.
@@ -1491,10 +1717,10 @@ export const resolvers = {
                 //Create object to hold fields that will be updated 
                 const updateFields = {};
   
-                //Confirm that a publisher was able to be pulled
+                //Confirm that a application was able to be pulled
                 if (projectToUpdate) {
                 
-                    //Check for all values that can be udpated in the publisher. Do not return/jump ahead, as to ensure more than one calue can be updated
+                    //Check for all values that can be udpated in the application. Do not return/jump ahead, as to ensure more than one calue can be updated
                     
                     //Name Update
                     if (args.title) {
@@ -1605,7 +1831,7 @@ export const resolvers = {
                 //Checks
                 helpers.checkArg(args._id, 'string', 'id');
                 
-                //Pull the publisher, book, and chapter collecitons
+                //Pull the projects, updates, and application collecitons
                 const projects = await projectCollection();
                 const updates = await updateCollection();
                 const applications = await applicationCollection();
@@ -1613,7 +1839,7 @@ export const resolvers = {
                 //Use findOneandDelete to delete the project. Match based on the args._id (made to an object id)
                 const deletedProject = await projects.findOneAndDelete({ _id: new ObjectId(args._id) });
                 
-                //If the publisher wasn't deleted, throw a GraphQLError
+                //If the project wasn't deleted, throw a GraphQLError
                 if (!deletedProject) {
                     throw new GraphQLError(`The project with ID of ${args._id} was not successfully found or deleted.`, {
                         //Similar status code 404
@@ -1628,7 +1854,7 @@ export const resolvers = {
                 //Try/catch for redis
                 try {
 
-                    // Delete publishers and books cache, as these are no longer accurate 
+                    // Delete projects, updates and applications cache, as these are no longer accurate 
                     await redisClient.del('projects');
                     await redisClient.del('updates');
                     await redisClient.del('applications');
@@ -1715,7 +1941,7 @@ export const resolvers = {
                 //Add the update to the updates collection using insertOne
                 let addedUpdate = await updates.insertOne(updateToAdd);
 
-                //If the book was not successfully added, then throw a GraphQLError
+                //If the update was not successfully added, then throw a GraphQLError
                 if (!addedUpdate.acknowledged || !addedUpdate.insertedId) {
                     throw new GraphQLError(`Could not add update.`, {
                         //Similar status code: 500
@@ -1729,7 +1955,7 @@ export const resolvers = {
                     const cacheKey = `update:${updateToAdd._id}`;
                     await redisClient.set(cacheKey, JSON.stringify(updateToAdd));
 
-                    // Delete cache for updates and chapters, as these are no longer accurate
+                    // Delete cache for updates, as these are no longer accurate
                     await redisClient.del('updates');
 
                 } catch (error) {
@@ -1742,7 +1968,7 @@ export const resolvers = {
                     });
                 }
                 
-                //return the added book
+                //return the added update
                 return updateToAdd;
             },
 
@@ -1931,7 +2157,7 @@ export const resolvers = {
                     });
                 }
             
-                // Return the deleted book object
+                // Return the deleted update object
                 //Value because findOneAndDelete also returns metadata
                 return deletedUpdate;
             },
@@ -1964,7 +2190,7 @@ export const resolvers = {
                 helpers.checkArg(args.applicantId, 'string', 'id');
                 helpers.checkArg(args.projectId, 'string', 'id');
                 
-                //Pull book and chapter collections
+                //Pull users, projects and applications collections
                 const users = await userCollection();
                 const projects = await projectCollection();
                 const applications = await applicationCollection();
@@ -2148,7 +2374,7 @@ export const resolvers = {
                 // Update Redis cache
                 try {
                    
-                     //Delete the chapters cache as this is now out of date
+                     //Delete the applications cache as this is now out of date
                     await redisClient.del('applications');
                     if(args.applicantId) { await redisClient.del(`user:${args.applicantId}`); }
             
@@ -2196,10 +2422,10 @@ export const resolvers = {
                 //Pull the applicationCollection
                 const applications = await applicationCollection();
                 
-                //Use findOneAndDelete to remove the applciation from the collection, based on matching the _ids (arg and chapter)
+                //Use findOneAndDelete to remove the applciation from the collection, based on matching the _ids (arg and application)
                 const deletedApplication = await applications.findOneAndDelete({ _id: new ObjectId(args._id) });
             
-                //Confirm that the deletedChapter has a value. If not, throw a GraphQLError 
+                //Confirm that the deletedApplication has a value. If not, throw a GraphQLError 
                 if (!deletedApplication) {
                     throw new GraphQLError('Could not find or delete application with the provided ID.', {
                         //Similar status code: 404
@@ -2213,6 +2439,283 @@ export const resolvers = {
             
                 //Return the value of deletedApplication
                 return deletedApplication;
+            },
+
+
+            //addComment
+
+            addComment: async (_, args) => {
+                
+                // Check if required fields are present
+                if (!args.commenterId || !args.commentDestination || !args.destinationId || !args.content) {
+                    throw new GraphQLError('The commenterId, commentDestination, destinationId, and content fields are required.', {
+                        //404
+                        extensions: { code: 'BAD_USER_INPUT' }
+                    });
+                }
+
+                // Check for extra fields
+                const fieldsAllowed = ['commenterId', 'commentDestination', 'destinationId', 'content'];
+                for (let key in args) {
+                    if (!fieldsAllowed.includes(key)) {
+                        throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                            //404
+                            extensions: { code: 'BAD_USER_INPUT' }
+                        });
+                    }
+                }
+
+                //Checks
+                helpers.checkArg(args.commenterId, 'string', 'id');
+                helpers.checkArg(args.commentDestination, 'string', 'commentDestination');
+                helpers.checkArg(args.destinationId, 'string', 'id');
+                helpers.checkArg(args.content, 'string', 'content');
+
+                // Determine the correct collection based on the destination
+                //Use the name 'collection' so that the code that follows can be used on either
+                let collection;
+                if (args.commentDestination.trim().toUpperCase() === 'UPDATE'){
+                    collection = await updateCollection();
+                } else if (args.commentDestination.trim().toUpperCase() === 'APPLICATION') {
+                    collection = await applicationCollection();
+                } else {
+                    throw new GraphQLError('Invalid commentDestination provided.', {
+                        extensions: { code: 'BAD_USER_INPUT' }
+                    });
+                }              
+                 
+                //Use findOne to pull the destination (the update or application) in question, using the args.destinationId as the _id to match
+                const matchedDestination = await collection.findOne({ _id: new ObjectId(args.destinationId) });
+                
+                //If a destination cannot be pulled from the collection, throw an GraphQLError
+                if (!matchedDestination) {
+                    throw new GraphQLError(`The ${args.commentDestination.toLowerCase()} ID provided was not valid.`, {
+                        //Similar status code: 404
+                        extensions: { code: 'BAD_USER_INPUT' }
+                    });
+                }
+            
+                //Create a local object to hold the args values, and set the id to a new objectID
+                const commentToAdd = {
+                    _id: new ObjectId(),
+                    commenterId: new ObjectId(args.commenterId.trim()),
+                    content: args.content.trim(),
+                    postedDate: new Date().toISOString(), 
+                    commentDestination: args.commentDestination.trim().toUpperCase(),
+                    destinationId: new ObjectId(args.destinationId.trim()),
+                };
+
+                //Pull comments collection
+                const comments = await commentCollection();
+            
+                //Use insertOne to add the local comment object to the comments collection
+                let addedComment = await comments.insertOne(commentToAdd);
+            
+                //If adding the comment was not successful, then throw a GraphQLError
+                if (!addedComment.acknowledged || !addedComment.insertedId) {
+                    throw new GraphQLError('The comment provided by the user could not be added.', {
+                        //Similar status code: 500
+                        extensions: { code: 'INTERNAL_SERVER_ERROR' }
+                    });
+                }
+
+                //If adding the comment was succesful, then add it's id to the destination 
+                const updateResult = await collection.updateOne(
+                    { _id: new ObjectId(args.destinationId) },
+                    { $push: { comments: commentToAdd._id } }
+                );
+
+                if (updateResult.modifiedCount === 0) {
+                    throw new GraphQLError('The comment ID could not be added to the destination\'s comment array.', {
+                        //Similar status code: 500
+                        extensions: { code: 'INTERNAL_SERVER_ERROR' }
+                    });
+                }
+            
+                try{ 
+                    //Add the individual comment cache
+                    const cacheKey = `comment:${commentToAdd._id}`;
+                    await redisClient.set(cacheKey, JSON.stringify(commentToAdd));
+                
+                    //Delete the applications cache, as this is now out of date.'
+                    await redisClient.del('comments');
+
+                    //Delete associated caches for the destinations
+                    let destinationCacheKey;
+                    if (args.commentDestination === 'UPDATE'){
+                        destinationCacheKey = `update:${args.destinationId}`;
+                        await redisClient.del(destinationCacheKey);
+                        await redisClient.del('updates');
+                    } else {
+                        destinationCacheKey = `application:${args.destinationId}`;
+                        await redisClient.del(destinationCacheKey);
+                        await redisClient.del('applications');
+                    }
+                } catch (error) {
+                    console.error('Failed to update Redis cache:', error);
+                    throw new GraphQLError('Failed to update Redis cache after adding the application.', {
+                        extensions: { code: 'INTERNAL_SERVER_ERROR', cause: error.message },
+                    });
+                }
+                    
+            
+                //Return the local commentToAdd object, which will be without the meta data
+                return commentToAdd;
+            },
+
+
+            editComment: async (_, args) => {
+                
+                // Check if required fields are present
+                if (!args._id || !args.content) {
+                    throw new GraphQLError('The _id field is required.', {
+                        //404
+                        extensions: { code: 'BAD_USER_INPUT' }
+                    });
+                }
+
+                // Check for extra fields
+                const fieldsAllowed = ['_id', 'content'];
+                for (let key in args) {
+                    if (!fieldsAllowed.includes(key)) {
+                        throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                            //404
+                            extensions: { code: 'BAD_USER_INPUT' }
+                        });
+                    }
+                }
+
+                //Checks to input arguments
+                helpers.checkArg(args._id, 'string', 'id');
+                helpers.checkArg(args.content, 'string', 'content');
+
+                //Pull comments collection
+                const comments = await commentCollection();
+                                
+                //Use findOne to pull the comment in question, using the args._id as the _id to match
+                //Use applicationToUpdate as the local object to place the edited values to
+                let commentToUpdate = await comments.findOne({ _id: new ObjectId(args._id) });
+
+                //If an comment cannot be pulled from the collection, throw an GraphQLError                
+                if (!commentToUpdate) {
+                    throw new GraphQLError('The commment ID provided by the user was not valid.', {
+                        //Similar status code: 404
+                        extensions: { code: 'BAD_USER_INPUT' }
+                    });
+                }
+            
+                //Update the content field
+                commentToUpdate.content = args.content;
+
+                //Update the comments in the mongodb. Use $set, which will not affect unupdated values
+                const result = await comments.updateOne(
+                    { _id: new ObjectId(args._id) }, 
+                    { $set: { content: args.content } }
+                );
+                if (result.modifiedCount === 0) {
+                    throw new GraphQLError(`Failed to update the update with ID ${args._id}.`, {
+                        extensions: { code: 'INTERNAL_SERVER_ERROR' }
+                    });
+                }  
+
+                try{ 
+                    //Update the individual comment cache
+                    const cacheKey = `comment:${commentToUpdate._id}`;
+                    await redisClient.set(cacheKey, JSON.stringify(commentToUpdate));
+                
+                    //Delete the comments cache, as this is now out of date.'
+                    await redisClient.del('comments');
+
+                    //Delete associated caches for the destinations
+                    let destinationCacheKey;
+                    if (commentToUpdate.commentDestination === 'UPDATE'){
+                        destinationCacheKey = `update:${commentToUpdate.destinationId}`;
+                        await redisClient.del(destinationCacheKey);
+                        await redisClient.del('updates');
+                    } else {
+                        destinationCacheKey = `application:${commentToUpdate.destinationId}`;
+                        await redisClient.del(destinationCacheKey);
+                        await redisClient.del('applications');
+                    }
+                } catch (error) {
+                    console.error('Failed to update Redis cache:', error);
+                    throw new GraphQLError('Failed to update Redis cache after editing the comment.', {
+                        extensions: { code: 'INTERNAL_SERVER_ERROR', cause: error.message },
+                    });
+                }
+
+                //Return commentToUpdate, which doesn't have metadata
+                return commentToUpdate;
+
+            },
+    
+
+            removeComment: async (_, args) => {
+                
+                // Check if required fields are present
+                if (!args._id) {
+                    throw new GraphQLError('The _id field is required.', {
+                        //404
+                        extensions: { code: 'BAD_USER_INPUT' }
+                    });
+                }
+
+                // Check for extra fields
+                const fieldsAllowed = ['_id'];
+                for (let key in args) {
+                    if (!fieldsAllowed.includes(key)) {
+                        throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                            //404
+                            extensions: { code: 'BAD_USER_INPUT' }
+                        });
+                    }
+                }
+
+                //Checks
+                helpers.checkArg(args._id, 'string', 'id');
+            
+                //Pull the commentCollection
+                const comments = await commentCollection();
+                
+                //Use findOneAndDelete to remove the comment from the collection, based on matching the _ids (arg and comment)
+                const deletedComment = await comments.findOneAndDelete({ _id: new ObjectId(args._id) });
+            
+                //Confirm deletedComment the deletedComment has a value. If not, throw a GraphQLError 
+                if (!deletedComment.value) {
+                    throw new GraphQLError('Could not find or delete comment with the provided ID.', {
+                        //Similar status code: 404
+                        extensions: { code: 'BAD_USER_INPUT' }
+                    });
+                }
+            
+                try{ 
+                    //Update the individual comment cache
+                    const cacheKey = `comment:${deletedComment.value._id}`;
+                    await redisClient.del(cacheKey);
+                
+                    //Delete the comments cache, as this is now out of date.'
+                    await redisClient.del('comments');
+
+                    //Delete associated caches for the destinations
+                    let destinationCacheKey;
+                    if (deletedComment.value.commentDestination === 'UPDATE'){
+                        destinationCacheKey = `update:${deletedComment.value.destinationId}`;
+                        await redisClient.del(destinationCacheKey);
+                        await redisClient.del('updates');
+                    } else {
+                        destinationCacheKey = `application:${deletedComment.value.destinationId}`;
+                        await redisClient.del(destinationCacheKey);
+                        await redisClient.del('applications');
+                    }
+                } catch (error) {
+                    console.error('Failed to update Redis cache:', error);
+                    throw new GraphQLError('Failed to update Redis cache after removing the comment.', {
+                        extensions: { code: 'INTERNAL_SERVER_ERROR', cause: error.message },
+                    });
+                }
+
+                //Return the value of deletedComment
+                return deletedComment.value;
             }
             
     }

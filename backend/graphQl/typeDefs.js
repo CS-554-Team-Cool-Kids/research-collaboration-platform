@@ -37,7 +37,14 @@ export const typeDefs = `#graphql
             # Purpose: Returns an array of all applications.
             # Caching: one-hour expiration; completed in resolvers.js.
             
-                applications: [Application] 
+                applications: [Application]
+
+            # comments: [Comment]
+            # Purpose: Returns an array of all comments.
+            # Caching: one-hour expiration; completed in resolvers.js.
+            
+                comments: [Comment] 
+
 
         #GETBYID
         
@@ -65,6 +72,12 @@ export const typeDefs = `#graphql
             
                 getApplicationById(_id: String!): Application
 
+            # getCommentById(_id: String!): Comment
+            # Purpose: Retrieves a single comment by ID.
+            # Caching: No expiration time; completed in resolvers.js.
+            
+                getCommentById(_id: String!): Comment
+
         #ADDITIONAL SEARCH FUNCTIONALITY
         
             # getProfessorsByProjectId(projectId: String!): [User]
@@ -78,6 +91,18 @@ export const typeDefs = `#graphql
             # Caching: One-hour expiration; completed in resolvers.js.
             
                 getStudentsByProjectId(projectId: String!): [User]
+
+            # getCommentsByUpdateId(updateId: String!): [Comment]
+            # Purpose: Retrieves a list of comments for a given update by ID.
+            # Caching: One-hour expiration; completed in resolvers.js.
+            
+                getCommentsByUpdateId(updateId: String!): [Comment]
+
+            # getCommentsByApplicationId(applicationId: String!): [Comment]
+            # Purpose: Retrieves a list of comments for a given update by ID.
+            # Caching: One-hour expiration; completed in resolvers.js.
+            
+                getCommentsByApplicationId(applicationId: String!): [Comment]
         
             # projectsByDepartment(department: Department!): [Project]
             # Purpose: Returns an array of projects that match the specified department.
@@ -123,8 +148,8 @@ export const typeDefs = `#graphql
             role: Role!                     # required (enum)
             department: Department!         # required (enum)
             bio: String                     # not required
-            applications: [Application]!    # computed value; Array: application objects related to the user, not required
-            projects: [Project]!            # computed value; Array: project objects related to the user, not required
+            applications: [String]          # Array of application IDs
+            projects: [String]              # Array of project IDs
             numOfApplications: Int!         # Computed value, number of applications completed
             numOfProjects: Int!             # Computed value, number of projects involved in
         }
@@ -136,9 +161,9 @@ export const typeDefs = `#graphql
             title: String!                  # required
             createdDate: String!            # MM/DD/YYYY format, required
             department: Department!         # required (enum)
-            professors: [User!]             # array of User objects where Role = professor, required
-            students: [User]                # array of User objects where Role = student , not required
-            applications: [Application]     # array of Applicaiton objects
+            professors: [String!]           # array of user ID where Role = professor, required
+            students: [String]              # array of user ID where Role = student , not required
+            applications: [String]          # array of Applicaiton ID objects
             numOfApplications: Int!         # Computed value, number of applications for this project
             numOfUpdates: Int!              # Computed value, the number of updated delivered about this project
         }
@@ -147,12 +172,12 @@ export const typeDefs = `#graphql
    
         type Update {
             _id: String!                    # ObjectId, required
-            posterId: Sting!                # reference to the user who created update, required, ObjectId
+            posterId: String!               # reference to the user who created update, required, ObjectId
             subject: UpdateSubject!         # Enum defining the type of update, required
             content: String!                # Additional details related to project update
-            projectId: Project!               # reference to the associated project, required
+            projectId: String!              # ID to reference to the associated project, required
             postedDate: String!             # MM/DD/YYYY format, required
-            comments: [Comment]             # Array of commments added to update, saved as subdocuments in Updates collection, not required
+            comments: [String]              # Array of commment IDS added to update, not required
             numOfComments: Int!             # Computed value, the number of comments under this update
         }
 
@@ -160,12 +185,22 @@ export const typeDefs = `#graphql
 
         type Application {
             _id: String!                    # ObjectId, required
-            applicantId: Sting!             # reference to the user who applied to project, required
+            applicantId: String!             # reference to the user who applied to project, required
             projectId: String!              # reference to the associated project, required
             applicationDate: String!        # ISO format required
             lastUpdatedDate: String!        # ISO format required, shows when last modified
             status: ApplicationStatus!      # Enum defining where the application stands, required
-            comments: [Comment]             # Array of commments added to application, saved as subdocuments in Applications collection, not required
+            comments: [String]              # Array of commment IDS added to application, not required
+            numOfComments: Int!             # Computed value, the number of comments under this update
+        }
+
+    # Comment Type: Definition
+
+        type Comment {
+            _id: String!                    # ObjectId, required
+            commenterId: String!            # reference to the user who made the comment, required
+            content: String!                # text content of the comment, required
+            postedDate: String!             # MM/DD/YYYY format, required
         }
 
 
@@ -221,6 +256,14 @@ export const typeDefs = `#graphql
             WITHDRAWN      # Applicant withdrew application
             WAITLISTED     # Application is placed on a waiting list
         }    
+
+
+    # CommentDestination
+
+        enum CommentDestination {
+                UPDATE        
+                APPLICATION       
+            } 
 
 #MUTATIONS
 
@@ -356,5 +399,33 @@ export const typeDefs = `#graphql
         ): Application
 
     }
+
+    # addComment
+    # Purpose: Create a new comment and add it to an existing update or application.
+    # Cache: add the individual comment cache, delete the comments cache; handle caches or applications/updates
+
+        addComment(
+            commenterId: String!
+            commentDestination: CommentDestination!
+            destinationId: String!
+            content: String!               
+        ): Comment
+
+    # editComment
+    # Purpose: Edit a comment's content; handle udpates/applications as needed
+    # Cache: add the individual comment cache, delete the comments cache; handle 
+
+        editComment(
+            _id: String!
+            content: String!        
+        ): Comment
+
+    # removeComment
+    # Purpose: Remove a comment and update the appropriate caches.
+    # Cache: delete the individual comment cache, delete the comments cache; handle application/updates caches as needed
+
+        removeComment(
+            commentId: String!
+        ): Comment
 
 `;
