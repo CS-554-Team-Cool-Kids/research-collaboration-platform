@@ -21,9 +21,10 @@ const Register = () => {
   const [department, setDepartment] = useState("");
   const [bio, setBio] = useState("");
   const [addUser] = useMutation(queries.ADD_USER);
+  const { data, loading, error } = useQuery(queries.GET_ENUM_DEPARTMENT);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const {
@@ -66,7 +67,7 @@ const Register = () => {
         alert("Passwords do not match");
         return;
       }
-      const { data } = addUser({
+      const { data } = await addUser({
         variables: {
           email: email.value,
           password: password.value,
@@ -180,16 +181,31 @@ const Register = () => {
           </div>
 
           <div className="form-floating mb-3">
-            <input
-              className="form-control"
-              type="text"
-              id="department"
-              name="department"
-              placeholder="Department"
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              required
-            />
+            {loading ? (
+              <select className="form-select" disabled>
+                <option>Loading departments...</option>
+              </select>
+            ) : error ? (
+              <select className="form-select" disabled>
+                <option>Error loading departments</option>
+              </select>
+            ) : (
+              <select
+                className="form-select"
+                id="department"
+                name="department"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                required
+              >
+                <option value="">Select a department</option>
+                {data.__type.enumValues.map((dept) => (
+                  <option key={dept.name} value={dept.name}>
+                    {dept.name}
+                  </option>
+                ))}
+              </select>
+            )}
             <label htmlFor="department">Department:</label>
           </div>
 

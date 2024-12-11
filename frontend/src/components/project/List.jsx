@@ -99,7 +99,7 @@ const ProjectList = (props) => {
           <div className="d-card-body p-0">
             <div className="row">
               {/* Left Side: Project List */}
-              <div className="col-md-4">
+              <div className="col-md-4 pe-0">
                 <ul className="chat-list">
                   {projects.map((project, index) => (
                     <li
