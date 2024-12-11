@@ -1,7 +1,7 @@
 import React from "react";
 
 function KeyIcon() {
-  return(
+  return (
     <svg
       width="70px"
       height="70px"
@@ -62,6 +62,6 @@ function KeyIcon() {
       </g>
     </svg>
   );
-};
+}
 
 export default KeyIcon;

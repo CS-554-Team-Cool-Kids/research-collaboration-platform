@@ -23,6 +23,8 @@
   --activeBgColor: var(--white1);
   --activeStripeTableColor: var(--stripeTableColor1);
   --activeGlassColor: var(--glass1);
+
+  --transitionDelay: 0.2s;
 }
 
 /* General Styles
@@ -30,7 +32,7 @@
 body {
   color: var(--activeTextColor);
   background-color: var(--activeBgColor);
-  transition: all 0.2s linear;
+  transition: all var(--transitionDelay) linear;
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
@@ -128,10 +130,14 @@ input.autofill:active::after {
 
 .glassEffect {
   background-color: var(--activeGlassColor) !important;
-  box-shadow: 0 2px 10px var(--activeShadowColor) !important;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  box-shadow: 0px 5px 5px var(--activeShadowColor) !important;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   border: 1px solid #ffffff73;
+}
+
+.glassEffect > .d-card-header {
+  box-shadow: 0 5px 5px var(--activeShadowColor) !important;
 }
 
 a,
@@ -142,7 +148,7 @@ a:focus {
 }
 
 .btn {
-  min-width: 150px;
+  min-width: 100px;
 }
 
 .btn-success {
@@ -183,7 +189,7 @@ a:focus {
 }
 
 .btn {
-  transition: all 0.2s linear;
+  transition: all var(--transitionDelay) linear;
 }
 .btn:hover {
   filter: brightness(1.5);
@@ -411,7 +417,8 @@ footer {
   width: 100%;
 }
 /* Card Styles */
-.d-card {
+.d-card,
+.card {
   background-color: var(--white1);
   color: var(--black1);
   border-radius: 10px;
@@ -419,14 +426,14 @@ footer {
   margin-bottom: 1em;
 }
 .d-card-header {
-  padding: 0.75em 1em;
+  padding: 1em 1em;
   border-bottom: 1px solid var(--purple1);
   display: flex;
   justify-content: space-between;
   text-align: left;
 }
 .d-card-header h2 {
-  font-size: 1.1em;
+  font-size: 1.4em;
   margin-bottom: 0;
 }
 .d-card-body {
@@ -477,11 +484,23 @@ footer {
   list-style-type: none;
 }
 .chat-list li {
-  box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2);
   padding: 0.8em;
-  border-left: 8px solid var(--purple1);
-  margin-bottom: 1em;
+  border-top: 1px solid var(--fadeGrey);
+  border-bottom: 1px solid var(--fadeGrey);
+  border-left: 8px solid var(--transparent);
+  cursor: pointer;
+  transition: all var(--transitionDelay) linear;
 }
+
+.chat-list li:hover {
+  background-color: var(--shadow1);
+}
+
+.chat-list li.active {
+  background-color: var(--fadeGrey);
+  border-left: 8px solid var(--purple1);
+}
+
 .chat-list-header {
   font-weight: 800;
   margin-bottom: 4px;
@@ -510,4 +529,8 @@ footer {
   .dashboard-table .d-column:nth-child(2) {
     width: 40%;
   }
+}
+
+.transition-1 {
+  transition: all var(--transitionDelay) linear;
 }

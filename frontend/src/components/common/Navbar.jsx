@@ -31,6 +31,16 @@ const Navbar = () => {
                 Login
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/auth/register">
+                Register
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/project/list">
+                Project
+              </Link>
+            </li>
             <li className="nav-item dropdown">
               <Link
                 className="nav-link dropdown-toggle"

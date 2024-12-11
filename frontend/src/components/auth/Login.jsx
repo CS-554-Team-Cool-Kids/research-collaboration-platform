@@ -12,11 +12,14 @@ const Login = () => {
   };
 
   return (
-    <div className="card col-12 col-md-4 glassEffect my-auto mx-auto">
-      <div className="card-header glassEffect">
-        <KeyIcon /> Login
+    <div className="d-card col-12 col-md-4 glassEffect my-4 mx-auto">
+      <div className="d-card-header">
+        <h2>
+          <KeyIcon />
+          Login
+        </h2>
       </div>
-      <div className="card-body">
+      <div className="d-card-body">
         <form id="loginform" onSubmit={handleSubmit}>
           <div className="form-floating mb-3">
             <input
