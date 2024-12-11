@@ -600,6 +600,16 @@ const GET_ENUM_DEPARTMENT = gql`
   }
 `;
 
+const GET_ENUM_ROLE = gql`
+  query GetEnumValues {
+    __type(name: "Role") {
+      enumValues {
+        name
+      }
+    }
+  }
+`;
+
 let exported = {
   GET_PROJECTS,
   GET_APPLICATIONS,
@@ -629,6 +639,7 @@ let exported = {
   REMOVE_APPLICATION,
   LOGIN_MUTATION,
   GET_ENUM_DEPARTMENT,
+  GET_ENUM_ROLE,
 };
 
 export default exported;
