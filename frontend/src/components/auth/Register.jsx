@@ -1,5 +1,15 @@
 import React, { useState } from "react";
 import KeyIcon from "../../assets/svg/KeyIcon";
+import { useMutation, useQuery } from "@apollo/client";
+import queries from "../../queries.js";
+import { useNavigate } from "react-router-dom";
+
+import {
+  checkIsProperFirstOrLastName,
+  checkIsProperString,
+  checkIsProperPassword,
+  validateEmail,
+} from "../../helpers";
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -10,9 +20,22 @@ const Register = () => {
   const [role, setRole] = useState("");
   const [department, setDepartment] = useState("");
   const [bio, setBio] = useState("");
+  const [addUser] = useMutation(queries.ADD_USER);
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const {
+      email,
+      password,
+      confirmPassword,
+      firstName,
+      lastName,
+      role,
+      department,
+      bio,
+    } = e.target.elements;
 
     // Add logic to handle form submission (e.g., API call)
     console.log({
@@ -25,6 +48,42 @@ const Register = () => {
       department,
       bio,
     });
+
+    try {
+      email.value = validateEmail(email.value);
+      password.value = checkIsProperPassword(password.value);
+      firstName.value = checkIsProperFirstOrLastName(
+        firstName.value,
+        "firstName"
+      );
+      lastName.value = checkIsProperFirstOrLastName(lastName.value, "lastName");
+      role.value = checkIsProperString(role.value, "role");
+      department.value = checkIsProperString(department.value, "department");
+      if (bio) {
+        bio.value = checkIsProperString(bio.value, "bio");
+      }
+      if (password.value !== confirmPassword.value) {
+        alert("Passwords do not match");
+        return;
+      }
+      const { data } = addUser({
+        variables: {
+          email: email.value,
+          password: password.value,
+          firstName: firstName.value,
+          lastName: lastName.value,
+          role: role.value,
+          department: department.value,
+          bio: bio.value || null,
+        },
+      });
+
+      console.log(data);
+      navigate("/auth/login");
+    } catch (err) {
+      alert(err.message);
+      console.error(err);
+    }
   };
 
   return (

@@ -1,14 +1,51 @@
 import React, { useState } from "react";
 import KeyIcon from "../../assets/svg/KeyIcon";
+import { useMutation } from "@apollo/client";
+import { useNavigate } from "react-router-dom";
+
+import { doSignInWithEmailAndPassword } from "../../firebase/firebaseFunctions";
+
+import queries from "../../queries";
+
+import { useAuth } from "../../context/AuthContext.jsx";
+import { checkIsProperString, checkIsProperPassword } from "../../helpers.js";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login, authState } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const [loginMutation] = useMutation(queries.LOGIN_MUTATION);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Add logic to handle form submission (e.g., API call)
+    let { email, password } = e.target.elements;
     console.log({ email, password });
+    try {
+      email = checkIsProperString(email.value, "email");
+      password = checkIsProperPassword(password.value);
+      const userCredential = await doSignInWithEmailAndPassword(
+        email.value,
+        password.value
+      );
+      const token = await userCredential.user.getIdToken();
+      console.log(token);
+
+      const { data } = await loginMutation({
+        variables: { token },
+      });
+      login({ email: data.login.email, role: data.login.role });
+
+      console.log(data);
+      if (data.login.role === "STUDENT") {
+      } else if (data.login.role === "ADMIN") {
+      } else {
+      }
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   return (
