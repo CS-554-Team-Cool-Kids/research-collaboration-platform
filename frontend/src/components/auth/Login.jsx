@@ -52,7 +52,7 @@ const Login = () => {
           <div className="row">
             <div className="offset-4 col-4 mt-3">
               <button
-                className="btn btn-warning col-12 py-2"
+                className="btn btn-primary col-12 py-2"
                 type="submit"
                 id="submit"
               >
@@ -62,7 +62,7 @@ const Login = () => {
           </div>
         </form>
         <div className="mt-2">
-          <a href="/resetpassword">Forgot Password?</a>
+          <a href="#">Forgot Password?</a>
         </div>
       </div>
     </div>

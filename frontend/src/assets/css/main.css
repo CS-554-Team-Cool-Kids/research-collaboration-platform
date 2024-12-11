@@ -17,12 +17,20 @@
   --shadow1: #5959594f;
   --shadow2: #2c2c2c4f;
 
+  --lightGradient1: linear-gradient(
+    to top,
+    #dad4ec 0%,
+    #dad4ec 1%,
+    #f3e7e9 100%
+  );
+
   /* theming */
   --activeShadowColor: var(--shadow1);
   --activeTextColor: var(--black1);
   --activeBgColor: var(--white1);
   --activeStripeTableColor: var(--stripeTableColor1);
   --activeGlassColor: var(--glass1);
+  --activeGradientColor: var(--lightGradient1);
 
   --transitionDelay: 0.2s;
 }
@@ -31,7 +39,12 @@
 ================================================== */
 body {
   color: var(--activeTextColor);
-  background-color: var(--activeBgColor);
+  background: var(--activeGradientColor);
+  height: 100%;
+  margin: 0;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
   transition: all var(--transitionDelay) linear;
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
@@ -55,13 +68,8 @@ h3 {
 }
 
 input,
-button {
-  border: 1px solid var(--activeTextColor);
-  background: var(--activeBgColor);
+textarea {
   color: var(--activeTextColor);
-}
-
-input {
   border: 0 !important;
   border-radius: 0px !important;
   border-bottom: 1.5px solid var(--activeTextColor) !important;
@@ -69,7 +77,7 @@ input {
 }
 
 input:focus {
-  border-bottom-color: var(--green1) !important;
+  border-bottom-color: var(--purple1) !important;
 }
 
 input:-webkit-autofill,
@@ -77,7 +85,7 @@ input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   -webkit-text-fill-color: var(--activeTextColor) !important;
-  background-color: var(--activeBgColor) !important;
+  background: var(--transparent) !important;
 }
 
 /* Autofill styles */
@@ -86,7 +94,7 @@ input.autofill:hover,
 input.autofill:focus,
 input.autofill:active {
   -webkit-text-fill-color: var(--activeTextColor) !important;
-  background-color: var(--activeBgColor) !important;
+  background: var(--transparent) !important;
 }
 
 /* Specificity for autofill */
@@ -95,7 +103,7 @@ input.autofill:active {
 .form-control.autofill:focus,
 .form-control.autofill:active {
   -webkit-text-fill-color: var(--activeTextColor) !important;
-  background-color: var(--activeBgColor) !important;
+  background: var(--transparent) !important;
 }
 
 /* Autofill styles with pseudo-element */
@@ -109,7 +117,7 @@ input.autofill:active::after {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--activeBgColor) !important;
+  background: var(--transparent) !important;
   pointer-events: none;
   z-index: -1;
 }
@@ -117,7 +125,15 @@ input.autofill:active::after {
 .form-control,
 .form-control:focus {
   color: var(--activeTextColor) !important;
-  background-color: var(--activeBgColor) !important;
+  background: var(--transparent) !important;
+  background-color: var(--transparent) !important;
+}
+
+.form-floating > .form-control-plaintext ~ label::after,
+.form-floating > .form-control:focus ~ label::after,
+.form-floating > .form-control:not(:placeholder-shown) ~ label::after,
+.form-floating > .form-select ~ label::after {
+  background: var(--transparent) !important;
 }
 
 .opacityMin {
@@ -129,8 +145,8 @@ input.autofill:active::after {
 }
 
 .glassEffect {
-  background-color: var(--activeGlassColor) !important;
-  box-shadow: 0px 5px 5px var(--activeShadowColor) !important;
+  background: var(--activeGlassColor) !important;
+  box-shadow: 0px 10px 10px var(--activeShadowColor) !important;
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 1px solid #ffffff73;
@@ -152,38 +168,32 @@ a:focus {
 }
 
 .btn-success {
-  background-color: #aff69d !important;
+  background: #aff69d !important;
   color: black !important;
   opacity: 1 !important;
 }
 
 .btn.btn-primary {
-  background-color: var(--purple1);
+  background: var(--purple1);
   color: #fff;
   font-weight: bold;
   border: 2px solid var(--purple1);
 }
-.btn.btn-primary:hover,
-.btn.btn-primary:focus,
-.btn.btn-primary:active {
-  background-color: transparent;
-  color: var(--purple1);
-}
 
 .btn-danger {
-  background-color: #ff7676 !important;
+  background: #ff7676 !important;
   color: black !important;
   opacity: 1 !important;
 }
 
 .btn-warning {
-  background-color: #f9de92 !important;
+  background: #f9de92 !important;
   color: black !important;
   opacity: 1 !important;
 }
 
 .btn-info {
-  background-color: #6cc8ec !important;
+  background: #6cc8ec !important;
   color: black !important;
   opacity: 1 !important;
 }
@@ -192,7 +202,7 @@ a:focus {
   transition: all var(--transitionDelay) linear;
 }
 .btn:hover {
-  filter: brightness(1.5);
+  filter: brightness(1.4);
 }
 
 .invertColor {
@@ -402,7 +412,6 @@ footer {
 .dashboard {
   display: flex;
   flex-direction: column-reverse;
-  background-color: var(--lightGrey1);
   padding: 0;
 }
 .dashboard h1 {
@@ -417,14 +426,13 @@ footer {
   width: 100%;
 }
 /* Card Styles */
-.d-card,
-.card {
-  background-color: var(--white1);
-  color: var(--black1);
+.d-card {
+  color: var(--activeTextColor);
   border-radius: 10px;
   border: 1px solid var(--lightGrey1);
   margin-bottom: 1em;
 }
+
 .d-card-header {
   padding: 1em 1em;
   border-bottom: 1px solid var(--purple1);

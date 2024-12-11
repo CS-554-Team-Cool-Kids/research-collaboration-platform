@@ -152,7 +152,7 @@ const Register = () => {
           <div className="row">
             <div className="offset-4 col-4 mt-3">
               <button
-                className="btn btn-warning col-12 py-2"
+                className="btn btn-primary col-12 py-2"
                 type="submit"
                 id="submit"
               >
