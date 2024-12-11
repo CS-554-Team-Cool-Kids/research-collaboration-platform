@@ -6,17 +6,62 @@ const ProjectList = (props) => {
     {
       id: 1,
       name: "Project Alpha",
-      description: "Details about Project Alpha.",
+      description:
+        "A groundbreaking initiative focused on developing next-generation AI algorithms to enhance predictive analytics and decision-making capabilities in real-time applications.",
     },
     {
       id: 2,
       name: "Project Beta",
-      description: "Details about Project Beta.",
+      description:
+        "A comprehensive project aimed at building a scalable, cloud-based platform for managing and analyzing large datasets across multiple industries.",
     },
     {
       id: 3,
       name: "Project Gamma",
-      description: "Details about Project Gamma.",
+      description:
+        "An ambitious undertaking to design and implement a decentralized blockchain network for secure and transparent financial transactions.",
+    },
+    {
+      id: 4,
+      name: "Project Delta",
+      description:
+        "A research-focused project exploring sustainable energy solutions through advanced solar panel technologies and innovative storage systems.",
+    },
+    {
+      id: 5,
+      name: "Project Epsilon",
+      description:
+        "An educational platform designed to provide immersive learning experiences using virtual reality and augmented reality technologies.",
+    },
+    {
+      id: 6,
+      name: "Project Zeta",
+      description:
+        "A health-tech initiative to create a wearable device capable of real-time monitoring of vital signs and providing actionable health insights.",
+    },
+    {
+      id: 7,
+      name: "Project Eta",
+      description:
+        "A social good project aimed at building a mobile app that connects volunteers with local community service opportunities efficiently.",
+    },
+    {
+      id: 8,
+      name: "Project Theta",
+      description:
+        "An environmental conservation project focused on developing IoT-enabled devices for monitoring air and water quality in urban areas.",
+    },
+    {
+      id: 9,
+      name: "Project Iota",
+      description:
+        "A transportation project leveraging AI and machine learning to optimize traffic flow and reduce congestion in metropolitan cities.",
+    },
+    {
+      id: 10,
+      name: "Project Kappa",
+      description:
+        "An e-commerce project aimed at creating an AI-powered recommendation engine to provide personalized shopping experiences for users.",
     },
   ];
 

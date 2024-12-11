@@ -50,9 +50,8 @@
 
 body {
   color: var(--activeTextColor);
+
   background: var(--activeGradientColor);
-  height: 100%;
-  margin: 0;
   background-repeat: no-repeat;
   background-attachment: fixed;
 
@@ -533,7 +532,6 @@ footer {
 }
 .chat-list-header + p {
   white-space: nowrap;
-  width: 250px;
   overflow: hidden;
   text-overflow: ellipsis;
   margin-bottom: 0;

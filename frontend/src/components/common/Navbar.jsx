@@ -41,38 +41,6 @@ const Navbar = () => {
                 Project
               </Link>
             </li>
-            <li className="nav-item dropdown">
-              <Link
-                className="nav-link dropdown-toggle"
-                to="#"
-                id="navbarDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                More
-              </Link>
-              <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li>
-                  <Link className="dropdown-item" to="/about">
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <Link className="dropdown-item" to="/services">
-                    Services
-                  </Link>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <Link className="dropdown-item" to="/contact">
-                    Contact Us
-                  </Link>
-                </li>
-              </ul>
-            </li>
           </ul>
         </div>
       </div>
