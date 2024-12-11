@@ -1,7 +1,6 @@
 //TYPEDEFS.JS
 //Purpose: Create the type definitions for the query and our data
-//Why: Specifies the structure of the data that can be queried or mutated 
-
+//Why: Specifies the structure of the data that can be queried or mutated
 
 //EXPORT typeDefs CONSTANT
 //TYPE: string
@@ -123,17 +122,19 @@ export const typeDefs = `#graphql
             
                 projectsByCreatedYear(min: Int!, max: Int!): [Project]
             
-            searchProjectByTitle(searchTerm: String!): [Project]
+            #searchProjectByTitle(searchTerm: String!): [Project]
             # Purpose: Returns an array of projects whose titles contain the specified search term (case-insensitive).
             # Caching: One-hour expiration; completed in resolvers.js.
             
                 searchProjectByTitle(searchTerm: String!): [Project]
             
-            searchUserByName(searchTerm: String!): [User]
+            
             # Purpose: Returns an array of users whose names contain the specified search term (case-insensitive).
             # Caching: One-hour expiration; completed in resolvers.js.
             
                 searchUserByName(searchTerm: String!): [User]
+
+    }
 
 #TYPE DEFINITIONS
 
@@ -201,6 +202,13 @@ export const typeDefs = `#graphql
             commenter: User!                # User object who made the comment, required
             content: String!                # text content of the comment, required
             postedDate: String!             # ISO format, required
+        }
+
+        type LoginResponse {
+            message: String!
+            uid: String
+            email: String
+            role: String
         }
 
 
@@ -398,7 +406,7 @@ export const typeDefs = `#graphql
             _id: String!
         ): Application
 
-    }
+
 
     # addComment
     # Purpose: Create a new comment and add it to an existing update or application.
@@ -428,4 +436,6 @@ export const typeDefs = `#graphql
             _id: String!
         ): Comment
 
+        login(token: String!): LoginResponse!
+        }
 `;
