@@ -8,7 +8,11 @@ import { doSignInWithEmailAndPassword } from "../../firebase/firebaseFunctions";
 import queries from "../../queries";
 
 import { useAuth } from "../../context/AuthContext.jsx";
-import { checkIsProperString, checkIsProperPassword } from "../../helpers.js";
+import {
+  checkIsProperString,
+  checkIsProperPassword,
+  validateEmail,
+} from "../../helpers.js";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -24,8 +28,8 @@ const Login = () => {
     let { email, password } = e.target.elements;
     console.log({ email, password });
     try {
-      email = checkIsProperString(email.value, "email");
-      password = checkIsProperPassword(password.value);
+      email.value = validateEmail(email.value);
+      password.value = checkIsProperPassword(password.value);
       const userCredential = await doSignInWithEmailAndPassword(
         email.value,
         password.value
