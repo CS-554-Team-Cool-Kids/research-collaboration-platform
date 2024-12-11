@@ -15,7 +15,7 @@
   --stripeTableColor1: #0000000f;
   --stripeTableColor2: #ffffff1a;
   --shadow1: #5959594f;
-  --shadow2: #2c2c2c4f;
+  --shadow2: #f3f3f317;
 
   --lightGradient1: linear-gradient(
     to top,
@@ -23,6 +23,15 @@
     #dad4ec 1%,
     #f3e7e9 100%
   );
+
+  --darkGradient1: linear-gradient(
+    to top,
+    #0b0b0c 0%,
+    #2b263b 1%,
+    #131111 100%
+  );
+
+  --darkGradient2: linear-gradient(-20deg, #2b5876 0%, #4e4376 100%);
 
   /* theming */
   --activeShadowColor: var(--shadow1);
@@ -60,6 +69,7 @@ body {
   font-optical-sizing: auto;
   font-style: normal;
   font-weight: 400;
+  transition: all var(--transitionDelay) linear;
 }
 
 html,
@@ -143,7 +153,6 @@ input.autofill:active::after {
 .form-control:focus {
   color: var(--activeTextColor) !important;
   background: var(--transparent) !important;
-  background-color: var(--transparent) !important;
 }
 
 .form-floating > .form-control-plaintext ~ label::after,
@@ -151,6 +160,13 @@ input.autofill:active::after {
 .form-floating > .form-control:not(:placeholder-shown) ~ label::after,
 .form-floating > .form-select ~ label::after {
   background: var(--transparent) !important;
+}
+
+.form-floating > .form-control-plaintext ~ label,
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+  color: var(--activeTextColor) !important;
 }
 
 .opacityMin {
@@ -230,6 +246,11 @@ a:focus {
 ================================================== */
 nav .navbar-collapse {
   flex-grow: initial;
+}
+
+.navbar-nav .nav-item {
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 /* ActionBar Styles
@@ -557,4 +578,41 @@ footer {
 
 .transition-1 {
   transition: all var(--transitionDelay) linear;
+}
+
+/* Toggle Light and Dark Mode */
+
+#switch,
+#circle {
+  cursor: pointer;
+  -webkit-transition: all 0.2s linear;
+  transition: all 0.2s linear;
+}
+#switch {
+  width: 40px;
+  height: 4px;
+  background: #8167a9 !important;
+  border-radius: 5px;
+  position: relative;
+  display: block;
+  margin: 1.5rem;
+  text-align: center;
+  opacity: 1;
+  transform: translate(0);
+  transition: all 0.2s linear;
+}
+
+#circle {
+  position: absolute;
+  top: -7px;
+  left: -13px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--black1);
+}
+
+.switched #circle {
+  left: 30px;
+  box-shadow: 0 4px 4px rgba(26, 53, 71, 0.25), 0 0 0 1px rgba(26, 53, 71, 0.07);
 }

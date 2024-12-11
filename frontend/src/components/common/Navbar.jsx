@@ -1,5 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import DarkMode from "../../assets/svg/DarkMode";
+import LightMode from "../../assets/svg/LightMode";
 
 const Navbar = () => {
   return (
@@ -40,6 +42,23 @@ const Navbar = () => {
               <Link className="nav-link" to="/project/list">
                 Project
               </Link>
+            </li>
+            <li className="ms-5">
+              <div className="d-flex">
+                <div className="my-auto ms-auto">
+                  <LightMode />
+                </div>
+                <div>
+                  <a href="#" className="p-0">
+                    <div id="switch" className="m-4">
+                      <div id="circle"></div>
+                    </div>
+                  </a>
+                </div>
+                <div className="my-auto me-auto">
+                  <DarkMode />
+                </div>
+              </div>
             </li>
           </ul>
         </div>
