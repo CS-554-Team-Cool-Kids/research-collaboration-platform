@@ -23,7 +23,7 @@ const Register = () => {
   const [addUser] = useMutation(queries.ADD_USER);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const {
@@ -66,7 +66,7 @@ const Register = () => {
         alert("Passwords do not match");
         return;
       }
-      const { data } = addUser({
+      const { data } = await addUser({
         variables: {
           email: email.value,
           password: password.value,
