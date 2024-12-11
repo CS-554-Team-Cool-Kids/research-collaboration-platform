@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {useQuery, useLazyQuery} from '@apollo/client'; 
 import queries from '../../queries';
-import ActionBar from './ActionBar';
+import ActionBar from '../common/ActionBar';
 import EditUser from '../modals/EditUser';
 
 function UserDashboard(props){
@@ -24,6 +24,8 @@ function UserDashboard(props){
     });
     const updates = applicationDdata.data.updates;
     */
+
+    /* Temporary Code - Delete after testing */
     const loading = false;
     const error = false;
     const userData={
@@ -245,6 +247,7 @@ function UserDashboard(props){
 
     const {user} = userData;
     const {updates} = updatesData;
+    /* End of Temporary Code*/
 
     if(user){
         return(
