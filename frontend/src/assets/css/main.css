@@ -31,12 +31,23 @@
   --activeStripeTableColor: var(--stripeTableColor1);
   --activeGlassColor: var(--glass1);
   --activeGradientColor: var(--lightGradient1);
+  --activeFont: "Apple1";
 
   --transitionDelay: 0.2s;
 }
 
 /* General Styles
 ================================================== */
+@font-face {
+  font-family: "Samsung1";
+  src: url("../fonts/SamsungOneLatinWeb-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Apple1";
+  src: url("../fonts/sf-pro-display_regular.woff2") format("woff2");
+}
+
 body {
   color: var(--activeTextColor);
   background: var(--activeGradientColor);
@@ -46,10 +57,17 @@ body {
   background-attachment: fixed;
 
   transition: all var(--transitionDelay) linear;
-  font-family: "Montserrat", sans-serif;
+  font-family: var(--activeFont), "Montserrat", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
   font-weight: 400;
+}
+
+html,
+body,
+#root,
+.dashboard {
+  height: 100%;
 }
 
 main {
@@ -146,10 +164,10 @@ input.autofill:active::after {
 
 .glassEffect {
   background: var(--activeGlassColor) !important;
-  box-shadow: 0px 10px 10px var(--activeShadowColor) !important;
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  border: 1px solid #ffffff73;
+  box-shadow: 0px 10px 30px var(--activeShadowColor) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid #ffffff73 !important;
 }
 
 .glassEffect > .d-card-header {
