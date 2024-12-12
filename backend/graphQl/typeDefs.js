@@ -202,7 +202,7 @@ export const typeDefs = `#graphql
             commenter: User!                # User object who made the comment, required
             content: String!                # text content of the comment, required
             postedDate: String!             # ISO format, required
-            commentDestination: commentDestination! #Enum, comment destination
+            commentDestination: CommentDestination! #Enum, comment destination
             destinationId: String!          #Reference ID for the update or application where the comment is stored
         }
 
