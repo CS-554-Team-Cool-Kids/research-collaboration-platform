@@ -78,7 +78,7 @@ const Register = () => {
       lastName.value = checkIsProperFirstOrLastName(lastName.value, "lastName");
       role.value = checkIsProperString(role.value, "role");
       department.value = checkIsProperString(department.value, "department");
-      if (bio) {
+      if (bio.value) {
         bio.value = checkIsProperString(bio.value, "bio");
       }
       if (password.value !== confirmPassword.value) {
@@ -113,7 +113,7 @@ const Register = () => {
         </h2>
       </div>
       <div className="d-card-body">
-        <form id="registerform" onSubmit={handleSubmit}>
+        <form id="registerform" onSubmit={handleSubmit} autocomplete="off">
           <div className="form-floating mb-3">
             <input
               className="form-control"

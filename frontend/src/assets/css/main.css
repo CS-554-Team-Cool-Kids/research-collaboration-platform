@@ -114,32 +114,6 @@ select:focus {
   border-bottom-color: var(--purple1) !important;
 }
 
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-  -webkit-text-fill-color: var(--activeTextColor) !important;
-  background: var(--transparent) !important;
-}
-
-/* Autofill styles */
-input.autofill,
-input.autofill:hover,
-input.autofill:focus,
-input.autofill:active {
-  -webkit-text-fill-color: var(--activeTextColor) !important;
-  background: var(--transparent) !important;
-}
-
-/* Specificity for autofill */
-.form-control.autofill,
-.form-control.autofill:hover,
-.form-control.autofill:focus,
-.form-control.autofill:active {
-  -webkit-text-fill-color: var(--activeTextColor) !important;
-  background: var(--transparent) !important;
-}
-
 /* Autofill styles with pseudo-element */
 input.autofill::after,
 input.autofill:hover::after,
@@ -179,6 +153,21 @@ input.autofill:active::after {
 .form-floating > .form-control:not(:placeholder-shown) ~ label,
 .form-floating > .form-select ~ label {
   color: var(--activeTextColor) !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  border: 1px solid green;
+  -webkit-text-fill-color: var(--activeTextColor);
+  -webkit-box-shadow: 0 0 0px 1000px #000 inset;
+  transition: background-color 10000s ease-in-out 0s;
 }
 
 .opacityMin {
