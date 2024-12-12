@@ -153,7 +153,6 @@ export const typeDefs = `#graphql
             projects: [Project]             # Array of project objects
             numOfApplications: Int!         # Computed value, number of applications completed
             numOfProjects: Int!             # Computed value, number of projects involved in
-            channels: [String]!             # Computed value; Array of channel IDs the user is associated with
         }
 
     # Project Type: Definition
@@ -161,6 +160,7 @@ export const typeDefs = `#graphql
         type Project {
             _id: String!                    # ObjectId, required
             title: String!                  # required
+            description: String             # not required
             createdDate: String!            # ISO format, required
             department: Department!         # required (enum)
             professors: [User!]             # array of user objects where Role = professor, required
@@ -168,7 +168,6 @@ export const typeDefs = `#graphql
             applications: [Application]     # array of Applicaiton objects
             numOfApplications: Int!         # Computed value, number of applications for this project
             numOfUpdates: Int!              # Computed value, the number of updates delivered about this project
-            channel: String!                # Unique identifier for the project's channel/room
         }
 
     # Update Type: Definition (A conglomeration of updates builds newsfeeds)
@@ -332,6 +331,7 @@ export const typeDefs = `#graphql
         addProject(
             title: String!
             department: Department!
+            description: String
             professorIds: [String!]!    # Array of IDs for professors to associate with the project, required, will be resolved to user objects
             studentIds: [String]        # Array of IDs for students to associate with the project, not required, will be resolved to user objects
         ): Project
@@ -351,6 +351,7 @@ export const typeDefs = `#graphql
         editProject(
             _id: String!
             title: String
+            description: String
             department: Department
             professorIds: [String]
             studentIds: [String]
