@@ -5,6 +5,7 @@ import NextIcon from "../../assets/svg/NextIcon";
 import ChatIcon from "../../assets/svg/ChatIcon_2";
 import AnnouncementIcon from "../../assets/svg/Announcement";
 import VoiceIcon from "../../assets/svg/VoiceIcon";
+import Members from "../../assets/svg/Members";
 
 const ActionBar = (props) => {
   useEffect(() => {
@@ -62,8 +63,8 @@ const ActionBar = (props) => {
             <span>Home</span>
           </li>
           <li className="nav-item">
-            <HomeIcon />
-            <span>Home</span>
+            <Members />
+            <span>Members</span>
           </li>
           <li className="nav-item">
             <HomeIcon />

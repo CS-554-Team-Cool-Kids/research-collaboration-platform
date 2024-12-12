@@ -22,8 +22,8 @@ const GET_PROJECTS = gql`
       }
       applications {
         _id
-        applicantId
-        projectId
+        applicant
+        project
         status
       }
       numOfApplications

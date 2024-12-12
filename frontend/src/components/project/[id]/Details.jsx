@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import ActionBar from "../common/ActionBar_2";
+import ActionBar from "../../common/ActionBar_2";
 import "../../assets/css/sidebar.css";
 
 const ProjectList = (props) => {

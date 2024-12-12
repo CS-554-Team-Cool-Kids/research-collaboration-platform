@@ -11,7 +11,8 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 
 import ProjectList from "./components/project/List";
-import ProjectDetails from "./components/project/Details";
+import ProjectDetails from "./components/project/[id]/Details";
+import ProjectAdd from "./components/project/Add";
 
 const App = () => {
   const getCSSVariable = (variable) =>
@@ -118,8 +119,9 @@ const App = () => {
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/register" element={<Register />} />
         <Route path="/user/:id" element={<UserDashboard />} />
-        <Route path="/project/list" element={<ProjectList />} />
-        <Route path="/project/details/:id" element={<ProjectDetails />} />
+        <Route path="/project" element={<ProjectList />} />
+        <Route path="/project/add" element={<ProjectAdd />} />
+        <Route path="/project/:id" element={<ProjectDetails />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

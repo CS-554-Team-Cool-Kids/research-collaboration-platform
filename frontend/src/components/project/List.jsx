@@ -78,21 +78,38 @@ const ProjectList = (props) => {
       <div className="container my-3">
         <div className="d-card glassEffect">
           <div className="d-card-header">
-            <div className="row col-12 d-flex">
-              <div className="col my-auto">
-                <h2>Project List</h2>
-              </div>
-              <div className="col-auto">
-                {selectedProject?.id ? (
-                  <Link
-                    className="nav-link"
-                    to={"/project/details/" + selectedProject?.id}
-                  >
-                    <div className="btn btn-info">Details</div>
+            <div className="col-12">
+              <div className="row">
+                <div className="col my-auto">
+                  <h2>Project List</h2>
+                </div>
+
+                <div className="col-auto d-flex">
+                  {selectedProject?.id ? (
+                    <div className="d-flex">
+                      <Link
+                        className="nav-link"
+                        to={"/project/" + selectedProject?.id}
+                      >
+                        <button className="btn btn-info ms-2">Details</button>
+                      </Link>
+                      <button className="btn btn-danger ms-2">Delete</button>
+                    </div>
+                  ) : (
+                    <div className="d-flex">
+                      <button className="btn btn-info ms-2 invisible">
+                        Details
+                      </button>
+                      <button className="btn btn-danger ms-2 invisible">
+                        Delete
+                      </button>
+                    </div>
+                  )}
+
+                  <Link className="nav-link" to={"/project/add"}>
+                    <button className="btn btn-success ms-2">Add</button>
                   </Link>
-                ) : (
-                  <div className="btn btn-info invisible">Invisible Button</div>
-                )}
+                </div>
               </div>
             </div>
           </div>
