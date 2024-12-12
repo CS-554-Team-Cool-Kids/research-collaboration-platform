@@ -583,7 +583,8 @@ const LOGIN_MUTATION = gql`
   mutation Login($token: String!) {
     login(token: $token) {
       message
-      uid
+      _id
+      name
       email
       role
     }
