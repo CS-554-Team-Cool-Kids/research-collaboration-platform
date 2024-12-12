@@ -153,6 +153,7 @@ export const typeDefs = `#graphql
             projects: [Project]             # Array of project objects
             numOfApplications: Int!         # Computed value, number of applications completed
             numOfProjects: Int!             # Computed value, number of projects involved in
+            channels: [String]!             # Computed value; Array of channel IDs the user is associated with
         }
 
     # Project Type: Definition
@@ -167,6 +168,7 @@ export const typeDefs = `#graphql
             applications: [Application]     # array of Applicaiton objects
             numOfApplications: Int!         # Computed value, number of applications for this project
             numOfUpdates: Int!              # Computed value, the number of updates delivered about this project
+            channel: String!                # Unique identifier for the project's channel/room
         }
 
     # Update Type: Definition (A conglomeration of updates builds newsfeeds)
@@ -206,7 +208,8 @@ export const typeDefs = `#graphql
 
         type LoginResponse {
             message: String!
-            uid: String
+            _id: String
+            name: String
             email: String
             role: String
         }

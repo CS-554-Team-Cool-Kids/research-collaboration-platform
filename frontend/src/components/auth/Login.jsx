@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import KeyIcon from "../../assets/svg/KeyIcon";
 import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 
 import { doSignInWithEmailAndPassword } from "../../firebase/firebaseFunctions";
 
@@ -24,28 +25,36 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add logic to handle form submission (e.g., API call)
+
     let { email, password } = e.target.elements;
-    console.log({ email, password });
     try {
       email.value = validateEmail(email.value);
       password.value = checkIsProperPassword(password.value);
+
       const userCredential = await doSignInWithEmailAndPassword(
         email.value,
         password.value
       );
       const token = await userCredential.user.getIdToken();
-      console.log(token);
 
       const { data } = await loginMutation({
         variables: { token },
       });
+
       login({ email: data.login.email, role: data.login.role });
 
-      console.log(data);
+      // const socket = io("http://localhost:4001");
+
+
+
+      // console.log("Socket connected:", socket.id);
+
       if (data.login.role === "STUDENT") {
+        navigate("/chat"); // Navigate to chat for students
       } else if (data.login.role === "ADMIN") {
+        navigate("/chat"); // Navigate to chat for admins
       } else {
+        navigate("/chat"); // Default navigation
       }
     } catch (error) {
       alert(error.message);

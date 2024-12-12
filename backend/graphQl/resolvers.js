@@ -1327,6 +1327,7 @@ export const resolvers = {
         projects: [],
         numOfApplications: 0,
         numOfProjects: 0,
+        channels: [],
       };
 
       //Use insertOne to add the user to the users' collection
@@ -1671,6 +1672,7 @@ export const resolvers = {
         applications: [],
         numOfApplications: 0,
         numOfUpdates: 0,
+        channel: new ObjectId(),
       };
 
       //Use insertOne to place the new object into the MongoDB for applications
@@ -2882,7 +2884,8 @@ export const resolvers = {
         const user = await users.findOne({ email: email });
         return {
           message: "Token verified successfully",
-          uid,
+          _id: user._id,
+          name: `${user.firstName} ${user.lastName}`,
           email,
           role: user.role,
         };
