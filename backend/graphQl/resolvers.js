@@ -2889,7 +2889,7 @@ export const resolvers = {
         helpers.checkArg(args.content, "string", "content");
       }
       if (args.commenterId){
-        helpers.checkArg(commenterId, "string", "id");
+        helpers.checkArg(args.commenterId, "string", "id");
       }
 
       //Pull comments collection
@@ -2916,10 +2916,10 @@ export const resolvers = {
       const updateFields = {};
 
       if (args.content){
-        updateFields.content = content.trim();
+        updateFields.content = args.content.trim();
       }
       if (args.commenterId){
-        let commenter = getUserById(args.commenterId);
+        let commenter = await getUserById(args.commenterId);
         updateFields.commenter = commenter;
       }
 
@@ -2944,7 +2944,8 @@ export const resolvers = {
       try {
         //Update the individual comment cache
         const cacheKey = `comment:${commentToUpdate._id}`;
-        await redisClient.set(cacheKey, JSON.stringify(commentToUpdate));
+        const updatedComment = { ...commentToUpdate, ...updateFields };
+        await redisClient.set(cacheKey, JSON.stringify(updatedComment));
 
         //Delete the comments cache, as this is now out of date.'
         await redisClient.del("comments");
@@ -2971,7 +2972,7 @@ export const resolvers = {
       }
 
       //Return commentToUpdate, which doesn't have metadata
-      return commentToUpdate;
+      return updatedComment;
     },
 
     removeComment: async (_, args) => {
