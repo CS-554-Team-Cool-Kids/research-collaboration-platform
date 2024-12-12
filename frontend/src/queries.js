@@ -58,6 +58,21 @@ const GET_UPDATES = gql`
     }
   }
 `;
+const GET_COMMENTS = gql`
+  query Comments {
+  comments {
+    _id
+    commenter {
+      _id
+      firstName
+      lastName
+      role
+    }
+    content
+    postedDate
+  }
+}
+`;
 
 // GET BY ID
 const GET_USER_BY_ID = gql`
@@ -73,9 +88,25 @@ const GET_USER_BY_ID = gql`
       bio
       applications {
         _id
-        applicantId
-        projectId
+        project {
+          _id
+          title
+          department
+        }
+        applicationDate
+        lastUpdatedDate
         status
+        comments {
+          _id
+          commenter {
+            _id
+            firstName
+            lastName
+          }
+          content
+          postedDate
+        }
+        numOfComments
       }
       projects {
         _id
@@ -126,6 +157,21 @@ const GET_APPLICATION_BY_ID = gql`
     }
   }
 `;
+const GET_COMMENT_BY_ID = gql`
+  query GetCommentById($id: String!) {
+    getCommentById(_id: $id) {
+      _id
+      commenter {
+        _id
+        firstName
+        lastName
+        role
+      }
+      content
+      postedDate
+    }
+  }
+`;
 
 // GET & SEARCH QUERIES
 const GET_PROFESSORS_BY_PROJECT_ID = gql`
@@ -173,6 +219,36 @@ const GET_STUDENT_BY_PROJECT_ID = gql`
       }
       numOfApplications
       numOfProjects
+    }
+  }
+`;
+const GET_COMMENTS_BY_UPDATE_ID = gql`
+  query GetCommentsByUpdateId($updateId: String!) {
+    getCommentsByUpdateId(updateId: $updateId) {
+      _id
+      commenter {
+        _id
+        firstName
+        lastName
+        role
+      }
+      content
+      postedDate
+    }
+  }
+`;
+const GET_COMMENTS_BY_APPLICATION_ID = gql`
+  query GetCommentsByApplicationId($applicationId: String!) {
+    getCommentsByApplicationId(applicationId: $applicationId) {
+      _id
+      commenter {
+        _id
+        firstName
+        lastName
+        role
+      }
+      content
+      postedDate
     }
   }
 `;
@@ -407,6 +483,21 @@ const ADD_APPLICATION = gql`
     }
   }
 `;
+const ADD_COMMENT = gql`
+  mutation AddComment($commenterId: String!, $commentDestination: CommentDestination!, $destinationId: String!, $content: String!) {
+    addComment(commenterId: $commenterId, commentDestination: $commentDestination, destinationId: $destinationId, content: $content) {
+      _id
+      commenter {
+        _id
+        firstName
+        lastName
+        role
+      }
+      content
+      postedDate
+    }
+  }
+`;
 
 // EDIT
 const EDIT_USER = gql`
@@ -545,6 +636,21 @@ const EDIT_APPLICATION = gql`
     }
   }
 `;
+const EDIT_COMMENT = gql`
+  mutation EditComment($id: String!, $content: String!) {
+    editComment(_id: $id, content: $content) {
+      _id
+      commenter {
+        _id
+        firstName
+        lastName
+        role
+      }
+      content
+      postedDate
+    }
+  }
+`;
 
 // DELETE
 const REMOVE_USER = gql`
@@ -578,6 +684,21 @@ const REMOVE_APPLICATION = gql`
     }
   }
 `;
+const REMOVE_COMMENT = gql`
+  mutation RemoveComment($id: String!) {
+    removeComment(_id: $id) {
+      _id
+      commenter {
+        _id
+        firstName
+        lastName
+        role
+      }
+      content
+      postedDate
+    }
+  }
+`;
 
 const LOGIN_MUTATION = gql`
   mutation Login($token: String!) {
@@ -604,12 +725,16 @@ let exported = {
   GET_PROJECTS,
   GET_APPLICATIONS,
   GET_UPDATES,
+  GET_COMMENTS,
   GET_USER_BY_ID,
   GET_PROJECT_BY_ID,
   GET_UPDATE_BY_ID,
   GET_APPLICATION_BY_ID,
+  GET_COMMENT_BY_ID,
   GET_PROFESSORS_BY_PROJECT_ID,
   GET_STUDENT_BY_PROJECT_ID,
+  GET_COMMENTS_BY_UPDATE_ID,
+  GET_COMMENTS_BY_APPLICATION_ID,
   PROJECTS_BY_DEPARTMENT,
   UDPATES_BY_SUBJECT,
   PROJECTS_BY_CREATED_YEAR,
@@ -619,14 +744,17 @@ let exported = {
   ADD_PROJECT,
   ADD_UPDATE,
   ADD_APPLICATION,
+  ADD_COMMENT,
   EDIT_USER,
   EDIT_PROJECT,
   EDIT_UPDATE,
   EDIT_APPLICATION,
+  EDIT_COMMENT,
   REMOVE_USER,
   REMOVE_PROJECT,
   REMOVE_UPDATE,
   REMOVE_APPLICATION,
+  REMOVE_COMMENT,
   LOGIN_MUTATION,
   GET_ENUM_DEPARTMENT,
 };

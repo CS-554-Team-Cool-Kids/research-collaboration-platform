@@ -13,6 +13,9 @@ import Register from "./components/auth/Register";
 import ProjectList from "./components/project/List";
 import ProjectDetails from "./components/project/Details";
 
+import ApplicationList from "./components/application/List";
+import ApplicationDetails from "./components/application/Details";
+
 const App = () => {
   const getCSSVariable = (variable) =>
     getComputedStyle(document.documentElement).getPropertyValue(variable);
@@ -120,6 +123,8 @@ const App = () => {
         <Route path="/user/:id" element={<UserDashboard />} />
         <Route path="/project/list" element={<ProjectList />} />
         <Route path="/project/details/:id" element={<ProjectDetails />} />
+        <Route path="/application/list" element={<ApplicationList />} />
+        <Route path="/application/details/:id" element={<ApplicationDetails />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
