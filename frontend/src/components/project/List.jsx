@@ -93,12 +93,16 @@ const ProjectList = (props) => {
                       >
                         <button className="btn btn-info ms-2">Details</button>
                       </Link>
+                      <button className="btn btn-warning ms-2">Edit</button>
                       <button className="btn btn-danger ms-2">Delete</button>
                     </div>
                   ) : (
                     <div className="d-flex">
                       <button className="btn btn-info ms-2 invisible">
                         Details
+                      </button>
+                      <button className="btn btn-warning ms-2 invisible">
+                        Edit
                       </button>
                       <button className="btn btn-danger ms-2 invisible">
                         Delete

@@ -17,6 +17,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Chat from "./components/Chat";
 
 const App = () => {
+  //Theming
   const getCSSVariable = (variable) =>
     getComputedStyle(document.documentElement).getPropertyValue(variable);
 

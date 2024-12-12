@@ -6,8 +6,9 @@
   --white1: #fff;
   --purple1: #7446b9;
   --purple2: #e2d8f2;
-  --yellow1: #e3c147;
+  --yellow1: #fff176;
   --green1: #6bd485;
+  --blue1: #6cc8ec;
   --red1: #ff7474;
   --fadeGrey: #a1a1a147;
   --lightGrey1: #ededed;
@@ -200,6 +201,13 @@ a:focus {
 
 .btn {
   min-width: 100px;
+  box-shadow: 0px 5px 30px var(--activeShadowColor) !important;
+}
+
+.btn.btn-primary {
+  background: var(--purple1) !important;
+  color: #fff !important;
+  border: 1px solid var(--purple1) !important;
 }
 
 .btn-success {
@@ -208,26 +216,22 @@ a:focus {
   border: 1px solid var(--green1) !important;
 }
 
-.btn.btn-primary {
-  background: var(--purple1);
-  color: #fff;
-  border: 2px solid var(--purple1);
-}
-
 .btn-danger {
   background: var(--red1) !important;
   color: black !important;
+  border: 1px solid var(--red1) !important;
 }
 
 .btn-warning {
   background: var(--yellow1) !important;
   color: black !important;
+  border: 1px solid var(--yellow1) !important;
 }
 
 .btn-info {
-  background: #6cc8ec !important;
+  background: var(--blue1) !important;
   color: black !important;
-  opacity: 1 !important;
+  border: 1px solid var(--blue1) !important;
 }
 
 .btn {
@@ -660,4 +664,31 @@ footer {
   background-color: #007bff;
   color: white;
   cursor: pointer;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 5vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  margin-bottom: 5vh;
+  text-align: center;
+  padding: 12px;
+}
+
+.wrapper-class {
+  padding: 1rem;
+  border: 1px solid #ccc;
+}
+.editor-class {
+  background-color: lightgray;
+  padding: 1rem;
+  border: 1px solid #ccc;
+}
+.toolbar-class {
+  border: 1px solid #ccc;
 }
