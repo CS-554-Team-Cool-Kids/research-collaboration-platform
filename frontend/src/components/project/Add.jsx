@@ -24,8 +24,8 @@ const AddProject = () => {
       const { data } = await addProjectMutation({
         variables: {
           title,
-          department,
           description,
+          department,
           professorIds: ["67590667d7fc41be5ef64425"],
         },
       });

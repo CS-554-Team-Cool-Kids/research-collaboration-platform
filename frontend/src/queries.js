@@ -333,19 +333,21 @@ const ADD_USER = gql`
 const ADD_PROJECT = gql`
   mutation AddProject(
     $title: String!
+    $description: String
     $department: Department!
     $professorIds: [String!]!
     $studentIds: [String]
   ) {
     addProject(
       title: $title
-      createdDate: $createdDate
+      description: $description
       department: $department
       professorIds: $professorIds
       studentIds: $studentIds
     ) {
       _id
       title
+      description
       createdDate
       department
       professors {
@@ -357,12 +359,6 @@ const ADD_PROJECT = gql`
         _id
         firstName
         lastName
-      }
-      applications {
-        _id
-        applicantId
-        projectId
-        status
       }
       numOfApplications
       numOfUpdates
