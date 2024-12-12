@@ -134,6 +134,9 @@ export const typeDefs = `#graphql
             
                 searchUserByName(searchTerm: String!): [User]
 
+
+                getProjectsByUserId (_id: String!): [Project]
+
     }
 
 #TYPE DEFINITIONS

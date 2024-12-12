@@ -195,12 +195,12 @@ export const resolvers = {
       const allApplications = await applications.find({}).toArray();
 
       //If no updates, throw GraphQLError
-      if (allApplications.length === 0) {
-        throw new GraphQLError("Internal Server Error", {
-          //INTERNAL_SERVER_ERROR = status code 500
-          extensions: { code: "INTERNAL_SERVER_ERROR" },
-        });
-      }
+      // if (allApplications.length === 0) {
+      //   throw new GraphQLError("Internal Server Error", {
+      //     //INTERNAL_SERVER_ERROR = status code 500
+      //     extensions: { code: "INTERNAL_SERVER_ERROR" },
+      //   });
+      // }
 
       //Cache pulled applications, set to cachekey
       //Expiration: 1 hour (60 x 60 = 3600 seconds)
@@ -212,7 +212,7 @@ export const resolvers = {
       );
 
       //Return applications
-      return allApplications;
+      return allApplications || [];
     },
 
     //Query: comments: [Comment]
@@ -662,6 +662,40 @@ export const resolvers = {
 
       // Return the list of students
       return students;
+    },
+
+    getProjectsByUserId: async (_, args) => {
+      // Check if required field 'userId' is present
+      if (!args._id) {
+        throw new GraphQLError("The userId field is required.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      // Check for extra fields
+      const fieldsAllowed = ["_id"];
+      for (let key in args) {
+        if (!fieldsAllowed.includes(key)) {
+          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+      }
+
+      //Check objectID
+      helpers.checkArg(args._id, "string", "id");
+
+      //If not cached, pull entire project collction
+      const projects = await projectCollection();
+
+      //Pull all projects associated with the provided userId using find.
+      //Change the string userId argument into an objectId
+      const userProjects = await projects
+        .find({ professors: { $elemMatch: { _id: args._id } } })
+        .toArray();
+
+      // Return the list of projects
+      return userProjects;
     },
 
     // getCommentsByUpdateId(updateId: String!): [Comment]
@@ -1137,8 +1171,18 @@ export const resolvers = {
       const numOfProjects = await projects.countDocuments({
         // $or: Matches documents where at least one of the specified conditions is true
         $or: [
-          { "professors._id": parentValue._id },
-          { "students._id": parentValue._id },
+          {
+            "professors._id":
+              typeof parentValue._id === "string"
+                ? new ObjectId(parentValue._id)
+                : parentValue._id,
+          },
+          {
+            "students._id":
+              typeof parentValue._id === "string"
+                ? new ObjectId(parentValue._id)
+                : parentValue._id,
+          },
         ],
       });
 
@@ -1158,8 +1202,18 @@ export const resolvers = {
         .find({
           // $or: Matches documents where at least one of the specified conditions is true
           $or: [
-            { "professors._id": parentValue._id },
-            { "students._id": parentValue._id },
+            {
+              "professors._id":
+                typeof parentValue._id === "string"
+                  ? new ObjectId(parentValue._id)
+                  : parentValue._id,
+            },
+            {
+              "students._id":
+                typeof parentValue._id === "string"
+                  ? new ObjectId(parentValue._id)
+                  : parentValue._id,
+            },
           ],
         })
         //Notes: MongoDb returns a cursor (pointer to the answer), toArray provides this as an array
@@ -1739,6 +1793,14 @@ export const resolvers = {
               : professorId,
         });
         newProject.professors.push(professor);
+        await users.updateOne(
+          {
+            _id: professor._id,
+          },
+          {
+            $set: { projects: { $push: newProject._id } },
+          }
+        );
       }
 
       // Fetch students individually if there are any
