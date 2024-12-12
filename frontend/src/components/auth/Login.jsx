@@ -41,11 +41,13 @@ const Login = () => {
         variables: { token },
       });
 
-      login({ email: data.login.email, role: data.login.role });
+      login({
+        id: data.login._id,
+        email: data.login.email,
+        role: data.login.role,
+      });
 
       // const socket = io("http://localhost:4001");
-
-
 
       // console.log("Socket connected:", socket.id);
 
