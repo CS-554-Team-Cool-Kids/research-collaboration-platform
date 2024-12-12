@@ -13,7 +13,6 @@ import Register from "./components/auth/Register";
 import ProjectList from "./components/project/List";
 import ProjectDetails from "./components/project/[id]/Details";
 import ProjectAdd from "./components/project/Add";
-
 import ProtectedRoute from "./components/ProtectedRoute";
 import Chat from "./components/Chat";
 

@@ -333,7 +333,6 @@ const ADD_USER = gql`
 const ADD_PROJECT = gql`
   mutation AddProject(
     $title: String!
-    $createdDate: String!
     $department: Department!
     $professorIds: [String!]!
     $studentIds: [String]

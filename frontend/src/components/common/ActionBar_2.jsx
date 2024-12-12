@@ -58,15 +58,15 @@ const ActionBar = (props) => {
         <div className="nav-title">Management</div>
 
         <ul>
-          <li className="nav-item active">
+          <li className="nav-item iconSwitch active">
             <HomeIcon />
             <span>Home</span>
           </li>
-          <li className="nav-item">
+          <li className="nav-item iconSwitch">
             <Members />
             <span>Members</span>
           </li>
-          <li className="nav-item">
+          <li className="nav-item iconSwitch">
             <HomeIcon />
             <span>Home</span>
           </li>
@@ -74,15 +74,15 @@ const ActionBar = (props) => {
 
         <div className="nav-title">Channel</div>
         <ul>
-          <li className="nav-item active">
+          <li className="nav-item iconSwitch active">
             <ChatIcon />
             <span>Text</span>
           </li>
-          <li className="nav-item">
+          <li className="nav-item iconSwitch">
             <VoiceIcon />
             <span>Voice</span>
           </li>
-          <li className="nav-item">
+          <li className="nav-item iconSwitch">
             <AnnouncementIcon />
             <span>Announcement</span>
           </li>
