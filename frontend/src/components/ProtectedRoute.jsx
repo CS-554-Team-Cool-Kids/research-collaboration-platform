@@ -10,11 +10,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (!allowedRoles.includes(authState.user.role)) {
-    <Navigate to="/home" />;
+    <Navigate to="/" />;
   }
-
-  const route = `/${authState.user.role.toLowerCase()}Dashboard`;
-  return <Navigate to={route} />;
 
   return children;
 };

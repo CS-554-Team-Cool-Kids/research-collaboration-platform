@@ -26,6 +26,7 @@ const AddProject = () => {
           title,
           department,
           description,
+          professorIds: ["67590667d7fc41be5ef64425"],
         },
       });
 

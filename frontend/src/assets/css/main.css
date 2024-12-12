@@ -6,8 +6,9 @@
   --white1: #fff;
   --purple1: #7446b9;
   --purple2: #e2d8f2;
-  --yellow: #f6d350;
-  --green1: #00bf98;
+  --yellow1: #e3c147;
+  --green1: #6bd485;
+  --red1: #ff7474;
   --fadeGrey: #a1a1a147;
   --lightGrey1: #ededed;
   --glass1: #ffffff40;
@@ -214,12 +215,12 @@ a:focus {
 }
 
 .btn-danger {
-  background: #ff7676 !important;
+  background: var(--red1) !important;
   color: black !important;
 }
 
 .btn-warning {
-  background: #f9de92 !important;
+  background: var(--yellow1) !important;
   color: black !important;
 }
 
