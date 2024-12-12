@@ -160,6 +160,7 @@ export const typeDefs = `#graphql
         type Project {
             _id: String!                    # ObjectId, required
             title: String!                  # required
+            description: String             # not required
             createdDate: String!            # ISO format, required
             department: Department!         # required (enum)
             professors: [User!]             # array of user objects where Role = professor, required
@@ -210,7 +211,8 @@ export const typeDefs = `#graphql
 
         type LoginResponse {
             message: String!
-            uid: String
+            _id: String
+            name: String
             email: String
             role: String
         }
@@ -329,6 +331,7 @@ export const typeDefs = `#graphql
         addProject(
             title: String!
             department: Department!
+            description: String
             professorIds: [String!]!    # Array of IDs for professors to associate with the project, required, will be resolved to user objects
             studentIds: [String]        # Array of IDs for students to associate with the project, not required, will be resolved to user objects
         ): Project
@@ -348,6 +351,7 @@ export const typeDefs = `#graphql
         editProject(
             _id: String!
             title: String
+            description: String
             department: Department
             professorIds: [String]
             studentIds: [String]

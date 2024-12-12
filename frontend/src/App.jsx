@@ -12,6 +12,8 @@ import Register from "./components/auth/Register";
 
 import ProjectList from "./components/project/List";
 import ProjectDetails from "./components/project/Details";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Chat from "./components/Chat";
 
 const App = () => {
   const getCSSVariable = (variable) =>
@@ -120,6 +122,13 @@ const App = () => {
         <Route path="/user/:id" element={<UserDashboard />} />
         <Route path="/project/list" element={<ProjectList />} />
         <Route path="/project/details/:id" element={<ProjectDetails />} />
+        <Route path="/chat" element={<Chat />} />
+        <Route
+          path="/protected"
+          element={
+            <ProtectedRoute allowedRoles={["STUDENT", "PROFESSOR", "ADMIN"]} />
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
