@@ -138,7 +138,7 @@ export const typeDefs = `#graphql
 
 #TYPE DEFINITIONS
 
-    # Author Type: Definition
+    # User Type: Definition
         
         type User {
             _id: String!                    # ObjectId, required
@@ -202,7 +202,11 @@ export const typeDefs = `#graphql
             commenter: User!                # User object who made the comment, required
             content: String!                # text content of the comment, required
             postedDate: String!             # ISO format, required
+            commentDestination: commentDestination! #Enum, comment destination
+            destinationId: String!          #Reference ID for the update or application where the comment is stored
         }
+
+    # LoginResponse Type: Definition
 
         type LoginResponse {
             message: String!
@@ -304,15 +308,19 @@ export const typeDefs = `#graphql
     # Cache: Ensure the Redis cache is updated accordingly.
     
         editUser(
-        _id: String!                     
-        firstName: String                
-        lastName: String                 
-        email: String                    
-        password: String                 
-        role: Role                       
-        department: Department           
-        bio: String                      
-    ): User
+            _id: String!                     
+            firstName: String                
+            lastName: String                 
+            email: String                    
+            password: String                 
+            role: Role                       
+            department: Department           
+            bio: String        
+            projectRemovalId: String
+            projectEditId: String
+            applicationRemovalId: String
+            applicationEditId: String
+        ): User
     
     # addProject
     # Purpose: Add a new project to MongoDB
@@ -320,7 +328,6 @@ export const typeDefs = `#graphql
     
         addProject(
             title: String!
-            createdDate: String!
             department: Department!
             professorIds: [String!]!    # Array of IDs for professors to associate with the project, required, will be resolved to user objects
             studentIds: [String]        # Array of IDs for students to associate with the project, not required, will be resolved to user objects
@@ -343,7 +350,9 @@ export const typeDefs = `#graphql
             title: String
             department: Department
             professorIds: [String]
-            studentIds: [String]  
+            studentIds: [String]
+            applicationRemovalId: String
+            applicationEditId: String
         ): Project
   
     # addUpdate
@@ -374,7 +383,9 @@ export const typeDefs = `#graphql
             posterId: String              # ID of the User who created the update, will resolve to a user object   
             subject: UpdateSubject        
             content: String                
-            projectId: String             # ID of the Project associated with  the update, will resolve to a project object
+            projectId: String             # ID of the Project associated with the update, will resolve to a project object
+            commentRemovalId: String
+            commentEditId: String
         ): Update
 
     # addApplication
@@ -392,10 +403,11 @@ export const typeDefs = `#graphql
         
         editApplication(
             _id: String!                    
-            applicantId: String!          # ID of the User who applied, will resolve to a user object    
-            projectId: String!            # ID of the Project, will resolve to a project object 
-            lastUpdatedDate: String
-            status: ApplicationStatus    
+            applicantId: String          # ID of the User who applied, will resolve to a user object    
+            projectId: String            # ID of the Project, will resolve to a project object 
+            status: ApplicationStatus
+            commentRemovalId: String
+            commentEditId: String
         ): Application
 
     # removeApplication
@@ -405,8 +417,6 @@ export const typeDefs = `#graphql
         removeApplication(
             _id: String!
         ): Application
-
-
 
     # addComment
     # Purpose: Create a new comment and add it to an existing update or application.
@@ -425,7 +435,8 @@ export const typeDefs = `#graphql
 
         editComment(
             _id: String!
-            content: String!        
+            content: String
+            commenterId: String      
         ): Comment
 
     # removeComment
@@ -435,6 +446,8 @@ export const typeDefs = `#graphql
         removeComment(
             _id: String!
         ): Comment
+
+    #login
 
         login(token: String!): LoginResponse!
         }
