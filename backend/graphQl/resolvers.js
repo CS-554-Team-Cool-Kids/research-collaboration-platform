@@ -46,7 +46,7 @@ redisClient.on("error", (err) => console.error("Redis Client Error", err));
 
 //Helpers
 import * as helpers from "./helpers.js";
-import * as propagators from './propagationHelpers.js';
+import * as propagators from "./propagationHelpers.js";
 
 //RESOLVERS
 export const resolvers = {
@@ -931,19 +931,19 @@ export const resolvers = {
       //If no projects cached by year established, then pull all projects
       const projects = await projectCollection();
 
-        // Use the '.find' function to query projects within the specified year range.
-        // MongoDB's '$expr' allows for dynamic queries using expressions, which is needed to extract the year from the 'createdDate' field.
-        // '$year' extracts the year from the 'createdDate' ISO date field stored in the database.
-        // '$gte' (greater than or equal to) and '$lte' (less than or equal to) are MongoDB operators used to ensure the year falls inclusively within the 'min' and 'max' range.
-        // '$and' to combine conditions
-        const projectsByCreatedRange = await projects
+      // Use the '.find' function to query projects within the specified year range.
+      // MongoDB's '$expr' allows for dynamic queries using expressions, which is needed to extract the year from the 'createdDate' field.
+      // '$year' extracts the year from the 'createdDate' ISO date field stored in the database.
+      // '$gte' (greater than or equal to) and '$lte' (less than or equal to) are MongoDB operators used to ensure the year falls inclusively within the 'min' and 'max' range.
+      // '$and' to combine conditions
+      const projectsByCreatedRange = await projects
         .find({
-        $expr: {
+          $expr: {
             $and: [
-            { $gte: [{ $year: "$createdDate" }, min] },
-            { $lte: [{ $year: "$createdDate" }, max] },
+              { $gte: [{ $year: "$createdDate" }, min] },
+              { $lte: [{ $year: "$createdDate" }, max] },
             ],
-        },
+          },
         })
         .toArray();
 
@@ -1074,13 +1074,13 @@ export const resolvers = {
       //Use the '.find' function again
       // $regex: regular expression for pattern matching, $options: 'i' for case-insensitive search
       const usersBySearch = await users
-      .find({
-        $or: [
-          { firstName: { $regex: args.searchTerm.trim(), $options: "i" } },
-          { lastName: { $regex: args.searchTerm.trim(), $options: "i" } },
-        ],
-      })
-      .toArray();
+        .find({
+          $or: [
+            { firstName: { $regex: args.searchTerm.trim(), $options: "i" } },
+            { lastName: { $regex: args.searchTerm.trim(), $options: "i" } },
+          ],
+        })
+        .toArray();
 
       //If no user for search term, return an empty array
       if (usersBySearch.length === 0) {
@@ -1329,6 +1329,7 @@ export const resolvers = {
         projects: [],
         numOfApplications: 0,
         numOfProjects: 0,
+        channels: [],
       };
 
       //Use insertOne to add the user to the users' collection
@@ -1400,7 +1401,7 @@ export const resolvers = {
         "projectRemovalId",
         "projectEditId",
         "applicationRemovalId",
-        "applicationEditId"
+        "applicationEditId",
       ];
       for (let key in args) {
         if (!fieldsAllowed.includes(key)) {
@@ -1475,39 +1476,50 @@ export const resolvers = {
 
         //Project Removal Id
         if (args.projectRemovalId) {
-            helpers.checkArg(args.projectRemovalId, "string", "id");
-            const newProjectArray = (userToUpdate.projects || []).filter(project => !project._id.equals(new ObjectId(args.projectRemovalId)));
-            updateFields.projects = newProjectArray;
-          }
+          helpers.checkArg(args.projectRemovalId, "string", "id");
+          const newProjectArray = (userToUpdate.projects || []).filter(
+            (project) =>
+              !project._id.equals(new ObjectId(args.projectRemovalId))
+          );
+          updateFields.projects = newProjectArray;
+        }
 
         //Project Edit Id
         if (args.projectEditId) {
-            helpers.checkArg(args.projectEditId, "string", "id");
-            const newProjectArray = (userToUpdate.projects || []).filter(project => !project._id.equals(new ObjectId(args.projectEditId)));
-            const projectToAdd = getProjectById(args.projectEditId);
-            if (projectToAdd) {
-                newProjectArray.push(projectToAdd);
-            }
-            updateFields.projects = newProjectArray;
+          helpers.checkArg(args.projectEditId, "string", "id");
+          const newProjectArray = (userToUpdate.projects || []).filter(
+            (project) => !project._id.equals(new ObjectId(args.projectEditId))
+          );
+          const projectToAdd = getProjectById(args.projectEditId);
+          if (projectToAdd) {
+            newProjectArray.push(projectToAdd);
           }
+          updateFields.projects = newProjectArray;
+        }
 
         //Application Removal Id
         if (args.applicationRemovalId) {
-            helpers.checkArg(args.applicationRemovalId, "string", "id");
-            const newApplicationArray = (userToUpdate.applications || []).filter(application => !application._id.equals(new ObjectId(args.applicationRemovalId)));
-            updateFields.applications = newApplicationArray;
-          }
+          helpers.checkArg(args.applicationRemovalId, "string", "id");
+          const newApplicationArray = (userToUpdate.applications || []).filter(
+            (application) =>
+              !application._id.equals(new ObjectId(args.applicationRemovalId))
+          );
+          updateFields.applications = newApplicationArray;
+        }
 
         //Applications Edit Id
         if (args.applicationEditId) {
-            helpers.checkArg(args.applicationEditId, "string", "id");
-            const newApplicationArray = (userToUpdate.applications || []).filter(application => !application._id.equals(new ObjectId(args.applicationEditId)));
-            const applicationToAdd = getApplicationById(args.applicationEditId);
-            if (applicationToAdd) {
-                newApplicationArray.push(applicationToAdd);
-            }
-            updateFields.applications = newApplicationArray;
+          helpers.checkArg(args.applicationEditId, "string", "id");
+          const newApplicationArray = (userToUpdate.applications || []).filter(
+            (application) =>
+              !application._id.equals(new ObjectId(args.applicationEditId))
+          );
+          const applicationToAdd = getApplicationById(args.applicationEditId);
+          if (applicationToAdd) {
+            newApplicationArray.push(applicationToAdd);
           }
+          updateFields.applications = newApplicationArray;
+        }
 
         //Use updateOne, matching the _id to the args._id. Note: the ID cannot be updated
         // $set: updates specific fields of a document without overwriting the entire document
@@ -1526,7 +1538,10 @@ export const resolvers = {
         }
 
         //Propagate this removal across all objects with user objects
-        await propagators.propagateUserEditChanges(userId, { ...userToUpdate, ...updateFields });
+        await propagators.propagateUserEditChanges(userId, {
+          ...userToUpdate,
+          ...updateFields,
+        });
 
         try {
           // Delete the individual user cache (data no longer accurate)
@@ -1643,11 +1658,7 @@ export const resolvers = {
 
     addProject: async (_, args) => {
       // Check if required fields are present
-      if (
-        !args.title ||
-        !args.department ||
-        !args.professorIds
-      ) {
+      if (!args.title || !args.department || !args.professorIds) {
         throw new GraphQLError(
           "The title, department, and profossor Ids are required to create a project.",
           {
@@ -1660,6 +1671,7 @@ export const resolvers = {
       // Check for extra fields
       const fieldsAllowed = [
         "title",
+        "description",
         "department",
         "professorIds",
         "studentIds",
@@ -1677,7 +1689,7 @@ export const resolvers = {
       helpers.checkArg(args.title, "string", "title");
       helpers.checkArg(args.department, "string", "department");
       helpers.checkArg(args.professorIds, "array", "professorIds");
-      if (args.studentIds){
+      if (args.studentIds) {
         helpers.checkArg(args.studentIds, "array", "studentIds");
       }
 
@@ -1698,6 +1710,7 @@ export const resolvers = {
 
       //Pull project collection
       const projects = await projectCollection();
+      const users = await userCollection();
 
       //Create a new object that will hold values based on those provided from the arguments
       //Set to a new ObjectId()
@@ -1706,27 +1719,41 @@ export const resolvers = {
         _id: new ObjectId(),
         title: args.title.trim(),
         createdDate: new Date().toISOString(),
+        description: args.description ? args.description.trim() : null,
         department: args.department,
         professors: [],
         students: [],
         applications: [],
         numOfApplications: 0,
         numOfUpdates: 0,
+        channel: new ObjectId(),
       };
 
       // Fetch professors individually and place in the newProject
-        for (const professorId of toAddProfessorIds) {
-            const professor = await getUserById({ _id: professorId });
-            newProject.professors.push(professor);
-        }
-        
+      for (const professorId of toAddProfessorIds) {
+        // const professor = await getUserById({ _id: professorId });
+        const professor = await users.findOne({
+          _id:
+            typeof professorId === "string"
+              ? new ObjectId(professorId)
+              : professorId,
+        });
+        newProject.professors.push(professor);
+      }
+
       // Fetch students individually if there are any
-        if (args.studentIds) {
-            for (const studentId of args.studentIds) {
-            const student = await getUserById({ _id: studentId });
-            newProject.students.push(student);
-            }
+      if (args.studentIds) {
+        for (const studentId of args.studentIds) {
+          // const student = await getUserById({ _id: studentId });
+          const student = await users.findOne({
+            _id:
+              typeof studentId === "string"
+                ? new ObjectId(studentId)
+                : studentId,
+          });
+          newProject.students.push(student);
         }
+      }
 
       //Use insertOne to place the new object into the MongoDB for applications
       let insertedProject = await projects.insertOne(newProject);
@@ -1781,12 +1808,12 @@ export const resolvers = {
         "_id",
         "title",
         "department",
+        "description",
         "professorIds",
         "studentIds",
         "createdYear",
         "applicationRemovalId",
         "applicationEditId",
-
       ];
 
       for (let key in args) {
@@ -1823,6 +1850,11 @@ export const resolvers = {
           updateFields.title = args.title.trim();
         }
 
+        if (args.description) {
+          helpers.checkArg(args.description, "string", "description");
+          updateFields.description = args.description.trim();
+        }
+
         //Established Year Update
         if (args.createdYear) {
           helpers.checkArg(args.createdYear, "number", "createdYear");
@@ -1839,10 +1871,10 @@ export const resolvers = {
           helpers.checkArg(args.professorIds, "array", "professorIds");
           updateFields.professors = [];
           for (const id of args.professorIds) {
-            helpers.checkArg(id, "string", "id")
+            helpers.checkArg(id, "string", "id");
             let newProfessor = getUserById(id);
-            if (newProfessor){
-                updateFields.professors.push(newProfessor);
+            if (newProfessor) {
+              updateFields.professors.push(newProfessor);
             }
           }
         }
@@ -1851,35 +1883,41 @@ export const resolvers = {
           helpers.checkArg(args.studentIds, "array", "studentIds");
           updateFields.students = [];
           for (const id of args.studentIds) {
-            helpers.checkArg(id, "string", "id")
+            helpers.checkArg(id, "string", "id");
             let newStudent = getUserById(id);
-            if (newStudent){
-                updateFields.students.push(newStudent);
+            if (newStudent) {
+              updateFields.students.push(newStudent);
             }
           }
         }
 
         //Application Removal Id
         if (args.applicationRemovalId) {
-            helpers.checkArg(args.applicationRemovalId, "string", "id");
-            const newApplicationArray = (projectToUpdate.applications || []).filter(
-              application => !application._id.equals(new ObjectId(args.applicationRemovalId))
-            );          
-            updateFields.applications = newApplicationArray;
-          }
+          helpers.checkArg(args.applicationRemovalId, "string", "id");
+          const newApplicationArray = (
+            projectToUpdate.applications || []
+          ).filter(
+            (application) =>
+              !application._id.equals(new ObjectId(args.applicationRemovalId))
+          );
+          updateFields.applications = newApplicationArray;
+        }
 
         //Applications Edit Id
         if (args.applicationEditId) {
-            helpers.checkArg(args.applicationEditId, "string", "id");
-            const newApplicationArray = (projectToUpdate.applications || []).filter(
-              application => !application._id.equals(new ObjectId(args.applicationEditId))
-            );
-            const applicationToAdd = getApplicationById(args.applicationEditId);
-            if (applicationToAdd) {
-                newApplicationArray.push(applicationToAdd);
-            }
-            updateFields.applications = newApplicationArray;
+          helpers.checkArg(args.applicationEditId, "string", "id");
+          const newApplicationArray = (
+            projectToUpdate.applications || []
+          ).filter(
+            (application) =>
+              !application._id.equals(new ObjectId(args.applicationEditId))
+          );
+          const applicationToAdd = getApplicationById(args.applicationEditId);
+          if (applicationToAdd) {
+            newApplicationArray.push(applicationToAdd);
           }
+          updateFields.applications = newApplicationArray;
+        }
 
         //Use updateOne, matching the _id to the args._id. Note: the ID cannot be updated
         // $set: updates specific fields of a document without overwriting the entire document
@@ -1898,7 +1936,10 @@ export const resolvers = {
         }
 
         //Propagate this edit across all objects with project objects
-        await propagators.propagateProjectEditChanges(args._id, { ...projectToUpdate, ...updateFields });
+        await propagators.propagateProjectEditChanges(args._id, {
+          ...projectToUpdate,
+          ...updateFields,
+        });
 
         // Fetch the updated project data after successful update
         const updatedProject = { ...projectToUpdate, ...updateFields };
@@ -1928,7 +1969,6 @@ export const resolvers = {
 
         //Return the updated project object, which shows the new field values
         return updatedProject;
-
       } else {
         //If something goes wrong, throw a GraphQLError
         throw new GraphQLError(
@@ -1939,7 +1979,6 @@ export const resolvers = {
           }
         );
       }
-
     },
 
     // removeProject
@@ -2145,7 +2184,7 @@ export const resolvers = {
         "content",
         "projectId",
         "commentRemovalId",
-        "commentEditId"
+        "commentEditId",
       ];
       for (let key in args) {
         if (!fieldsAllowed.includes(key)) {
@@ -2229,24 +2268,25 @@ export const resolvers = {
 
         //Comment Removal Id
         if (args.commentRemovalId) {
-            helpers.checkArg(args.commentRemovalId, "string", "id");
-            const newCommentArray = (updateToUpdate.comments || []).filter(
-              comment => !comment._id.equals(new ObjectId(args.commentRemovalId))
-            );          
-            updateToUpdate.comments = newCommentArray;
+          helpers.checkArg(args.commentRemovalId, "string", "id");
+          const newCommentArray = (updateToUpdate.comments || []).filter(
+            (comment) =>
+              !comment._id.equals(new ObjectId(args.commentRemovalId))
+          );
+          updateToUpdate.comments = newCommentArray;
         }
 
         //Comments Edit Id
         if (args.commentEditId) {
-            helpers.checkArg(args.commentEditId, "string", "id");
-            const newCommentArray = (updateToUpdate.comments || []).filter(
-              comment => !comment._id.equals(new ObjectId(args.commentEditId))
-            );
-            const commentToAdd = getCommentById(args.commentEditId);
-            if (commentToAdd) {
-                newCommentArray.push(commentToAdd);
-            }
-            updateToUpdate.comments = newCommentArray;
+          helpers.checkArg(args.commentEditId, "string", "id");
+          const newCommentArray = (updateToUpdate.comments || []).filter(
+            (comment) => !comment._id.equals(new ObjectId(args.commentEditId))
+          );
+          const commentToAdd = getCommentById(args.commentEditId);
+          if (commentToAdd) {
+            newCommentArray.push(commentToAdd);
+          }
+          updateToUpdate.comments = newCommentArray;
         }
 
         //NOW, update the update in the mongodb. Use $set, which will not affect unupdated values
@@ -2492,7 +2532,7 @@ export const resolvers = {
         "lastUpdatedDate",
         "status",
         "commentRemovalId",
-        "commentEditId"
+        "commentEditId",
       ];
       for (let key in args) {
         if (!fieldsAllowed.includes(key)) {
@@ -2578,36 +2618,35 @@ export const resolvers = {
         //If the project exists, set the projectId to the args.projectId
         applicationToUpdate.project = pulledProject;
       }
-      
 
       if (args.status) {
         helpers.checkArg(args.status, "string", "status");
         applicationToUpdate.status = args.status;
       }
 
-    //Comment Removal Id
+      //Comment Removal Id
       if (args.commentRemovalId) {
         helpers.checkArg(args.commentRemovalId, "string", "id");
         const newCommentArray = (applicationToUpdate.comments || []).filter(
-          comment => !comment._id.equals(new ObjectId(args.commentRemovalId))
-        );        
+          (comment) => !comment._id.equals(new ObjectId(args.commentRemovalId))
+        );
         applicationToUpdate.comments = newCommentArray;
       }
 
-    //Comments Edit Id
-    if (args.commentEditId) {
+      //Comments Edit Id
+      if (args.commentEditId) {
         helpers.checkArg(args.commentEditId, "string", "id");
         const newCommentArray = (applicationToUpdate.comments || []).filter(
-          comment => !comment._id.equals(new ObjectId(args.commentEditId))
-        );        
+          (comment) => !comment._id.equals(new ObjectId(args.commentEditId))
+        );
         const commentToAdd = getCommentById(args.commentEditId);
         if (commentToAdd) {
-            newCommentArray.push(commentToAdd);
+          newCommentArray.push(commentToAdd);
         }
         applicationToUpdate.comments = newCommentArray;
       }
 
-      //Automatically update lastUpdatedDate 
+      //Automatically update lastUpdatedDate
       applicationToUpdate.lastUpdatedDate = new Date().toISOString();
 
       //NOW, update the applications in the mongodb. Use $set, which will not affect unupdated values
@@ -2626,7 +2665,10 @@ export const resolvers = {
       }
 
       //Propagate this removal across all objects with application objects
-      await propagators.propagateApplicationEditChanges(applicationToUpdate._id, { ...applicationToUpdate, ...updateFields });
+      await propagators.propagateApplicationEditChanges(
+        applicationToUpdate._id,
+        { ...applicationToUpdate, ...updateFields }
+      );
 
       // Update Redis cache
       try {
@@ -2638,10 +2680,7 @@ export const resolvers = {
 
         //Set the individual application cache.
         const cacheKey = `application:${args._id}`;
-        await redisClient.set(
-          cacheKey,
-          JSON.stringify(applicationToUpdate)
-        );
+        await redisClient.set(cacheKey, JSON.stringify(applicationToUpdate));
       } catch (error) {
         console.error("Failed to update Redis cache:", error);
         throw new GraphQLError(
@@ -2782,10 +2821,10 @@ export const resolvers = {
       }
 
       //Fetch commenter object (user)
-        const users = await userCollection();
-        const commenter = await users.findOne({
-            _id: new ObjectId(args.commenterId),
-        });
+      const users = await userCollection();
+      const commenter = await users.findOne({
+        _id: new ObjectId(args.commenterId),
+      });
 
       //Create a local object to hold the args values, and set the id to a new objectID
       const commentToAdd = {
@@ -2885,10 +2924,10 @@ export const resolvers = {
 
       //Checks to input arguments
       helpers.checkArg(args._id, "string", "id");
-      if (args.content){
+      if (args.content) {
         helpers.checkArg(args.content, "string", "content");
       }
-      if (args.commenterId){
+      if (args.commenterId) {
         helpers.checkArg(args.commenterId, "string", "id");
       }
 
@@ -2915,10 +2954,10 @@ export const resolvers = {
       //Object to hold fields to update
       const updateFields = {};
 
-      if (args.content){
+      if (args.content) {
         updateFields.content = args.content.trim();
       }
-      if (args.commenterId){
+      if (args.commenterId) {
         let commenter = await getUserById(args.commenterId);
         updateFields.commenter = commenter;
       }
@@ -2938,8 +2977,11 @@ export const resolvers = {
         );
       }
 
-    //Propagate this removal across all objects with comment objects
-    await propagators.propagateCommentEditChanges(args._id, { ...commentToUpdate, ...updateFields });
+      //Propagate this removal across all objects with comment objects
+      await propagators.propagateCommentEditChanges(args._id, {
+        ...commentToUpdate,
+        ...updateFields,
+      });
 
       try {
         //Update the individual comment cache
@@ -3062,7 +3104,8 @@ export const resolvers = {
         const user = await users.findOne({ email: email });
         return {
           message: "Token verified successfully",
-          uid,
+          _id: user._id,
+          name: `${user.firstName} ${user.lastName}`,
           email,
           role: user.role,
         };

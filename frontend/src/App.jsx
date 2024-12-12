@@ -14,6 +14,9 @@ import ProjectList from "./components/project/List";
 import ProjectDetails from "./components/project/[id]/Details";
 import ProjectAdd from "./components/project/Add";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+import Chat from "./components/Chat";
+
 const App = () => {
   const getCSSVariable = (variable) =>
     getComputedStyle(document.documentElement).getPropertyValue(variable);
@@ -122,6 +125,13 @@ const App = () => {
         <Route path="/project" element={<ProjectList />} />
         <Route path="/project/add" element={<ProjectAdd />} />
         <Route path="/project/:id" element={<ProjectDetails />} />
+        <Route path="/chat" element={<Chat />} />
+        <Route
+          path="/protected"
+          element={
+            <ProtectedRoute allowedRoles={["STUDENT", "PROFESSOR", "ADMIN"]} />
+          }
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
