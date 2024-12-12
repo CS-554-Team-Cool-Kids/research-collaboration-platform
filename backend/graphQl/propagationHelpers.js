@@ -185,12 +185,12 @@ export async function propagateUserEditChanges(userId, updatedUserData) {
         const updatedProjectFields = {};
 
         if (project.professors.some((prof) => prof._id.equals(userId))){
-          professorArray = project.professors.map((prof) => prof._id.toString());
+          const professorArray = project.professors.map((prof) => prof._id.toString());
           updatedProjectFields.professors = professorArray;
         }
         
         if (project.students.some((stud) => stud._id.equals(userId))){
-          studentArray = project.students.map((stud) => stud._id.toString());
+          const studentArray = project.students.map((stud) => stud._id.toString());
           updatedProjectFields.students = studentArray;
         }
 
@@ -345,9 +345,9 @@ export async function propagateProjectRemovalChanges(projectId) {
 }
 
 
-//HELPER FUNCTION: propogateProjectEditChanges
+//HELPER FUNCTION: propagateProjectEditChanges
 //Propagate project edit updates across related entities: updates, applications, user
-export async function propogateProjectEditChanges(projectId, updatedProjectData) {
+export async function propagateProjectEditChanges(projectId, updatedProjectData) {
   
   // Handle applications
   try {
@@ -432,7 +432,7 @@ export async function propogateProjectEditChanges(projectId, updatedProjectData)
 
 
 //HELPER FUNCTION: propagateApplicationRemovalChanges
-//Propagate project removal updates across related entities: projects, users
+//Propagate application removal updates across related entities: projects, users
 export async function propagateApplicationRemovalChanges(applicationId) {
   
   // Handle users - remove application from users' application lists
@@ -452,12 +452,12 @@ export async function propagateApplicationRemovalChanges(applicationId) {
           });
         }
 
-      console.log(`Updated users' project associations for project ${projectId}`);
+      console.log(`Updated users' application associations for application ${applicationId}`);
 
     }
 
   } catch (error) {
-    console.error(`Failed to remove project from users for project ${projectId}: ${error.message}`);
+    console.error(`Failed to remove application from users for application ${applicationId}: ${error.message}`);
     throw error;
   }
 
@@ -473,25 +473,25 @@ export async function propagateApplicationRemovalChanges(applicationId) {
       for (const project of relatedProjects) {
 
           resolvers.editProject({
-            _id: user._id,
+            _id: project._id,
             applicationRemovalId: applicationId
           });
         }
 
-      console.log(`Updated users' project associations for project ${projectId}`);
+      console.log(`Updated users' application associations for application ${applicationId}`);
 
     }
 
   } catch (error) {
-    console.error(`Failed to remove project from users for project ${projectId}: ${error.message}`);
+    console.error(`Failed to remove application from projects for application ${applicationId}: ${error.message}`);
     throw error;
   }
 }
 
 
-//HELPER FUNCTION: propogateApplicationEditChanges
-//Propagate project removal updates across related entities: projects, users
-export async function propogateApplicationEditChanges(applicationId, updatedApplicationData) {
+//HELPER FUNCTION: propagateApplicationEditChanges 
+//Propagate application removal updates across related entities: projects, users
+export async function propagateApplicationEditChanges(applicationId, updatedApplicationData) {
   
   // Handle users - edited application from users' application lists
   try {
@@ -510,12 +510,12 @@ export async function propogateApplicationEditChanges(applicationId, updatedAppl
           });
         }
 
-      console.log(`Updated users' project associations for project ${projectId}`);
+      console.log(`Updated users' application associations for application ${applicationId}`);
 
     }
 
   } catch (error) {
-    console.error(`Failed to remove project from users for project ${projectId}: ${error.message}`);
+    console.error(`Failed to edit application association in users for application ${applicationId}: ${error.message}`);
     throw error;
   }
 
@@ -531,17 +531,17 @@ export async function propogateApplicationEditChanges(applicationId, updatedAppl
       for (const project of relatedProjects) {
 
           resolvers.editProject({
-            _id: user._id,
+            _id: project._id,
             applicationEditId: applicationId
           });
         }
 
-      console.log(`Updated users' project associations for project ${projectId}`);
+      console.log(`Updated projects' application associations for application ${applicationId}`);
 
     }
 
   } catch (error) {
-    console.error(`Failed to remove project from users for project ${projectId}: ${error.message}`);
+    console.error(`Failed to edit applicatios for projects for application ${applicationId}: ${error.message}`);
     throw error;
   }
 }
@@ -563,7 +563,7 @@ export async function propagateCommentRemovalChanges(commentId) {
         for (const application of relatedApplications) {
   
             resolvers.editApplication({
-              _id: user._id,
+              _id: application._id,
               commentRemovalId: commentId
             });
           }
@@ -589,7 +589,7 @@ export async function propagateCommentRemovalChanges(commentId) {
         for (const update of relatedUpdates) {
   
             resolvers.editUpdate({
-              _id: user._id,
+              _id: update._id,
               commentRemovalId: commentId
             });
           }
@@ -622,7 +622,7 @@ export async function propagateCommentEditChanges(commentId) {
       for (const application of relatedApplications) {
 
           resolvers.editApplication({
-            _id: user._id,
+            _id: application._id,
             commentEditId: commentId
           });
         }
@@ -648,7 +648,7 @@ export async function propagateCommentEditChanges(commentId) {
       for (const update of relatedUpdates) {
 
           resolvers.editUpdate({
-            _id: user._id,
+            _id: update._id,
             commentEditId: commentId
           });
         }

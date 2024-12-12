@@ -46,7 +46,7 @@ redisClient.on("error", (err) => console.error("Redis Client Error", err));
 
 //Helpers
 import * as helpers from "./helpers.js";
-import * as propagators from './propogationHelpers.js';
+import * as propagators from './propagationHelpers.js';
 
 //RESOLVERS
 export const resolvers = {
@@ -1476,15 +1476,15 @@ export const resolvers = {
         //Project Removal Id
         if (args.projectRemovalId) {
             helpers.checkArg(args.projectRemovalId, "string", "id");
-            newProjectArray = userToUpdate.projects.filter(project => project._id !== args.projectRemovalId);
+            const newProjectArray = (userToUpdate.projects || []).filter(project => !project._id.equals(new ObjectId(args.projectRemovalId)));
             updateFields.projects = newProjectArray;
           }
 
         //Project Edit Id
         if (args.projectEditId) {
             helpers.checkArg(args.projectEditId, "string", "id");
-            newProjectArray = userToUpdate.projects.filter(project => project._id !== args.projectEditId);
-            projectToAdd = getProjectById(args.projectEditId);
+            const newProjectArray = (userToUpdate.projects || []).filter(project => !project._id.equals(new ObjectId(args.projectEditId)));
+            const projectToAdd = getProjectById(args.projectEditId);
             if (projectToAdd) {
                 newProjectArray.push(projectToAdd);
             }
@@ -1494,15 +1494,15 @@ export const resolvers = {
         //Application Removal Id
         if (args.applicationRemovalId) {
             helpers.checkArg(args.applicationRemovalId, "string", "id");
-            newApplicationArray = userToUpdate.applications.filter(application => application._id !== args.applicationRemovalId);
+            const newApplicationArray = (userToUpdate.applications || []).filter(application => !application._id.equals(new ObjectId(args.applicationRemovalId)));
             updateFields.applications = newApplicationArray;
           }
 
         //Applications Edit Id
         if (args.applicationEditId) {
             helpers.checkArg(args.applicationEditId, "string", "id");
-            newApplicationArray = userToUpdate.applications.filter(application => application._id !== args.applicationEditId);
-            applicationToAdd = getApplicationById(applicationEditId);
+            const newApplicationArray = (userToUpdate.applications || []).filter(application => !application._id.equals(new ObjectId(args.applicationEditId)));
+            const applicationToAdd = getApplicationById(args.applicationEditId);
             if (applicationToAdd) {
                 newApplicationArray.push(applicationToAdd);
             }
@@ -1525,7 +1525,7 @@ export const resolvers = {
           );
         }
 
-        //Propogate this removal across all objects with user objects
+        //Propagate this removal across all objects with user objects
         await propagators.propagateUserEditChanges(userId, { ...userToUpdate, ...updateFields });
 
         try {
@@ -1612,7 +1612,7 @@ export const resolvers = {
         );
       }
 
-      //Propogate this removal across all objects with user objects
+      //Propagate this removal across all objects with user objects
       await propagators.propagateUserRemovalChanges(args._id);
 
       // Delete the users and projects cache, as they are no longer accurate; and individual user cache
@@ -1862,15 +1862,19 @@ export const resolvers = {
         //Application Removal Id
         if (args.applicationRemovalId) {
             helpers.checkArg(args.applicationRemovalId, "string", "id");
-            newApplicationArray = projectToUpdate.applications.filter(application => application._id !== args.applicationRemovalId);
+            const newApplicationArray = (projectToUpdate.applications || []).filter(
+              application => !application._id.equals(new ObjectId(args.applicationRemovalId))
+            );          
             updateFields.applications = newApplicationArray;
           }
 
         //Applications Edit Id
         if (args.applicationEditId) {
             helpers.checkArg(args.applicationEditId, "string", "id");
-            newApplicationArray = projectToUpdate.applications.filter(application => application._id !== args.applicationEditId);
-            applicationToAdd = getApplicationById(applicationEditId);
+            const newApplicationArray = (projectToUpdate.applications || []).filter(
+              application => !application._id.equals(new ObjectId(args.applicationEditId))
+            );
+            const applicationToAdd = getApplicationById(args.applicationEditId);
             if (applicationToAdd) {
                 newApplicationArray.push(applicationToAdd);
             }
@@ -1893,8 +1897,8 @@ export const resolvers = {
           );
         }
 
-        //Propogate this edit across all objects with project objects
-        await propagators.propogateProjectEditChanges(projectId, { ...projectToUpdate, ...updateFields });
+        //Propagate this edit across all objects with project objects
+        await propagators.propagateProjectEditChanges(args._id, { ...projectToUpdate, ...updateFields });
 
         // Fetch the updated project data after successful update
         const updatedProject = { ...projectToUpdate, ...updateFields };
@@ -1989,7 +1993,7 @@ export const resolvers = {
       await updates.deleteMany({ project: new ObjectId(args._id) });
       await applications.deleteMany({ project: new ObjectId(args._id) });
 
-      //Propogate this removal across all objects with project objects
+      //Propagate this removal across all objects with project objects
       await propagators.propagateProjectRemovalChanges(args._id);
 
       //Try/catch for redis
@@ -2226,19 +2230,23 @@ export const resolvers = {
         //Comment Removal Id
         if (args.commentRemovalId) {
             helpers.checkArg(args.commentRemovalId, "string", "id");
-            newCommentArray = updateToUpdate.comments.filter(comment => comment._id !== args.commentRemovalId);
-            updateFields.comments = newCommentArray;
+            const newCommentArray = (updateToUpdate.comments || []).filter(
+              comment => !comment._id.equals(new ObjectId(args.commentRemovalId))
+            );          
+            updateToUpdate.comments = newCommentArray;
         }
 
         //Comments Edit Id
         if (args.commentEditId) {
             helpers.checkArg(args.commentEditId, "string", "id");
-            newCommentArray = updateToUpdate.comments.filter(comment => comment._id !== args.commentEditId);
-            commentToAdd = getCommentById(commentEditId);
+            const newCommentArray = (updateToUpdate.comments || []).filter(
+              comment => !comment._id.equals(new ObjectId(args.commentEditId))
+            );
+            const commentToAdd = getCommentById(args.commentEditId);
             if (commentToAdd) {
                 newCommentArray.push(commentToAdd);
             }
-            updateFields.comments = newCommentArray;
+            updateToUpdate.comments = newCommentArray;
         }
 
         //NOW, update the update in the mongodb. Use $set, which will not affect unupdated values
@@ -2580,19 +2588,23 @@ export const resolvers = {
     //Comment Removal Id
       if (args.commentRemovalId) {
         helpers.checkArg(args.commentRemovalId, "string", "id");
-        newCommentArray = applicationToUpdate.comments.filter(comment => comment._id !== args.commentRemovalId);
-        updateFields.comments = newCommentArray;
+        const newCommentArray = (applicationToUpdate.comments || []).filter(
+          comment => !comment._id.equals(new ObjectId(args.commentRemovalId))
+        );        
+        applicationToUpdate.comments = newCommentArray;
       }
 
     //Comments Edit Id
     if (args.commentEditId) {
         helpers.checkArg(args.commentEditId, "string", "id");
-        newCommentArray = applicationToUpdate.comments.filter(comment => comment._id !== args.commentEditId);
-        commentToAdd = getCommentById(commentEditId);
+        const newCommentArray = (applicationToUpdate.comments || []).filter(
+          comment => !comment._id.equals(new ObjectId(args.commentEditId))
+        );        
+        const commentToAdd = getCommentById(args.commentEditId);
         if (commentToAdd) {
             newCommentArray.push(commentToAdd);
         }
-        updateFields.comments = newCommentArray;
+        applicationToUpdate.comments = newCommentArray;
       }
 
       //Automatically update lastUpdatedDate 
@@ -2613,8 +2625,8 @@ export const resolvers = {
         );
       }
 
-      //Propogate this removal across all objects with application objects
-      await propagators.propogateApplicationEditChanges(applicationToUpdate._id, { ...applicationToUpdate, ...updateFields });
+      //Propagate this removal across all objects with application objects
+      await propagators.propagateApplicationEditChanges(applicationToUpdate._id, { ...applicationToUpdate, ...updateFields });
 
       // Update Redis cache
       try {
@@ -2686,7 +2698,7 @@ export const resolvers = {
         );
       }
 
-      //Propogate this removal across all objects with application objects
+      //Propagate this removal across all objects with application objects
       await propagators.propagateApplicationRemovalChanges(args._id);
 
       //Delete the individual application cache, and the applications cache, as this is now out of data
@@ -2926,7 +2938,7 @@ export const resolvers = {
         );
       }
 
-    //Propogate this removal across all objects with comment objects
+    //Propagate this removal across all objects with comment objects
     await propagators.propagateCommentEditChanges(args._id, { ...commentToUpdate, ...updateFields });
 
       try {
@@ -3004,7 +3016,7 @@ export const resolvers = {
         );
       }
 
-      //Propogate this removal across all objects with user objects
+      //Propagate this removal across all objects with user objects
       await propagators.propagateCommentRemovalChanges(args._id);
 
       try {
