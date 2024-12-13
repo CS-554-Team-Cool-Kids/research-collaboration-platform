@@ -21,6 +21,25 @@ const Register = () => {
   const [department, setDepartment] = useState("");
   const [bio, setBio] = useState("");
   const [addUser] = useMutation(queries.ADD_USER);
+
+  const {
+    data: departmentData,
+    loading: departmentLoading,
+    error: departmentError,
+  } = useQuery(queries.GET_ENUM_DEPARTMENT);
+
+  const {
+    data: roleData,
+    loading: roleLoading,
+    error: roleError,
+  } = useQuery(queries.GET_ENUM_ROLE);
+
+  const filteredRoles = roleData
+    ? roleData.__type.enumValues.filter(
+        (role) => role.name.toLowerCase() !== "admin"
+      )
+    : [];
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -59,7 +78,7 @@ const Register = () => {
       lastName.value = checkIsProperFirstOrLastName(lastName.value, "lastName");
       role.value = checkIsProperString(role.value, "role");
       department.value = checkIsProperString(department.value, "department");
-      if (bio) {
+      if (bio.value) {
         bio.value = checkIsProperString(bio.value, "bio");
       }
       if (password.value !== confirmPassword.value) {
@@ -94,7 +113,7 @@ const Register = () => {
         </h2>
       </div>
       <div className="d-card-body">
-        <form id="registerform" onSubmit={handleSubmit}>
+        <form id="registerform" onSubmit={handleSubmit} autoComplete="off">
           <div className="form-floating mb-3">
             <input
               className="form-control"
@@ -166,30 +185,60 @@ const Register = () => {
           </div>
 
           <div className="form-floating mb-3">
-            <input
-              className="form-control"
-              type="text"
-              id="role"
-              name="role"
-              placeholder="Role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              required
-            />
+            {roleLoading ? (
+              <select className="form-select" disabled>
+                <option>Loading Roles...</option>
+              </select>
+            ) : roleError ? (
+              <select className="form-select" disabled>
+                <option>Error loading Roles</option>
+              </select>
+            ) : (
+              <select
+                className="form-select"
+                id="role"
+                name="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                required
+              >
+                <option value="">Select a Role</option>
+                {filteredRoles.map((role) => (
+                  <option key={role.name} value={role.name}>
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+            )}
             <label htmlFor="role">Role:</label>
           </div>
 
           <div className="form-floating mb-3">
-            <input
-              className="form-control"
-              type="text"
-              id="department"
-              name="department"
-              placeholder="Department"
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              required
-            />
+            {departmentLoading ? (
+              <select className="form-select" disabled>
+                <option>Loading departments...</option>
+              </select>
+            ) : departmentError ? (
+              <select className="form-select" disabled>
+                <option>Error loading departments</option>
+              </select>
+            ) : (
+              <select
+                className="form-select"
+                id="department"
+                name="department"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                required
+              >
+                <option value="">Select a department</option>
+                {departmentData.__type.enumValues.map((dept) => (
+                  <option key={dept.name} value={dept.name}>
+                    {dept.name}
+                  </option>
+                ))}
+              </select>
+            )}
             <label htmlFor="department">Department:</label>
           </div>
 

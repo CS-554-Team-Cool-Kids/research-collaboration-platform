@@ -5,6 +5,7 @@ import NextIcon from "../../assets/svg/NextIcon";
 import ChatIcon from "../../assets/svg/ChatIcon_2";
 import AnnouncementIcon from "../../assets/svg/Announcement";
 import VoiceIcon from "../../assets/svg/VoiceIcon";
+import Members from "../../assets/svg/Members";
 
 const ActionBar = (props) => {
   useEffect(() => {
@@ -58,31 +59,38 @@ const ActionBar = (props) => {
 
         <ul>
           <li className="nav-item active">
-            <HomeIcon />
+            <div className="iconSwitch">
+              <HomeIcon />
+            </div>
+
             <span>Home</span>
           </li>
           <li className="nav-item">
-            <HomeIcon />
-            <span>Home</span>
-          </li>
-          <li className="nav-item">
-            <HomeIcon />
-            <span>Home</span>
+            <div className="iconSwitch">
+              {" "}
+              <Members />
+            </div>
+
+            <span>Members</span>
           </li>
         </ul>
 
         <div className="nav-title">Channel</div>
         <ul>
           <li className="nav-item active">
-            <ChatIcon />
+            <div className="iconSwitch">
+              <ChatIcon />
+            </div>
+
             <span>Text</span>
           </li>
+
           <li className="nav-item">
-            <VoiceIcon />
-            <span>Voice</span>
-          </li>
-          <li className="nav-item">
-            <AnnouncementIcon />
+            <div className="iconSwitch">
+              {" "}
+              <AnnouncementIcon />
+            </div>
+
             <span>Announcement</span>
           </li>
         </ul>

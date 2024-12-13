@@ -11,11 +11,13 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 
 import ProjectList from "./components/project/List";
-import ProjectDetails from "./components/project/Details";
+import ProjectDetails from "./components/project/[id]/Details";
+import ProjectAdd from "./components/project/Add";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Chat from "./components/Chat";
 
 const App = () => {
+  //Theming
   const getCSSVariable = (variable) =>
     getComputedStyle(document.documentElement).getPropertyValue(variable);
 
@@ -27,6 +29,7 @@ const App = () => {
       shadowColor: getCSSVariable("--shadow1"),
       stripeTableColor: getCSSVariable("--stripeTableColor1"),
       gradientColor: getCSSVariable("--lightGradient1"),
+      accentColor: getCSSVariable("--purple2"),
     },
     dark: {
       textColor: getCSSVariable("--white1"),
@@ -35,6 +38,7 @@ const App = () => {
       shadowColor: getCSSVariable("--shadow2"),
       stripeTableColor: getCSSVariable("--stripeTableColor2"),
       gradientColor: getCSSVariable("--darkGradient1"),
+      accentColor: getCSSVariable("--purple1"),
     },
   };
 
@@ -64,6 +68,10 @@ const App = () => {
     document.documentElement.style.setProperty(
       "--activeGradientColor",
       theme.gradientColor
+    );
+    document.documentElement.style.setProperty(
+      "--activeAccentColor",
+      theme.accentColor
     );
 
     document.body.classList.toggle("dark", isDarkMode);
@@ -120,15 +128,41 @@ const App = () => {
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/register" element={<Register />} />
         <Route path="/user/:id" element={<UserDashboard />} />
-        <Route path="/project/list" element={<ProjectList />} />
-        <Route path="/project/details/:id" element={<ProjectDetails />} />
-        <Route path="/chat" element={<Chat />} />
+
+        {/* Protected routes */}
         <Route
-          path="/protected"
+          path="/project"
           element={
-            <ProtectedRoute allowedRoles={["STUDENT", "PROFESSOR", "ADMIN"]} />
+            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <ProjectList />
+            </ProtectedRoute>
           }
         />
+        <Route
+          path="/project/add"
+          element={
+            <ProtectedRoute allowedRoles={["PROFESSOR"]}>
+              <ProjectAdd />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/project/:id"
+          element={
+            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <ProjectDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute allowedRoles={["STUDENT", "PROFESSOR", "ADMIN"]}>
+              <Chat />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

@@ -22,8 +22,8 @@ const GET_PROJECTS = gql`
       }
       applications {
         _id
-        applicantId
-        projectId
+        applicant
+        project
         status
       }
       numOfApplications
@@ -67,16 +67,9 @@ const GET_USER_BY_ID = gql`
       firstName
       lastName
       email
-      password
       role
       department
       bio
-      applications {
-        _id
-        applicantId
-        projectId
-        status
-      }
       projects {
         _id
         title
@@ -333,20 +326,21 @@ const ADD_USER = gql`
 const ADD_PROJECT = gql`
   mutation AddProject(
     $title: String!
-    $createdDate: String!
+    $description: String
     $department: Department!
     $professorIds: [String!]!
     $studentIds: [String]
   ) {
     addProject(
       title: $title
-      createdDate: $createdDate
+      description: $description
       department: $department
       professorIds: $professorIds
       studentIds: $studentIds
     ) {
       _id
       title
+      description
       createdDate
       department
       professors {
@@ -358,12 +352,6 @@ const ADD_PROJECT = gql`
         _id
         firstName
         lastName
-      }
-      applications {
-        _id
-        applicantId
-        projectId
-        status
       }
       numOfApplications
       numOfUpdates
@@ -583,7 +571,8 @@ const LOGIN_MUTATION = gql`
   mutation Login($token: String!) {
     login(token: $token) {
       message
-      uid
+      _id
+      name
       email
       role
     }
@@ -593,6 +582,16 @@ const LOGIN_MUTATION = gql`
 const GET_ENUM_DEPARTMENT = gql`
   query GetEnumValues {
     __type(name: "Department") {
+      enumValues {
+        name
+      }
+    }
+  }
+`;
+
+const GET_ENUM_ROLE = gql`
+  query GetEnumValues {
+    __type(name: "Role") {
       enumValues {
         name
       }
@@ -629,6 +628,7 @@ let exported = {
   REMOVE_APPLICATION,
   LOGIN_MUTATION,
   GET_ENUM_DEPARTMENT,
+  GET_ENUM_ROLE,
 };
 
 export default exported;
