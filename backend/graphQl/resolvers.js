@@ -360,7 +360,7 @@ export const resolvers = {
       }
 
       //If not cached, pull project collection and then findOne specific project
-      const projects = await projectCollectionCollection();
+      const projects = await projectCollection();
       const project = await projects.findOne({ _id: new ObjectId(args._id) });
 
       //If no project, throw GraphQLError
