@@ -2,8 +2,12 @@ import React, { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import queries from "../../queries";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 const AddProject = () => {
+  const { authState } = useAuth();
+  const userId = authState.user.id;
+
   const [title, setTitle] = useState("");
   const [department, setDepartment] = useState("");
   const [description, setDescription] = useState("");
@@ -26,7 +30,7 @@ const AddProject = () => {
           title,
           description,
           department,
-          professorIds: ["67590667d7fc41be5ef64425"],
+          professorIds: [userId],
         },
       });
 

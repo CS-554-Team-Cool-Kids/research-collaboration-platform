@@ -42,9 +42,10 @@
   --activeStripeTableColor: var(--stripeTableColor1);
   --activeGlassColor: var(--glass1);
   --activeGradientColor: var(--lightGradient1);
+  --activeAccentColor: var(--purple2);
   --activeFont: "Apple1";
 
-  --transitionDelay: 0.2s;
+  --transitionDuration: 0.2s;
 }
 
 /* General Styles
@@ -66,12 +67,12 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
 
-  transition: all var(--transitionDelay) linear;
+  transition: all var(--transitionDuration) linear;
   font-family: var(--activeFont), "Montserrat", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
   font-weight: 400;
-  transition: all var(--transitionDelay) linear;
+  transition: all var(--transitionDuration) linear;
 }
 
 html,
@@ -235,10 +236,10 @@ a:focus {
 }
 
 .btn {
-  transition: all var(--transitionDelay) linear;
+  transition: all var(--transitionDuration) linear;
 }
 .btn:hover {
-  filter: brightness(1.4);
+  filter: brightness(1.25);
 }
 
 .invertColor {
@@ -538,7 +539,7 @@ footer {
   border-bottom: 1px solid var(--fadeGrey);
   border-left: 8px solid var(--transparent);
   cursor: pointer;
-  transition: all var(--transitionDelay) linear;
+  transition: all var(--transitionDuration) linear;
 }
 
 .chat-list li:hover {
@@ -580,7 +581,7 @@ footer {
 }
 
 .transition-1 {
-  transition: all var(--transitionDelay) linear;
+  transition: all var(--transitionDuration) linear;
 }
 
 /* Toggle Light and Dark Mode */

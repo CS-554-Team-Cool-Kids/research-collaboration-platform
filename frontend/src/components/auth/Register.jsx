@@ -113,7 +113,7 @@ const Register = () => {
         </h2>
       </div>
       <div className="d-card-body">
-        <form id="registerform" onSubmit={handleSubmit} autocomplete="off">
+        <form id="registerform" onSubmit={handleSubmit} autoComplete="off">
           <div className="form-floating mb-3">
             <input
               className="form-control"

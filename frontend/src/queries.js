@@ -67,16 +67,9 @@ const GET_USER_BY_ID = gql`
       firstName
       lastName
       email
-      password
       role
       department
       bio
-      applications {
-        _id
-        applicantId
-        projectId
-        status
-      }
       projects {
         _id
         title
