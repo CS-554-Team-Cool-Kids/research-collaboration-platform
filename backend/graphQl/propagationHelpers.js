@@ -479,18 +479,25 @@ export async function propagateProjectEditChanges(
 //HELPER FUNCTION: propagateApplicationRemovalChanges
 //Propagate application removal updates across related entities: projects, users
 export async function propagateApplicationRemovalChanges(applicationId) {
+  // Convert string applicationId to ObjectId
+  const appObjectId = new ObjectId(applicationId);
+
   // Handle users - remove application from users' application lists
   try {
-    const relatedUsers = await userCollection()
-      .find({
-        "applications._id": applicationId,
-      })
+    const users = await userCollection();
+    if (!users || typeof users.find !== "function") {
+      throw new Error("Invalid user collection. Check your database connection.");
+    }
+
+    const relatedUsers = await users
+      .find({ "applications._id": appObjectId })
       .toArray();
 
     if (relatedUsers.length > 0) {
       for (const user of relatedUsers) {
+        // Update the user's applications array by removing the application
         resolvers.editUser({
-          _id: user._id,
+          _id: user._id.toString(),
           applicationRemovalId: applicationId,
         });
       }
@@ -508,22 +515,26 @@ export async function propagateApplicationRemovalChanges(applicationId) {
 
   // Handle projects - remove application from projects' application lists
   try {
-    const relatedProjects = await projectCollection()
-      .find({
-        "applications._id": applicationId,
-      })
+    const projects = await projectCollection();
+    if (!projects || typeof projects.find !== "function") {
+      throw new Error("Invalid project collection. Check your database connection.");
+    }
+
+    const relatedProjects = await projects
+      .find({ "applications._id": appObjectId })
       .toArray();
 
     if (relatedProjects.length > 0) {
       for (const project of relatedProjects) {
+        // Update the project's applications array by removing the application
         resolvers.editProject({
-          _id: project._id,
+          _id: project._id.toString(),
           applicationRemovalId: applicationId,
         });
       }
 
       console.log(
-        `Updated users' application associations for application ${applicationId}`
+        `Updated projects' application associations for application ${applicationId}`
       );
     }
   } catch (error) {
@@ -533,6 +544,7 @@ export async function propagateApplicationRemovalChanges(applicationId) {
     throw error;
   }
 }
+
 
 //HELPER FUNCTION: propagateApplicationEditChanges
 //Propagate application removal updates across related entities: projects, users
