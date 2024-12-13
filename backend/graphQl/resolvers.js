@@ -1244,6 +1244,18 @@ export const resolvers = {
   },
 
   Project: {
+
+    applications: async (parentValue) => {
+      // Pull the applications collection
+      const applications = await applicationCollection();
+      // Query all applications where project._id matches this project’s _id
+      const projectApplications = await applications
+        .find({ "project._id": new ObjectId(parentValue._id) })
+        .toArray();
+        
+      return projectApplications;
+    },
+
     // numOfApplications
     // Purpose: Compute the number of applications there are for a specific project
     // parentValue = Project object; numOfApplicants will appear in the Project object
