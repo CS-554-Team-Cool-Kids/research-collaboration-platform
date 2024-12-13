@@ -18,97 +18,76 @@ function ApplicationList(props) {
             Note: the queries file was updated to ensure the necessary pieces of data are passed.
     */
    
-    /* Client Side Logic:
+    /*Client Side Logic:
 
     const id = props.userId;
-    const applicationData = useQuery(queries.GET_USER_BY_ID, {
+    //const id = "67590667d7fc41be5ef64425";
+    const {loading, error, data} = useQuery(queries.GET_USER_BY_ID, {
         variables: { id },
-        fetchPolicy: 'cache-and-network'
+        fetchPolicy: 'network-only'
     });
-    const applicationsList = applicationData.data.getUserById.applications;
-
-    const loading = applicationData.loading;
-    const error = applicationData.error;
-    */
-
+    /* End of Client Side Logic */
+    
     /* Temporary (Dummy) Data */
-    const applicationsList = [
-        {
-            _id: "001",
-            project: {
-                _id:"1001",
-                title: "Project Alpha"
-            },
-            applicationDate: "12/01/2024",
-            lastUpdatedDdate: "12/08/2024",
-            status: "PENDING",
-            comments: [
+    const data = {
+        getUserById: {
+            _id: "67590667d7fc41be5ef64425",
+            firstName: "Kushal",
+            lastName: "Trivedi",
+            applications: [
                 {
-                    _id:"2001",
-                    commenter: {
-                        _id: "002",
-                        firstName: "John",
-                        lastName: "Doe",
+                    _id: "675ba2b9a7087b383bde3992",
+                    applicant: {
+                    _id: "67590667d7fc41be5ef64425",
+                    firstName: "Kushal",
+                    lastName: "Trivedi"
                     },
-                    content: "Lorem ipsum...",
-                    postedDate: "12/02/2024"
+                    project: {
+                    _id: "675b2aeb0715f0d79465f037",
+                    title: "AI Research in Finance"
+                    },
+                    applicationDate: "2024-12-13T02:58:01.023Z",
+                    lastUpdatedDate: "2024-12-13T02:58:01.023Z",
+                    status: "PENDING",
+                    numOfComments: 0
                 },
                 {
-                    _id:"2002",
-                    commenter: {
-                        _id: "001",
-                        firstName: "Lisa",
-                        lastName: "Frank",
+                    _id: "675ba2d6a7087b383bde3993",
+                    applicant: {
+                    _id: "67590667d7fc41be5ef64425",
+                    firstName: "Kushal",
+                    lastName: "Trivedi"
                     },
-                    content: "Lorem ipsum...",
-                    postedDate: "12/03/2024"
+                    project: {
+                    _id: "675b2aeb0715f0d79465f037",
+                    title: "AI Research in Finance"
+                    },
+                    applicationDate: "2024-12-13T02:58:30.935Z",
+                    lastUpdatedDate: "2024-12-13T02:58:30.935Z",
+                    status: "PENDING",
+                    numOfComments: 0
                 }
             ],
-            numOfComments: 2
-        },
-        {
-            _id: "002",
-            project: {
-                _id:"1002",
-                title: "Project Gamma"
-            },
-            applicationDate: "10/21/2024",
-            lastUpdatedDdate: "12/01/2024",
-            status: "WITHDRAWN",
-            comments: [
-                {
-                    _id:"2001",
-                    commenter: {
-                        _id: "002",
-                        firstName: "John",
-                        lastName: "Doe",
-                    },
-                    content: "Lorem ipsum...",
-                    postedDate: "12/02/2024"
-                },
-                {
-                    _id:"2002",
-                    commenter: {
-                        _id: "001",
-                        firstName: "Lisa",
-                        lastName: "Frank",
-                    },
-                    content: "Lorem ipsum...",
-                    postedDate: "12/03/2024"
-                }
-            ],
-            numOfComments: 2
+            email: "ktrivedi1@gmail.com",
+            role: "STUDENT",
+            department: "COMPUTER_SCIENCE",
+            bio: null,
+            numOfApplications: 0,
+            numOfProjects: 0,
+            projects: []
         }
-    ]
+    };
     const loading = false;
     const error = false;
     /* End of Temporary Data */
+
     const [applications, setApplications] = useState([]);
     const [selectedApplication, setSelectedApplication] = useState(null);
 
     useEffect( () => {
         // Load data from props or default application data
-        setApplications(props.applications || applicationsList || []);
+        //setApplications(props.applications || data.getUserById.applications || []);
+        setApplications(props.applications || data.getUserById.applications || []);
     }, [props.applications]);
 
     if(loading){

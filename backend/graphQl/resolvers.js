@@ -153,7 +153,7 @@ export const resolvers = {
         return JSON.parse(cachedUpdates);
       }
 
-      const updates = await updateCollectionCollection();
+      const updates = await updateCollection();
       const allUpdates = await updates.find({}).toArray();
 
       //If no updates, throw GraphQLError
@@ -185,16 +185,16 @@ export const resolvers = {
       const cachedApplications = await redisClient.get(cacheKey);
 
       //If projects are updates, return the parsed JSON (JSON string to object)
-      if (cachedUpdates) {
+      if (cachedApplications) {
         console.log("Returning applications from cache.");
-        return JSON.parse(cachedUpdates);
+        return JSON.parse(cachedApplications);
       }
 
-      const applications = await updateCollectionCollection();
+      const applications = await applicationCollection();
       const allApplications = await applications.find({}).toArray();
 
       //If no updates, throw GraphQLError
-      if (allApplications.length === 0) {
+      if (!allApplications || !Array.isArray) {
         throw new GraphQLError("Internal Server Error", {
           //INTERNAL_SERVER_ERROR = status code 500
           extensions: { code: "INTERNAL_SERVER_ERROR" },
@@ -1110,7 +1110,12 @@ export const resolvers = {
     // Purpose: Compute the number of applications a user has submitted by counting the applications with the matching userId
     // parentValue = User object; numOfApplications appears in the User object
     // How this works: queries applicationCollections and counts collections with that userId
-
+    applications: async (parentValue) => {
+      const applications = await applicationCollection();
+      const userApplications = await applications
+        .find({'applicant._id': new Object(parentValue._id)});
+      return userApplications;
+    },
     numOfApplications: async (parentValue) => {
       //Pull application collection
       const applications = await applicationCollection();
@@ -1231,7 +1236,18 @@ export const resolvers = {
     // numOfComments
     // Purpose: Compute the number of comments under each application
     // parentValue = application object, numOfComments appears in the application object
-
+    applicant: async (parentValue) => {
+      const users = await userCollection();
+      const user = await users
+        .findOne({_id: new ObjectId(parentValue.applicantId)});
+      return user;
+    },
+    project: async (parentValue) => {
+      const projects = await projectCollection();
+      const project = await projects
+        .findOne({_id: new ObjectId(parentValue.projectId)});
+      return project;
+    },
     numOfComments: async (parentValue) => {
       //If there are comments, return the length or zero.
       return parentValue.comments ? parentValue.comments.length : 0;

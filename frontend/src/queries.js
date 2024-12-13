@@ -35,12 +35,19 @@ const GET_APPLICATIONS = gql`
   query Applications {
     applications {
       _id
-      applicantId
-      projectId
+      applicant {
+        _id
+        firstName
+        lastName
+      }
+      project {
+        _id
+        title
+      }
       applicationDate
       lastUpdatedDate
       status
-      comments
+      numOfComments
     }
   }
 `;
@@ -81,40 +88,32 @@ const GET_USER_BY_ID = gql`
       _id
       firstName
       lastName
-      email
-      password
-      role
-      department
-      bio
       applications {
         _id
+        applicant {
+          _id
+          firstName
+          lastName
+        }
         project {
           _id
           title
-          department
         }
         applicationDate
         lastUpdatedDate
         status
-        comments {
-          _id
-          commenter {
-            _id
-            firstName
-            lastName
-          }
-          content
-          postedDate
-        }
         numOfComments
       }
+      email
+      role
+      department
+      bio
+      numOfApplications
+      numOfProjects
       projects {
         _id
         title
-        department
       }
-      numOfApplications
-      numOfProjects
     }
   }
 `;
