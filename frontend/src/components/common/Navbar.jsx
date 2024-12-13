@@ -1,5 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import DarkMode from "../../assets/svg/DarkMode";
+import LightMode from "../../assets/svg/LightMode";
 
 const Navbar = () => {
   return (
@@ -27,41 +29,36 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/authentication/login">
+              <Link className="nav-link" to="/auth/login">
                 Login
               </Link>
             </li>
-            <li className="nav-item dropdown">
-              <Link
-                className="nav-link dropdown-toggle"
-                to="#"
-                id="navbarDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                More
+            <li className="nav-item">
+              <Link className="nav-link" to="/auth/register">
+                Register
               </Link>
-              <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li>
-                  <Link className="dropdown-item" to="/about">
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <Link className="dropdown-item" to="/services">
-                    Services
-                  </Link>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <Link className="dropdown-item" to="/contact">
-                    Contact Us
-                  </Link>
-                </li>
-              </ul>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/project/list">
+                Project
+              </Link>
+            </li>
+            <li className="ms-5">
+              <div className="d-flex">
+                <div className="my-auto ms-auto">
+                  <LightMode />
+                </div>
+                <div>
+                  <a href="#" className="p-0">
+                    <div id="switch" className="m-4">
+                      <div id="circle"></div>
+                    </div>
+                  </a>
+                </div>
+                <div className="my-auto me-auto">
+                  <DarkMode />
+                </div>
+              </div>
             </li>
           </ul>
         </div>
