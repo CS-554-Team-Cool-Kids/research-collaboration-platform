@@ -1,3 +1,59 @@
+/**
+ * IMPORTANT NOTE ON HOW TO FIX THIS: 
+ * 
+ * As written, these propagation functions are likely causing infinite loops because of the feedback between resolvers.js and propagationHelpers.js.
+ * The easiest/fastest way to fix this is to duplicate the resolvers into another file and remove calls to the propagationHelpers.js in these duplicated resolvers.
+ * Think of these new resolvers as "bare-bones" resolvers, as they won’t trigger propagation. To be clear: THESE DO NOT REPLACE OUR ORIGINAL RESOLVERS. THEY ARE SUPPLEMENTS.
+ * 
+ * Once these bare-bones resolvers are introduced, we then need to call them within the propagationHelpers functions below. 
+ * We need to order the call of these bare-bones resolvers correctly within these propagationHelpers as to orchestrate the propagation across collections/objects. 
+ * 
+ * At times, these propagation helpers will need to sort through collections to determine what objects within the collection need to be updated.
+ * Then the propagation helper needs to call a barebones resolver on each of these objects to be updated. 
+ * 
+ * For each of the propagation functions below, we need to (1) remove the backward call to the resolvers.js file and (2) introduce the barebones resolvers in this order:
+ * 
+ * propagateUserRemovalChanges:
+ * 1. editProject - To remove the user from projects where they are listed as a professor or student.
+ * 2. removeApplication - To delete applications submitted by the user.
+ * 3. removeComment - To delete comments authored by the user.
+ * 
+ * propagateUserEditChanges:
+ * 1. editApplication - To update the applicant’s embedded reference in applications.
+ * 2. editProject - To update the user’s embedded reference in projects (professors/students).
+ * 3. editUpdate - To update the posterUser’s embedded reference in updates.
+ * 4. editComment - To update the commenter’s embedded reference in comments.
+ * 
+ * propagateProjectRemovalChanges:
+ * 1. removeApplication - To delete applications linked to the project.
+ * 2. editUser - To remove the project from associated users’ projects lists.
+ * 3. removeUpdate - To delete updates linked to the project.
+ * 
+ * propagateProjectEditChanges:
+ * 1. editApplication - To update the project reference in applications.
+ * 2. editUpdate - To update the project reference in updates.
+ * 3. editUser - To update the project reference in users’ projects lists.
+ * 
+ * propagateApplicationRemovalChanges:
+ * 1. editUser - To remove the application from associated users’ applications lists.
+ * 2. editProject - To remove the application from the associated project’s applications list.
+ * 
+ * propagateApplicationEditChanges:
+ * 1. editUser - To update the application reference in users’ applications lists.
+ * 2. editProject - To update the application reference in the associated project’s applications list.
+ * 
+ * propagateCommentRemovalChanges:
+ * 1. editApplication - To remove the comment from applications’ comments lists.
+ * 2. editUpdate - To remove the comment from updates’ comments lists.
+ * 
+ * propagateCommentEditChanges:
+ * 1. editApplication - To update the comment reference in applications.
+ * 2. editUpdate - To update the comment reference in updates.
+ * 
+ * Following this pattern, the propagation functions will perform all necessary updates across related entities while avoiding recursive loops.
+ */
+
+
 // Import functions from resolvers.js
 import * as resolvers from "./resolvers.js";
 import { GraphQLError } from "graphql";
