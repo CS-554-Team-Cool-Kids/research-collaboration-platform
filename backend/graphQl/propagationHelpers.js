@@ -540,25 +540,34 @@ export async function propagateApplicationEditChanges(
   applicationId,
   updatedApplicationData
 ) {
-  // Handle users - edited application from users' application lists
+  // Ensure applicationId is a valid ObjectId
+  const appObjectId = new ObjectId(applicationId);
+
+  // Handle users - update application in users' application lists
   try {
-    const relatedUsers = await userCollection()
-      .find({
-        "applications._id": applicationId,
-      })
+    const users = await userCollection();
+
+    // Ensure userCollection returns a valid collection
+    if (!users || typeof users.find !== "function") {
+      throw new Error("Invalid user collection. Check your database connection.");
+    }
+
+    const relatedUsers = await users
+      .find({ "applications._id": appObjectId })
       .toArray();
 
     if (relatedUsers.length > 0) {
       for (const user of relatedUsers) {
-        resolvers.editUser({
-          _id: user._id,
-          applicationEditId: applicationId,
-        });
-      }
+        // Update the specific application in the user's applications array
+        await users.updateOne(
+          { _id: user._id, "applications._id": appObjectId },
+          { $set: { "applications.$": updatedApplicationData } }
+        );
 
-      console.log(
-        `Updated users' application associations for application ${applicationId}`
-      );
+        console.log(
+          `Updated application ${applicationId} in user ${user._id}'s application list.`
+        );
+      }
     }
   } catch (error) {
     console.error(
@@ -567,29 +576,35 @@ export async function propagateApplicationEditChanges(
     throw error;
   }
 
-  // Handle projects - remove application from projects' application lists
+  // Handle projects - update application in projects' application lists
   try {
-    const relatedProjects = await projectCollection()
-      .find({
-        "applications._id": applicationId,
-      })
+    const projects = await projectCollection();
+
+    // Ensure projectCollection returns a valid collection
+    if (!projects || typeof projects.find !== "function") {
+      throw new Error("Invalid project collection. Check your database connection.");
+    }
+
+    const relatedProjects = await projects
+      .find({ "applications._id": appObjectId })
       .toArray();
 
     if (relatedProjects.length > 0) {
       for (const project of relatedProjects) {
-        resolvers.editProject({
-          _id: project._id,
-          applicationEditId: applicationId,
-        });
-      }
+        // Update the specific application in the project's applications array
+        await projects.updateOne(
+          { _id: project._id, "applications._id": appObjectId },
+          { $set: { "applications.$": updatedApplicationData } }
+        );
 
-      console.log(
-        `Updated projects' application associations for application ${applicationId}`
-      );
+        console.log(
+          `Updated application ${applicationId} in project ${project._id}'s application list.`
+        );
+      }
     }
   } catch (error) {
     console.error(
-      `Failed to edit applicatios for projects for application ${applicationId}: ${error.message}`
+      `Failed to edit application associations in projects for application ${applicationId}: ${error.message}`
     );
     throw error;
   }

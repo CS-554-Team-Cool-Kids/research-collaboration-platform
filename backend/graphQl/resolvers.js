@@ -2741,7 +2741,7 @@ export const resolvers = {
       //Propagate this removal across all objects with application objects
       await propagators.propagateApplicationEditChanges(
         applicationToUpdate._id,
-        { ...applicationToUpdate, ...updateFields }
+        { ...applicationToUpdate }
       );
 
       // Update Redis cache
