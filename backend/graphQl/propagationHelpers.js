@@ -13,49 +13,21 @@
  * 
  * For each of the propagation functions below, we need to (1) remove the backward call to the resolvers.js file and (2) introduce the barebones resolvers in this order:
  * 
- * propagateUserRemovalChanges:
- * 1. editProject - To remove the user from projects where they are listed as a professor or student.
- * 2. removeApplication - To delete applications submitted by the user.
- * 3. removeComment - To delete comments authored by the user.
- * 
- * propagateUserEditChanges:
- * 1. editApplication - To update the applicant’s embedded reference in applications.
- * 2. editProject - To update the user’s embedded reference in projects (professors/students).
- * 3. editUpdate - To update the posterUser’s embedded reference in updates.
- * 4. editComment - To update the commenter’s embedded reference in comments.
- * 
- * propagateProjectRemovalChanges:
- * 1. removeApplication - To delete applications linked to the project.
- * 2. editUser - To remove the project from associated users’ projects lists.
- * 3. removeUpdate - To delete updates linked to the project.
- * 
- * propagateProjectEditChanges:
- * 1. editApplication - To update the project reference in applications.
- * 2. editUpdate - To update the project reference in updates.
- * 3. editUser - To update the project reference in users’ projects lists.
- * 
- * propagateApplicationRemovalChanges:
- * 1. editUser - To remove the application from associated users’ applications lists.
- * 2. editProject - To remove the application from the associated project’s applications list.
- * 
- * propagateApplicationEditChanges:
- * 1. editUser - To update the application reference in users’ applications lists.
- * 2. editProject - To update the application reference in the associated project’s applications list.
- * 
- * propagateCommentRemovalChanges:
- * 1. editApplication - To remove the comment from applications’ comments lists.
- * 2. editUpdate - To remove the comment from updates’ comments lists.
- * 
- * propagateCommentEditChanges:
- * 1. editApplication - To update the comment reference in applications.
- * 2. editUpdate - To update the comment reference in updates.
+ * propagateUserRemovalChanges: editProject; removeApplication; removeComment
+ * propagateUserEditChanges: editApplication; editProject; editUpdate; editComment
+ * propagateProjectRemovalChanges: removeApplication; editUser; removeUpdate
+ * propagateProjectEditChanges: editApplication; editUpdate; editUser
+ * propagateApplicationRemovalChanges: editUser; editProject
+ * propagateApplicationEditChanges: editUser; editProject
+ * propagateCommentRemovalChanges: editApplication; editUpdate
+ * propagateCommentEditChanges: editApplication; editUpdate
  * 
  * Following this pattern, the propagation functions will perform all necessary updates across related entities while avoiding recursive loops.
  */
 
 
 // Import functions from resolvers.js
-import * as resolvers from "./resolvers.js";
+import * as noPropResolvers from "./noPropResolvers.js";
 import { GraphQLError } from "graphql";
 
 // MongoDB: collections for users, projects, updates, and applications
@@ -69,49 +41,66 @@ import {
 
 import { ObjectId } from "mongodb";
 
-//HELPER FUNCTION: propagateUserRemovalChanges
+
+//PROPOGATE USER REMOVAL CHANGES
 //Propagate user removal changes across related entities: projects, applications, comments (updates remain unchanged)
 
 export async function propagateUserRemovalChanges(userId) {
-  //Handle projects
+  
+  // Convert string userId to ObjectId
+  const userObjectId = new ObjectId(userId);
+
+  //HANDLE PROJECTS 
   try {
-    const projects = await projectCollection();
+    
     //Pull project collection, place any projects where the user's id is in a professor or student object
+    const projects = await projectCollection();
+
+    if (!projects || typeof projects.find !== "function") {
+      throw new Error("Invalid project collection. Check your database connection.");
+    }
+
+    //TO DO: Check if it should be "professors._id": userId OR "professors._id": userObjectId
     const relatedProjects = await projects
       .find({
-        $or: [{ "professors._id": userId }, { "students._id": userId }],
+        $or: [{ "professors._id": userObjectId }, { "students._id": userObjectId }],
       })
       .toArray();
 
+
     //If there are related projects, proceed in updating embedded user objects
     if (relatedProjects.length > 0) {
+      
       for (const project of relatedProjects) {
+        
         const updatedProjectFields = {};
 
         //Checks if the user is listed as a professor in the pulled project.
         //`some`: method that determines if there is any professor that has an `_id` that matches the given `userId`
-        if (project.professors.some((prof) => prof._id.equals(userId))) {
+        if (project.professors.some((prof) => prof._id.equals(userObjectId))) {
+          
           //If the removed professor is in this project, use filter to remove the reference, and then map a new array of professor ids
-          //The array of IDs if what is needed by the edit project resolver
+          //The array of ID strings if what is needed by the edit project resolver
           updatedProjectFields.professorIds = project.professors
-            .filter((prof) => !prof._id.equals(userId))
+            .filter((prof) => !prof._id.equals(userObjectId))
             .map((prof) => prof._id.toString());
         }
 
-        //Repate the above process for students
-        if (project.students.some((stud) => stud._id.equals(userId))) {
+        //Repeat the above process for students
+        if (project.students.some((stud) => stud._id.equals(userObjectId))) {
           updatedProjectFields.studentIds = project.students
-            .filter((stud) => !stud._id.equals(userId))
+            .filter((stud) => !stud._id.equals(userObjectId))
             .map((stud) => stud._id.toString());
         }
 
-        //If for this project the code as collected fields to update, call the edit project resolver.
+        //If for this project the code has collected fields to update, call the edit project resolver.
         if (Object.keys(updatedProjectFields).length > 0) {
-          await resolvers.editProject({
+          await noPropResolvers.editProject({
             _id: project._id.toString(),
             ...updatedProjectFields,
           });
         }
+
       }
     }
 
@@ -125,12 +114,20 @@ export async function propagateUserRemovalChanges(userId) {
     throw error;
   }
 
-  // Handle applications
+  //HANDLE APPLICATIONS
   try {
+    
     //Pull applications collection, place any application where the user's id matches the id of the embeddeded user object (applicant)
-    const userApplications = await applicationCollection()
+
+    const applications = await applicationCollection();
+
+    if (!applications || typeof applications.find !== "function") {
+      throw new Error("Invalid application collection. Check your database connection.");
+    }
+
+    const userApplications = await applications
       .find({
-        "applicant._id": userId,
+        "applicant._id": userObjectId,
       })
       .toArray();
 
@@ -138,7 +135,7 @@ export async function propagateUserRemovalChanges(userId) {
     if (userApplications.length > 0) {
       //Remove applcation needs the application _id as a string
       for (const application of userApplications) {
-        await resolvers.removeApplication({ _id: application._id.toString() });
+        await noPropResolvers.removeApplication({ _id: application._id.toString() });
       }
 
       console.log(`Removed applications associated with user ${userId}`);
@@ -151,12 +148,20 @@ export async function propagateUserRemovalChanges(userId) {
     throw error;
   }
 
-  // Handle comments
+  //HANDLE COMMENTS
   try {
+
     //Pull comments collection, place any comment where the comments's id matches removed user's id
-    const relatedComments = await commentCollection()
+
+    const comments = commentCollection();
+
+    if (!comments || typeof comments.find !== "function") {
+      throw new Error("Invalid comment collection. Check your database connection.");
+    }
+
+    const relatedComments = await comments
       .find({
-        "commenter._id": userId,
+        "commenter._id": userObjectId,
       })
       .toArray();
 
@@ -164,7 +169,7 @@ export async function propagateUserRemovalChanges(userId) {
     if (relatedComments.length > 0) {
       for (const comment of relatedComments) {
         // Use removeComment from resolvers; tthis needs the comment id to be made a string
-        await resolvers.removeComment({ _id: comment._id.toString() });
+        await noPropResolvers.removeComment({ _id: comment._id.toString() });
       }
 
       console.log(`Removed comments associated with user ${userId}`);
@@ -181,18 +186,29 @@ export async function propagateUserRemovalChanges(userId) {
   //but I don't think a user's removal should remove updates about a whole project.
 }
 
+
+
 //HELPER FUNCTION: propagateUserEditChanges
 //Propagate user edits across related entities: projects, updates, applications, comments
 export async function propagateUserEditChanges(userId, updatedUserData) {
-  // Handle applications
+  
+  // Ensure userId is a valid ObjectId
+  const userObjectId = new ObjectId(userId);
 
+  // HANDLE APPLICATIONS
   try {
-    const applications = await applicationCollection();
+    
     //Pull the application collection and find any applications where the applicant's id matches the edited user
+    const applications = await applicationCollection();
+    
+    // Ensure userCollection returns a valid collection
+    if (!applications || typeof applications.find !== "function") {
+      throw new Error("Invalid application collection. Check your database connection.");
+    }
+
     const userApplications = await applications
       .find({
-        "applicant._id":
-          typeof userId === "string" ? new ObjectId(userId) : userId,
+        "applicant._id": userObjectId
       })
       .toArray();
 
@@ -200,10 +216,12 @@ export async function propagateUserEditChanges(userId, updatedUserData) {
     if (userApplications.length > 0) {
       //For each of the applications, call editApplication to have the user object updated
       for (const application of userApplications) {
-        await resolvers.editApplication({
+        
+        await noPropResolvers.editApplication({
           _id: application._id.toString(),
-          applicantId: updatedUserData._id,
+          applicantId: userId,
         });
+
       }
 
       console.log(`Updated applications associated with user ${userId}`);
@@ -215,11 +233,19 @@ export async function propagateUserEditChanges(userId, updatedUserData) {
     throw error;
   }
 
-  // Handle projects
+  // HANDLE PROJECTS
   try {
-    const relatedProjects = await projectCollection()
+
+    const projects = await projectCollection();
+
+    // Ensure projectCollection returns a valid collection
+    if (!projects || typeof projects.find !== "function") {
+      throw new Error("Invalid project collection. Check your database connection.");
+    }
+  
+    const relatedProjects = await projects
       .find({
-        $or: [{ "professors._id": userId }, { "students._id": userId }],
+        $or: [{ "professors._id": userObjectId }, { "students._id": userObjectId }],
       })
       .toArray();
 
@@ -227,22 +253,25 @@ export async function propagateUserEditChanges(userId, updatedUserData) {
       for (const project of relatedProjects) {
         const updatedProjectFields = {};
 
-        if (project.professors.some((prof) => prof._id.equals(userId))) {
+        //If the professor array needs to be updated, convert the entire array (including the edited professor) to a string array
+        if (project.professors.some((prof) => prof._id.equals(userObjectId))) {
           const professorArray = project.professors.map((prof) =>
             prof._id.toString()
           );
           updatedProjectFields.professors = professorArray;
         }
 
-        if (project.students.some((stud) => stud._id.equals(userId))) {
+        //If the student array needs to be updated, convert the entire array (including the edited professor) to a string array
+        if (project.students.some((stud) => stud._id.equals(userObjectId))) {
           const studentArray = project.students.map((stud) =>
             stud._id.toString()
           );
           updatedProjectFields.students = studentArray;
         }
 
+        //If for this project the code has collected fields to update, call the edit project resolver.
         if (Object.keys(updatedProjectFields).length > 0) {
-          await resolvers.editProject({
+          await noPropResolvers.editProject({
             _id: project._id.toString(),
             ...updatedProjectFields,
           });
@@ -258,19 +287,27 @@ export async function propagateUserEditChanges(userId, updatedUserData) {
     throw error;
   }
 
-  // Handle updates
+  // HANDLE UPDATES
   try {
-    const relatedUpdates = await updateCollection()
+
+    //Pull update collection, place any updates where the user's id matches the poster's id
+    const updates = await updateCollection();
+
+    if (!updates || typeof updates.find !== "function") {
+      throw new Error("Invalid update collection. Check your database connection.");
+    }
+
+    const relatedUpdates = await updates
       .find({
-        "posterUser._id": userId,
+        "posterUser._id": userObjectId,
       })
       .toArray();
 
     if (relatedUpdates.length > 0) {
       for (const update of relatedUpdates) {
-        await resolvers.editUpdate({
+        await noPropResolvers.editUpdate({
           _id: update._id.toString(),
-          posterId: updatedUserData._id,
+          posterId: userId,
         });
       }
       console.log(`Updated updates associated with user ${userId}`);
@@ -282,17 +319,25 @@ export async function propagateUserEditChanges(userId, updatedUserData) {
     throw error;
   }
 
-  // Handle comments
+  // HANDLE COMMENTS
   try {
-    const relatedComments = await commentCollection()
+
+    //Pull comment collection, place any comments where the user's id is in a professor or student object
+    const comments = await commentCollection();
+
+    if (!comments || typeof comments.find !== "function") {
+      throw new Error("Invalid comment collection. Check your database connection.");
+    }
+    
+    const relatedComments = await comments
       .find({
-        "commenter._id": userId,
+        "commenter._id": userObjectId,
       })
       .toArray();
 
     if (relatedComments.length > 0) {
       for (const comment of relatedComments) {
-        await resolvers.editComment({
+        await noPropResolvers.editComment({
           _id: comment._id.toString(),
           commenterId: userId,
         });
@@ -308,22 +353,36 @@ export async function propagateUserEditChanges(userId, updatedUserData) {
   }
 }
 
+
+
 //HELPER FUNCTION: propagateProjectRemovalChanges
 //Propagate project removal updates across related entities: updates, applications, users
 export async function propagateProjectRemovalChanges(projectId) {
-  // Handle applications
+   
+  // Convert string projectId to ObjectId
+  const projectObjectId = new ObjectId(projectId);
+
+  // HANDLE APPLICATIONS
   try {
+   
     const applications = await applicationCollection();
-    const userApplications = await applications
+
+    if (!applications || typeof applications.find !== "function") {
+      throw new Error("Invalid application collection. Check your database connection.");
+    }
+    
+    const relatedApplications = await applications
       .find({
-        "project._id": projectId,
+        "project._id": projectObjectId,
       })
       .toArray();
 
-    if (userApplications.length > 0) {
-      // Use removeApplication to remove any applications associated with this removed projects
-      for (const application of userApplications) {
-        await resolvers.removeApplication({ _id: application._id.toString() });
+    // Use removeApplication to remove any applications associated with this removed projects
+    if (relatedApplications.length > 0) {
+      for (const application of relatedApplications) {
+        await noPropResolvers.removeApplication(
+          { _id: application._id.toString() }
+        );
       }
       console.log(`Removed applications associated with project ${projectId}`);
     }
@@ -334,19 +393,25 @@ export async function propagateProjectRemovalChanges(projectId) {
     throw error;
   }
 
-  // Handle users - remove project from users' project lists (professors and students)
+  // HANDLE USERS - remove project from users' project lists (professors and students)
   try {
+
     const users = await userCollection();
+   
+    if (!users || typeof users.find !== "function") {
+      throw new Error("Invalid user collection. Check your database connection.");
+    }
+
     const relatedUsers = await users
       .find({
-        "projects._id": projectId,
+        "projects._id": projectObjectId,
       })
       .toArray();
 
     if (relatedUsers.length > 0) {
       for (const user of relatedUsers) {
-        resolvers.editUser({
-          _id: user._id,
+        noPropResolvers.editUser({
+          _id: user._id.toString(),
           projectRemovalId: projectId,
         });
       }
@@ -362,22 +427,32 @@ export async function propagateProjectRemovalChanges(projectId) {
     throw error;
   }
 
-  // Handle updates - remove any updates associated with the project
+  // HANDLE UPDATES - remove any updates associated with the project
   // Unlike when a user is removed, it makes sense to remove updates about a removed project
   try {
+    
     const updates = await updateCollection();
+
+    if (!updates || typeof updates.find !== "function") {
+      throw new Error("Invalid update collection. Check your database connection.");
+    }
+
     const relatedUpdates = await updates
       .find({
-        "project._id": projectId,
+        "project._id": projectObjectId,
       })
       .toArray();
 
     if (relatedUpdates.length > 0) {
+
       for (const update of relatedUpdates) {
-        await resolvers.removeUpdate({ _id: update._id.toString() });
+        await noPropResolvers.removeUpdate(
+          { _id: update._id.toString() }
+        );
       }
 
       console.log(`Removed updates associated with project ${projectId}`);
+
     }
   } catch (error) {
     console.error(
@@ -387,31 +462,44 @@ export async function propagateProjectRemovalChanges(projectId) {
   }
 }
 
+
+
 //HELPER FUNCTION: propagateProjectEditChanges
 //Propagate project edit updates across related entities: updates, applications, user
 export async function propagateProjectEditChanges(
   projectId,
   updatedProjectData
 ) {
-  // Handle applications
+
+  // Convert string projectId to ObjectId
+  const projectObjectId = new ObjectId(projectId);
+
+  // HANDLE APPLICATIONS
   try {
+
     const applications = await applicationCollection();
+
+    if (!applications || typeof applications.find !== "function") {
+      throw new Error("Invalid application collection. Check your database connection.");
+    }
+
     const relatedApplications = await applications
       .find({
-        "project._id": projectId,
+        "project._id": projectObjectId,
       })
       .toArray();
 
     if (relatedApplications.length > 0) {
       for (const application of relatedApplications) {
         // If the project data changes, update the application
-        await resolvers.editApplication({
+        await noPropResolvers.editApplication({
           _id: application._id.toString(),
-          projectId: updatedProjectData._id.toString(),
+          projectId: projectId,
         });
       }
 
       console.log(`Updated applications associated with project ${projectId}`);
+
     }
   } catch (error) {
     console.error(
@@ -422,23 +510,30 @@ export async function propagateProjectEditChanges(
 
   // Handle updates
   try {
+
     const updates = await updateCollection();
+
+    if (!updates || typeof updates.find !== "function") {
+      throw new Error("Invalid update collection. Check your database connection.");
+    }
+
     const relatedUpdates = await updates
       .find({
-        "project._id": projectId,
+        "project._id": projectObjectId,
       })
       .toArray();
 
     if (relatedUpdates.length > 0) {
       for (const update of relatedUpdates) {
         // If the project data changes (e.g., title or project reference), update the update
-        await resolvers.editUpdate({
+        await noPropResolvers.editUpdate({
           _id: update._id.toString(),
-          projectId: updatedProjectData._id.toString(),
+          projectId: projectId,
         });
       }
 
       console.log(`Updated updates associated with project ${projectId}`);
+
     }
   } catch (error) {
     console.error(
@@ -449,17 +544,23 @@ export async function propagateProjectEditChanges(
 
   // Handle users - update any users associated with this project (professors/students)
   try {
+
     const users = await userCollection();
+
+    if (!users || typeof users.find !== "function") {
+      throw new Error("Invalid user collection. Check your database connection.");
+    }
+
     const relatedUsers = await users
       .find({
-        "projects._id": projectId,
+        "projects._id": projectObjectId,
       })
       .toArray();
 
     if (relatedUsers.length > 0) {
       for (const user of relatedUsers) {
-        resolvers.editUser({
-          _id: user._id,
+        noPropResolvers.editUser({
+          _id: user._id.toString(),
           projectEditId: projectId,
         });
       }
@@ -476,19 +577,22 @@ export async function propagateProjectEditChanges(
   }
 }
 
+
+
 //HELPER FUNCTION: propagateApplicationRemovalChanges
 //Propagate application removal updates across related entities: projects, users
 export async function propagateApplicationRemovalChanges(applicationId) {
+  
   // Convert string applicationId to ObjectId
   const appObjectId = new ObjectId(applicationId);
 
-  // Handle users - remove application from users' application lists
+  // HANDLE USERS - remove application from users' application lists
   try {
     const users = await userCollection();
+   
     if (!users || typeof users.find !== "function") {
       throw new Error("Invalid user collection. Check your database connection.");
     }
-
     const relatedUsers = await users
       .find({ "applications._id": appObjectId })
       .toArray();
@@ -496,7 +600,7 @@ export async function propagateApplicationRemovalChanges(applicationId) {
     if (relatedUsers.length > 0) {
       for (const user of relatedUsers) {
         // Update the user's applications array by removing the application
-        resolvers.editUser({
+        noPropResolvers.editUser({
           _id: user._id.toString(),
           applicationRemovalId: applicationId,
         });
@@ -513,7 +617,7 @@ export async function propagateApplicationRemovalChanges(applicationId) {
     throw error;
   }
 
-  // Handle projects - remove application from projects' application lists
+  // HANDLE PROJECTS - remove application from projects' application lists
   try {
     const projects = await projectCollection();
     if (!projects || typeof projects.find !== "function") {
@@ -527,7 +631,7 @@ export async function propagateApplicationRemovalChanges(applicationId) {
     if (relatedProjects.length > 0) {
       for (const project of relatedProjects) {
         // Update the project's applications array by removing the application
-        resolvers.editProject({
+        noPropResolvers.editProject({
           _id: project._id.toString(),
           applicationRemovalId: applicationId,
         });
@@ -544,6 +648,7 @@ export async function propagateApplicationRemovalChanges(applicationId) {
     throw error;
   }
 }
+
 
 
 //HELPER FUNCTION: propagateApplicationEditChanges
@@ -571,10 +676,18 @@ export async function propagateApplicationEditChanges(
     if (relatedUsers.length > 0) {
       for (const user of relatedUsers) {
         // Update the specific application in the user's applications array
+        noPropResolvers.editUser({
+          _id: user._id.toString(),
+          applicationEditId: applicationId,
+        });
+
+        /* WHY DOES THE BELOW NOT WORK? 
+        Because it's not handling the redis for the user. We need to call the noPropResolver, which will handle redis caching.
+        
         await users.updateOne(
           { _id: user._id, "applications._id": appObjectId },
           { $set: { "applications.$": updatedApplicationData } }
-        );
+        );*/
 
         console.log(
           `Updated application ${applicationId} in user ${user._id}'s application list.`
@@ -604,10 +717,15 @@ export async function propagateApplicationEditChanges(
     if (relatedProjects.length > 0) {
       for (const project of relatedProjects) {
         // Update the specific application in the project's applications array
-        await projects.updateOne(
+        noPropResolvers.editProject({
+          _id: project._id.toString(),
+          applicationEditId: applicationId,
+        });
+        
+        /*await projects.updateOne(
           { _id: project._id, "applications._id": appObjectId },
           { $set: { "applications.$": updatedApplicationData } }
-        );
+        );*/
 
         console.log(
           `Updated application ${applicationId} in project ${project._id}'s application list.`
@@ -622,21 +740,34 @@ export async function propagateApplicationEditChanges(
   }
 }
 
+
+
 //HELPER FUNCTION: propagateCommentRemovalChanges
 //Propagate project removal updates across related entities: applications, updates
 export async function propagateCommentRemovalChanges(commentId) {
-  // Handle applications - remove comment from applications comment lists
+  
+  // Convert string commentId to ObjectId
+  const commentObjectId = new ObjectId(commentId);
+  
+  // HANDLE APPLICATIONS - remove comment from applications comment lists
   try {
-    const relatedApplications = await applicationCollection()
+
+    const applications = await applicationCollection();
+
+    if (!applications || typeof applications.find !== "function") {
+      throw new Error("Invalid application collection. Check your database connection.");
+    }
+
+    const relatedApplications = await applications
       .find({
-        "comments._id": commentId,
+        "comments._id": commentObjectId,
       })
       .toArray();
 
     if (relatedApplications.length > 0) {
       for (const application of relatedApplications) {
-        resolvers.editApplication({
-          _id: application._id,
+        noPropResolvers.editApplication({
+          _id: application._id.toString(),
           commentRemovalId: commentId,
         });
       }
@@ -652,18 +783,25 @@ export async function propagateCommentRemovalChanges(commentId) {
     throw error;
   }
 
-  // Handle updates - remove comment from updates' comment lists
+  // HANDLE UPDATES - remove comment from updates' comment lists
   try {
-    const relatedUpdates = await updateCollection()
+
+    const updates = await updateCollection();
+
+    if (!updates || typeof updates.find !== "function") {
+      throw new Error("Invalid update collection. Check your database connection.");
+    }
+
+    const relatedUpdates = await updates
       .find({
-        "comments._id": commentId,
+        "comments._id": commentObjectId,
       })
       .toArray();
 
     if (relatedUpdates.length > 0) {
       for (const update of relatedUpdates) {
-        resolvers.editUpdate({
-          _id: update._id,
+        noPropResolvers.editUpdate({
+          _id: update._id.toString(),
           commentRemovalId: commentId,
         });
       }
@@ -680,21 +818,34 @@ export async function propagateCommentRemovalChanges(commentId) {
   }
 }
 
+
+
 //HELPER FUNCTION: propagateCommentEditChanges
 //Propagate project removal updates across related entities: applications, updates
 export async function propagateCommentEditChanges(commentId) {
-  // Handle applications - remove comment from applications comment lists
+  
+  // Ensure commentId is a valid ObjectId
+  const commentObjectId = new ObjectId(commentId);
+
+  // HANDLE APPLICATIONS - remove comment from applications comment lists
   try {
-    const relatedApplications = await applicationCollection()
+    
+    const applications = await applicationCollection();
+
+    if (!applications || typeof applications.find !== "function") {
+      throw new Error("Invalid application collection. Check your database connection.");
+    }
+
+    const relatedApplications = await applications
       .find({
-        "comments._id": commentId,
+        "comments._id": commentObjectId,
       })
       .toArray();
 
     if (relatedApplications.length > 0) {
       for (const application of relatedApplications) {
-        resolvers.editApplication({
-          _id: application._id,
+        noPropResolvers.editApplication({
+          _id: application._id.toString(),
           commentEditId: commentId,
         });
       }
@@ -712,16 +863,23 @@ export async function propagateCommentEditChanges(commentId) {
 
   // Handle updates - remove comment from updates' comment lists
   try {
-    const relatedUpdates = await updateCollection()
+
+    const updates = await updateCollection();
+
+    if (!updates || typeof updates.find !== "function") {
+      throw new Error("Invalid update collection. Check your database connection.");
+    }
+
+    const relatedUpdates = await updates
       .find({
-        "comments._id": commentId,
+        "comments._id": commentObjectId,
       })
       .toArray();
 
     if (relatedUpdates.length > 0) {
       for (const update of relatedUpdates) {
-        resolvers.editUpdate({
-          _id: update._id,
+        noPropResolvers.editUpdate({
+          _id: update._id.toString(),
           commentEditId: commentId,
         });
       }
