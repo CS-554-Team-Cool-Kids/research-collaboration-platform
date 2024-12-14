@@ -16,6 +16,10 @@ import ProjectAdd from "./components/project/Add";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Chat from "./components/Chat";
 
+import ApplicationList from './components/application/List';
+import ApplicationDetails from './components/application/[id]/Details';
+import ApplicationAdd from './components/application/Add';
+
 const App = () => {
   //Theming
   const getCSSVariable = (variable) =>
@@ -159,6 +163,30 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={["STUDENT", "PROFESSOR", "ADMIN"]}>
               <Chat />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/application"
+          element={
+            <ProtectedRoute allowedroles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <ApplicationList />
+            </ProtectedRoute>
+          }
+        />
+        <Route 
+          path="/application/:id"
+          element={
+            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <ApplicationDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/application/add"
+          element={
+            <ProtectedRoute allowedRoles={["STUDENT"]}>
+              <ApplicationAdd />
             </ProtectedRoute>
           }
         />

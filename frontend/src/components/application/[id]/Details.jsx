@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useParams} from 'react-router-dom';
-import {useQuery} from '@apollo/client';
-import queries from '../../queries';
-import ActionBar from "../common/ActionBar_2";
+import {useMutation, useQuery} from '@apollo/client';
+import queries from '../../../queries';
+import ActionBar from "../../common/ActionBar_2";
 
 function ApplicationDetails(props) {
     /* 
@@ -13,40 +13,12 @@ function ApplicationDetails(props) {
             d. Application status
             e. Application comments
     */
-   /* CLIENT SIDE LOGIC
+   
     const {id} = useParams();
     const applicationData = useQuery(queries.GET_APPLICATION_BY_ID, {
         variables: { id },
-        fetchPolicy: 'cache-and-network'
+        fetchPolicy: 'network-only'
     });
-    /* END OF CLIENT SIDE LOGIC */
-    const applicationData = {
-        data: {
-          getApplicationById: {
-            _id: "675ba2b9a7087b383bde3992",
-            applicant: {
-              _id: "67590667d7fc41be5ef64425",
-              firstName: "Kushal",
-              lastName: "Trivedi"
-            },
-            project: {
-              _id: "675b2aeb0715f0d79465f037",
-              title: "AI Research in Finance",
-              professors: [
-                    {
-                        _id: "67590667d7fc41be5ef64425",
-                        firstName: "Kushal",
-                        lastName: "Trivedi"
-                    }
-                ]
-            },
-            applicationDate: "2024-12-13T02:58:01.023Z",
-            lastUpdatedDate: "2024-12-13T02:58:01.023Z",
-            status: "PENDING",
-            numOfComments: 0
-          }
-        }
-      }
     const application = applicationData.data.getApplicationById;
     const loading = applicationData.loading;
     const error = applicationData.error;

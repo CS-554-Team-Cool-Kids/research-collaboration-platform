@@ -2,28 +2,34 @@ import React, {useState} from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {useQuery, useLazyQuery} from '@apollo/client'; 
 import queries from '../../queries';
-import ActionBar from './ActionBar';
+import ActionBar from '../common/ActionBar';
 import EditUser from '../modals/EditUser';
 
 function UserDashboard(props){
-    const {id} = useParams();
+    //const {id} = useParams();
+    const id = "67590667d7fc41be5ef64425";
 
-    /*const userData = useQuery(queries.GET_USER_BY_ID, {
+    /* CLIENT SIDE LOGIC */
+    const userData = useQuery(queries.GET_USER_BY_ID, {
         variables: { id },
-        fetchPolicy: 'cache-and-network'
+        fetchPolicy: 'network-only'
     });
     const user = userData.data.user;
+    const loading = userData.loading;
+    const error = userData.error;
     
     const projectData = useQuery(queries.GET_PROJECTS, {
-        fetchPolicy: 'cache-and-network'
+        fetchPolicy: 'network-only'
     });
     const projects = projectData.data.projects;
 
     const updateData = useQuery(queries.GET_UPDATES, {
-        fetchPolicy: 'cache-and-network'
+        fetchPolicy: 'network-only'
     });
     const updates = applicationDdata.data.updates;
-    */
+    /* END OF CLIENT SIDE LOGIC */
+
+    /*DUMMY DATA
     const loading = false;
     const error = false;
     const userData={
@@ -245,6 +251,7 @@ function UserDashboard(props){
 
     const {user} = userData;
     const {updates} = updatesData;
+    /* END OF DUMMY DATA */
 
     if(user){
         return(

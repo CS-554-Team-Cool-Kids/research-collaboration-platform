@@ -43,6 +43,11 @@ const Navbar = () => {
                 Project
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/application">
+                Applications
+              </Link>
+            </li>
             <li className="ms-5">
               <div className="d-flex">
                 <div className="my-auto ms-auto">

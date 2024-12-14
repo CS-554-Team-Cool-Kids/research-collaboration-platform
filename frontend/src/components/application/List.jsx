@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import {useQuery} from '@apollo/client';
+import {useMutation, useQuery} from '@apollo/client';
 import queries from '../../queries';
 import { Link } from 'react-router-dom';
+import {useAuth} from "../../context/AuthContext";
 
 function ApplicationList(props) {
     /* 
@@ -18,77 +19,39 @@ function ApplicationList(props) {
             Note: the queries file was updated to ensure the necessary pieces of data are passed.
     */
    
-    /*Client Side Logic:
-
-    const id = props.userId;
-    //const id = "67590667d7fc41be5ef64425";
-    const {loading, error, data} = useQuery(queries.GET_USER_BY_ID, {
+    const {authState} = useAuth();
+    const id = authState.user.id;
+    const {loading, error, data, refetch} = useQuery(queries.GET_USER_BY_ID, {
         variables: { id },
         fetchPolicy: 'network-only'
     });
-    /* End of Client Side Logic */
-    
-    /* Temporary (Dummy) Data */
-    const data = {
-        getUserById: {
-            _id: "67590667d7fc41be5ef64425",
-            firstName: "Kushal",
-            lastName: "Trivedi",
-            applications: [
-                {
-                    _id: "675ba2b9a7087b383bde3992",
-                    applicant: {
-                    _id: "67590667d7fc41be5ef64425",
-                    firstName: "Kushal",
-                    lastName: "Trivedi"
-                    },
-                    project: {
-                    _id: "675b2aeb0715f0d79465f037",
-                    title: "AI Research in Finance"
-                    },
-                    applicationDate: "2024-12-13T02:58:01.023Z",
-                    lastUpdatedDate: "2024-12-13T02:58:01.023Z",
-                    status: "PENDING",
-                    numOfComments: 0
-                },
-                {
-                    _id: "675ba2d6a7087b383bde3993",
-                    applicant: {
-                    _id: "67590667d7fc41be5ef64425",
-                    firstName: "Kushal",
-                    lastName: "Trivedi"
-                    },
-                    project: {
-                    _id: "675b2aeb0715f0d79465f037",
-                    title: "AI Research in Finance"
-                    },
-                    applicationDate: "2024-12-13T02:58:30.935Z",
-                    lastUpdatedDate: "2024-12-13T02:58:30.935Z",
-                    status: "PENDING",
-                    numOfComments: 0
-                }
-            ],
-            email: "ktrivedi1@gmail.com",
-            role: "STUDENT",
-            department: "COMPUTER_SCIENCE",
-            bio: null,
-            numOfApplications: 0,
-            numOfProjects: 0,
-            projects: []
-        }
-    };
-    const loading = false;
-    const error = false;
-    /* End of Temporary Data */
 
     const [applications, setApplications] = useState([]);
     const [selectedApplication, setSelectedApplication] = useState(null);
 
-    useEffect( () => {
-        // Load data from props or default application data
-        //setApplications(props.applications || data.getUserById.applications || []);
-        setApplications(props.applications || data.getUserById.applications || []);
-    }, [props.applications]);
+    // Mutation to remove an application
+    const [removeApplication] = useMutation(queries.REMOVE_APPLICATION);
+
+    const handleDelete = async () => {
+        if(!selectedApplication?._id) return;
+        const confirmDeletion = window.confirm(
+            `Are you sure you want to delete the project "${selectedProject.title}"?`
+        )
+        if(confirmDeletion){
+            try{
+                await removeApplication({variables: { id: selectedApplication._id}});
+                await refetch();
+            } catch (error) {
+                console.error("Deletion failed: ", error);
+            }
+        }
+    }
+
+    useEffect(() => {
+        if(data) {
+            setSelectedApplication(null); //REset selected application when data changes
+        }
+    }, [data]);
 
     if(loading){
         return (
@@ -96,9 +59,11 @@ function ApplicationList(props) {
         );
     } else if (error){
         return (
-            <p>Error: {error}</p>
+            <p>Error: {error.message}</p>
         );
     } else {
+        const applications = data?.getUserById?.applications || [];
+        console.log(data);
         return (
             <main className="dashboard">
                 <div className="container my-3">
@@ -110,15 +75,33 @@ function ApplicationList(props) {
                                 </div>
                                 <div className="col-auto">
                                     {selectedApplication?._id ? (
-                                        <Link
-                                            className="nav-link"
-                                            to={"/application/details/" + selectedApplication?._id}
-                                        >
-                                            <div className="btn btn-info">Details</div>
-                                        </Link>
+                                        <div className="d-flex">
+                                            <Link
+                                                className="nav-link"
+                                                to={"/application/details/" + selectedApplication?._id}
+                                            >
+                                                <button className="btn btn-info ms-2">Details</button>
+                                            </Link>
+                                            <button
+                                                className="btn btn-danger ms-2"
+                                                onClick={handleDelete}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
                                     ) : (
-                                        <div className="btn btn-info invisible">Invisible Button</div>
+                                        <div className="d-flex">
+                                            <button className="btn btn-info ms-2 invisible">
+                                                Details
+                                            </button>
+                                            <button className="btn btn-danger ms-2 invisible">
+                                                Delete
+                                            </button>
+                                        </div>
                                     )}
+                                    <Link className="nav-link" to="/application/add">
+                                        <button className="btn btn-success ms-2">Add</button>
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -136,7 +119,7 @@ function ApplicationList(props) {
                                                 }
                                             >
                                                 <span className="chat-list-number">{index + 1}.</span>
-                                                <p className="chat-list-header">application.project.title</p>
+                                                <p className="chat-list-header">{application.project.title}</p>
                                             </li>
                                         ))}
                                     </ul>

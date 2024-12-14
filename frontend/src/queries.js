@@ -66,6 +66,22 @@ const GET_USER_BY_ID = gql`
       _id
       firstName
       lastName
+      applications {
+        _id
+        applicant {
+          _id
+          firstName
+          lastName
+        }
+        project {
+          _id
+          title
+        }
+        applicationDate
+        lastUpdatedDate
+        status
+        numOfComments
+      }
       email
       role
       department
