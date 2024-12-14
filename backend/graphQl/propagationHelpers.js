@@ -1,3 +1,59 @@
+/**
+ * IMPORTANT NOTE ON HOW TO FIX THIS: 
+ * 
+ * As written, these propagation functions are likely causing infinite loops because of the feedback between resolvers.js and propagationHelpers.js.
+ * The easiest/fastest way to fix this is to duplicate the resolvers into another file and remove calls to the propagationHelpers.js in these duplicated resolvers.
+ * Think of these new resolvers as "bare-bones" resolvers, as they won’t trigger propagation. To be clear: THESE DO NOT REPLACE OUR ORIGINAL RESOLVERS. THEY ARE SUPPLEMENTS.
+ * 
+ * Once these bare-bones resolvers are introduced, we then need to call them within the propagationHelpers functions below. 
+ * We need to order the call of these bare-bones resolvers correctly within these propagationHelpers as to orchestrate the propagation across collections/objects. 
+ * 
+ * At times, these propagation helpers will need to sort through collections to determine what objects within the collection need to be updated.
+ * Then the propagation helper needs to call a barebones resolver on each of these objects to be updated. 
+ * 
+ * For each of the propagation functions below, we need to (1) remove the backward call to the resolvers.js file and (2) introduce the barebones resolvers in this order:
+ * 
+ * propagateUserRemovalChanges:
+ * 1. editProject - To remove the user from projects where they are listed as a professor or student.
+ * 2. removeApplication - To delete applications submitted by the user.
+ * 3. removeComment - To delete comments authored by the user.
+ * 
+ * propagateUserEditChanges:
+ * 1. editApplication - To update the applicant’s embedded reference in applications.
+ * 2. editProject - To update the user’s embedded reference in projects (professors/students).
+ * 3. editUpdate - To update the posterUser’s embedded reference in updates.
+ * 4. editComment - To update the commenter’s embedded reference in comments.
+ * 
+ * propagateProjectRemovalChanges:
+ * 1. removeApplication - To delete applications linked to the project.
+ * 2. editUser - To remove the project from associated users’ projects lists.
+ * 3. removeUpdate - To delete updates linked to the project.
+ * 
+ * propagateProjectEditChanges:
+ * 1. editApplication - To update the project reference in applications.
+ * 2. editUpdate - To update the project reference in updates.
+ * 3. editUser - To update the project reference in users’ projects lists.
+ * 
+ * propagateApplicationRemovalChanges:
+ * 1. editUser - To remove the application from associated users’ applications lists.
+ * 2. editProject - To remove the application from the associated project’s applications list.
+ * 
+ * propagateApplicationEditChanges:
+ * 1. editUser - To update the application reference in users’ applications lists.
+ * 2. editProject - To update the application reference in the associated project’s applications list.
+ * 
+ * propagateCommentRemovalChanges:
+ * 1. editApplication - To remove the comment from applications’ comments lists.
+ * 2. editUpdate - To remove the comment from updates’ comments lists.
+ * 
+ * propagateCommentEditChanges:
+ * 1. editApplication - To update the comment reference in applications.
+ * 2. editUpdate - To update the comment reference in updates.
+ * 
+ * Following this pattern, the propagation functions will perform all necessary updates across related entities while avoiding recursive loops.
+ */
+
+
 // Import functions from resolvers.js
 import * as resolvers from "./resolvers.js";
 import { GraphQLError } from "graphql";
@@ -423,18 +479,25 @@ export async function propagateProjectEditChanges(
 //HELPER FUNCTION: propagateApplicationRemovalChanges
 //Propagate application removal updates across related entities: projects, users
 export async function propagateApplicationRemovalChanges(applicationId) {
+  // Convert string applicationId to ObjectId
+  const appObjectId = new ObjectId(applicationId);
+
   // Handle users - remove application from users' application lists
   try {
-    const relatedUsers = await userCollection()
-      .find({
-        "applications._id": applicationId,
-      })
+    const users = await userCollection();
+    if (!users || typeof users.find !== "function") {
+      throw new Error("Invalid user collection. Check your database connection.");
+    }
+
+    const relatedUsers = await users
+      .find({ "applications._id": appObjectId })
       .toArray();
 
     if (relatedUsers.length > 0) {
       for (const user of relatedUsers) {
+        // Update the user's applications array by removing the application
         resolvers.editUser({
-          _id: user._id,
+          _id: user._id.toString(),
           applicationRemovalId: applicationId,
         });
       }
@@ -452,22 +515,26 @@ export async function propagateApplicationRemovalChanges(applicationId) {
 
   // Handle projects - remove application from projects' application lists
   try {
-    const relatedProjects = await projectCollection()
-      .find({
-        "applications._id": applicationId,
-      })
+    const projects = await projectCollection();
+    if (!projects || typeof projects.find !== "function") {
+      throw new Error("Invalid project collection. Check your database connection.");
+    }
+
+    const relatedProjects = await projects
+      .find({ "applications._id": appObjectId })
       .toArray();
 
     if (relatedProjects.length > 0) {
       for (const project of relatedProjects) {
+        // Update the project's applications array by removing the application
         resolvers.editProject({
-          _id: project._id,
+          _id: project._id.toString(),
           applicationRemovalId: applicationId,
         });
       }
 
       console.log(
-        `Updated users' application associations for application ${applicationId}`
+        `Updated projects' application associations for application ${applicationId}`
       );
     }
   } catch (error) {
@@ -478,31 +545,41 @@ export async function propagateApplicationRemovalChanges(applicationId) {
   }
 }
 
+
 //HELPER FUNCTION: propagateApplicationEditChanges
 //Propagate application removal updates across related entities: projects, users
 export async function propagateApplicationEditChanges(
   applicationId,
   updatedApplicationData
 ) {
-  // Handle users - edited application from users' application lists
+  // Ensure applicationId is a valid ObjectId
+  const appObjectId = new ObjectId(applicationId);
+
+  // Handle users - update application in users' application lists
   try {
-    const relatedUsers = await userCollection()
-      .find({
-        "applications._id": applicationId,
-      })
+    const users = await userCollection();
+
+    // Ensure userCollection returns a valid collection
+    if (!users || typeof users.find !== "function") {
+      throw new Error("Invalid user collection. Check your database connection.");
+    }
+
+    const relatedUsers = await users
+      .find({ "applications._id": appObjectId })
       .toArray();
 
     if (relatedUsers.length > 0) {
       for (const user of relatedUsers) {
-        resolvers.editUser({
-          _id: user._id,
-          applicationEditId: applicationId,
-        });
-      }
+        // Update the specific application in the user's applications array
+        await users.updateOne(
+          { _id: user._id, "applications._id": appObjectId },
+          { $set: { "applications.$": updatedApplicationData } }
+        );
 
-      console.log(
-        `Updated users' application associations for application ${applicationId}`
-      );
+        console.log(
+          `Updated application ${applicationId} in user ${user._id}'s application list.`
+        );
+      }
     }
   } catch (error) {
     console.error(
@@ -511,29 +588,35 @@ export async function propagateApplicationEditChanges(
     throw error;
   }
 
-  // Handle projects - remove application from projects' application lists
+  // Handle projects - update application in projects' application lists
   try {
-    const relatedProjects = await projectCollection()
-      .find({
-        "applications._id": applicationId,
-      })
+    const projects = await projectCollection();
+
+    // Ensure projectCollection returns a valid collection
+    if (!projects || typeof projects.find !== "function") {
+      throw new Error("Invalid project collection. Check your database connection.");
+    }
+
+    const relatedProjects = await projects
+      .find({ "applications._id": appObjectId })
       .toArray();
 
     if (relatedProjects.length > 0) {
       for (const project of relatedProjects) {
-        resolvers.editProject({
-          _id: project._id,
-          applicationEditId: applicationId,
-        });
-      }
+        // Update the specific application in the project's applications array
+        await projects.updateOne(
+          { _id: project._id, "applications._id": appObjectId },
+          { $set: { "applications.$": updatedApplicationData } }
+        );
 
-      console.log(
-        `Updated projects' application associations for application ${applicationId}`
-      );
+        console.log(
+          `Updated application ${applicationId} in project ${project._id}'s application list.`
+        );
+      }
     }
   } catch (error) {
     console.error(
-      `Failed to edit applicatios for projects for application ${applicationId}: ${error.message}`
+      `Failed to edit application associations in projects for application ${applicationId}: ${error.message}`
     );
     throw error;
   }

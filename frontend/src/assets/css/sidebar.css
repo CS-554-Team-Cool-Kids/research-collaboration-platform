@@ -12,7 +12,7 @@ body {
   background: rgba(10, 10, 10, 0.65);
   box-shadow: 0 8px 32px rgb(2, 4, 24);
   border-right: 2px solid rgba(255, 255, 255, 0.09);
-  transition: 0.4s ease-in-out;
+  transition: var(--transitionDuration) linear;
 }
 
 .sidebar.open {
@@ -39,8 +39,8 @@ body {
 .sidebar.open .logo {
   scale: 1;
   opacity: 1;
-  transition: 0.4s;
-  transition-delay: 0.2s;
+  transition: var(--transitionDuration);
+  transition-delay: var(--transitionDuration);
 }
 
 .sidebar .nav-title {
@@ -51,8 +51,7 @@ body {
 
 .sidebar.open .nav-title {
   opacity: 1;
-  transition: 0.4s;
-  transition-delay: 0.2s;
+  transition: var(--transitionDuration);
 }
 
 .sidebar nav {
@@ -73,11 +72,11 @@ body {
   margin: 12px 0;
   padding: 5px 5px;
   color: var(--activeTextColor);
-  transition: 0.3s;
+  transition: var(--transitionDuration);
 }
 
 .sidebar nav .nav-item.active {
-  background: var(--purple2) !important;
+  background: var(--activeAccentColor) !important;
 }
 
 .sidebar nav .nav-item:hover {
@@ -94,8 +93,7 @@ body {
 .sidebar.open nav .nav-item span {
   opacity: 1;
   pointer-events: visible;
-  transition: 0.4s;
-  transition-delay: 0.2s;
+  transition: var(--transitionDuration);
 }
 
 .sidebar .toggle {
@@ -114,7 +112,7 @@ body {
 
 .sidebar .toggle i,
 .sidebar .toggle svg {
-  transition: 0.4s linear;
+  transition: var(--transitionDuration) linear;
 }
 
 .sidebar.open .toggle i,

@@ -360,7 +360,7 @@ export const resolvers = {
       }
 
       //If not cached, pull project collection and then findOne specific project
-      const projects = await projectCollectionCollection();
+      const projects = await projectCollection();
       const project = await projects.findOne({ _id: new ObjectId(args._id) });
 
       //If no project, throw GraphQLError
@@ -1244,6 +1244,18 @@ export const resolvers = {
   },
 
   Project: {
+
+    applications: async (parentValue) => {
+      // Pull the applications collection
+      const applications = await applicationCollection();
+      // Query all applications where project._id matches this project’s _id
+      const projectApplications = await applications
+        .find({ "project._id": new ObjectId(parentValue._id) })
+        .toArray();
+        
+      return projectApplications;
+    },
+
     // numOfApplications
     // Purpose: Compute the number of applications there are for a specific project
     // parentValue = Project object; numOfApplicants will appear in the Project object
@@ -2729,7 +2741,7 @@ export const resolvers = {
       //Propagate this removal across all objects with application objects
       await propagators.propagateApplicationEditChanges(
         applicationToUpdate._id,
-        { ...applicationToUpdate, ...updateFields }
+        { ...applicationToUpdate }
       );
 
       // Update Redis cache

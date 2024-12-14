@@ -1,20 +1,19 @@
-import React, { useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { authState } = useAuth();
+  const location = useLocation();
 
-  if (!authState.isAuthenticated) {
-    return <Navigate to="/login" />;
+  if (!authState || !authState.isAuthenticated) {
+    // Redirect to login and save the intended route
+    return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
-  if (!allowedRoles.includes(authState.user.role)) {
-    <Navigate to="/home" />;
+  if (allowedRoles && !allowedRoles.includes(authState.user.role)) {
+    return <Navigate to="/unauthorized" replace />;
   }
-
-  const route = `/${authState.user.role.toLowerCase()}Dashboard`;
-  return <Navigate to={route} />;
 
   return children;
 };

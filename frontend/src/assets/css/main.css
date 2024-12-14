@@ -6,8 +6,10 @@
   --white1: #fff;
   --purple1: #7446b9;
   --purple2: #e2d8f2;
-  --yellow: #f6d350;
-  --green1: #00bf98;
+  --yellow1: #fff176;
+  --green1: #6bd485;
+  --blue1: #6cc8ec;
+  --red1: #ff7474;
   --fadeGrey: #a1a1a147;
   --lightGrey1: #ededed;
   --glass1: #ffffff40;
@@ -40,9 +42,10 @@
   --activeStripeTableColor: var(--stripeTableColor1);
   --activeGlassColor: var(--glass1);
   --activeGradientColor: var(--lightGradient1);
+  --activeAccentColor: var(--purple2);
   --activeFont: "Apple1";
 
-  --transitionDelay: 0.2s;
+  --transitionDuration: 0.2s;
 }
 
 /* General Styles
@@ -64,12 +67,12 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
 
-  transition: all var(--transitionDelay) linear;
+  transition: all var(--transitionDuration) linear;
   font-family: var(--activeFont), "Montserrat", sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
   font-weight: 400;
-  transition: all var(--transitionDelay) linear;
+  transition: all var(--transitionDuration) linear;
 }
 
 html,
@@ -199,6 +202,13 @@ a:focus {
 
 .btn {
   min-width: 100px;
+  box-shadow: 0px 5px 30px var(--activeShadowColor) !important;
+}
+
+.btn.btn-primary {
+  background: var(--purple1) !important;
+  color: #fff !important;
+  border: 1px solid var(--purple1) !important;
 }
 
 .btn-success {
@@ -207,33 +217,29 @@ a:focus {
   border: 1px solid var(--green1) !important;
 }
 
-.btn.btn-primary {
-  background: var(--purple1);
-  color: #fff;
-  border: 2px solid var(--purple1);
-}
-
 .btn-danger {
-  background: #ff7676 !important;
+  background: var(--red1) !important;
   color: black !important;
+  border: 1px solid var(--red1) !important;
 }
 
 .btn-warning {
-  background: #f9de92 !important;
+  background: var(--yellow1) !important;
   color: black !important;
+  border: 1px solid var(--yellow1) !important;
 }
 
 .btn-info {
-  background: #6cc8ec !important;
+  background: var(--blue1) !important;
   color: black !important;
-  opacity: 1 !important;
+  border: 1px solid var(--blue1) !important;
 }
 
 .btn {
-  transition: all var(--transitionDelay) linear;
+  transition: all var(--transitionDuration) linear;
 }
 .btn:hover {
-  filter: brightness(1.4);
+  filter: brightness(1.25);
 }
 
 .invertColor {
@@ -533,7 +539,7 @@ footer {
   border-bottom: 1px solid var(--fadeGrey);
   border-left: 8px solid var(--transparent);
   cursor: pointer;
-  transition: all var(--transitionDelay) linear;
+  transition: all var(--transitionDuration) linear;
 }
 
 .chat-list li:hover {
@@ -575,7 +581,7 @@ footer {
 }
 
 .transition-1 {
-  transition: all var(--transitionDelay) linear;
+  transition: all var(--transitionDuration) linear;
 }
 
 /* Toggle Light and Dark Mode */
@@ -659,4 +665,31 @@ footer {
   background-color: #007bff;
   color: white;
   cursor: pointer;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 5vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  margin-bottom: 5vh;
+  text-align: center;
+  padding: 12px;
+}
+
+.wrapper-class {
+  padding: 1rem;
+  border: 1px solid #ccc;
+}
+.editor-class {
+  background-color: lightgray;
+  padding: 1rem;
+  border: 1px solid #ccc;
+}
+.toolbar-class {
+  border: 1px solid #ccc;
 }

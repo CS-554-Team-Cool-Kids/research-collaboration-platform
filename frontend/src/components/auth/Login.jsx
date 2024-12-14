@@ -47,17 +47,9 @@ const Login = () => {
         role: data.login.role,
       });
 
-      // const socket = io("http://localhost:4001");
-
-      // console.log("Socket connected:", socket.id);
-
-      if (data.login.role === "STUDENT") {
-        navigate("/chat"); // Navigate to chat for students
-      } else if (data.login.role === "ADMIN") {
-        navigate("/chat"); // Navigate to chat for admins
-      } else {
-        navigate("/chat"); // Default navigation
-      }
+      // Redirect to the originally intended route or default to '/chat'
+      const from = location.state?.from?.pathname || "/project";
+      navigate(from, { replace: true });
     } catch (error) {
       alert(error.message);
     }

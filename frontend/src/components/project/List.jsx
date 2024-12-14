@@ -1,77 +1,50 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useMutation, useQuery } from "@apollo/client";
+import queries from "../../queries.js";
+import { useAuth } from "../../context/AuthContext.jsx";
 
-const ProjectList = (props) => {
-  const projectData = [
-    {
-      id: 1,
-      name: "Project Alpha",
-      description:
-        "A groundbreaking initiative focused on developing next-generation AI algorithms to enhance predictive analytics and decision-making capabilities in real-time applications.",
-    },
-    {
-      id: 2,
-      name: "Project Beta",
-      description:
-        "A comprehensive project aimed at building a scalable, cloud-based platform for managing and analyzing large datasets across multiple industries.",
-    },
-    {
-      id: 3,
-      name: "Project Gamma",
-      description:
-        "An ambitious undertaking to design and implement a decentralized blockchain network for secure and transparent financial transactions.",
-    },
-    {
-      id: 4,
-      name: "Project Delta",
-      description:
-        "A research-focused project exploring sustainable energy solutions through advanced solar panel technologies and innovative storage systems.",
-    },
-    {
-      id: 5,
-      name: "Project Epsilon",
-      description:
-        "An educational platform designed to provide immersive learning experiences using virtual reality and augmented reality technologies.",
-    },
-    {
-      id: 6,
-      name: "Project Zeta",
-      description:
-        "A health-tech initiative to create a wearable device capable of real-time monitoring of vital signs and providing actionable health insights.",
-    },
-    {
-      id: 7,
-      name: "Project Eta",
-      description:
-        "A social good project aimed at building a mobile app that connects volunteers with local community service opportunities efficiently.",
-    },
-    {
-      id: 8,
-      name: "Project Theta",
-      description:
-        "An environmental conservation project focused on developing IoT-enabled devices for monitoring air and water quality in urban areas.",
-    },
-    {
-      id: 9,
-      name: "Project Iota",
-      description:
-        "A transportation project leveraging AI and machine learning to optimize traffic flow and reduce congestion in metropolitan cities.",
-    },
-    {
-      id: 10,
-      name: "Project Kappa",
-      description:
-        "An e-commerce project aimed at creating an AI-powered recommendation engine to provide personalized shopping experiences for users.",
-    },
-  ];
+const ProjectList = () => {
+  const { authState } = useAuth();
 
-  const [projects, setProjects] = useState([]);
+  const userId = authState.user.id;
+  const { data, loading, error, refetch } = useQuery(queries.GET_USER_BY_ID, {
+    variables: { id: userId },
+    fetchPolicy: "network-only",
+  });
+
   const [selectedProject, setSelectedProject] = useState(null);
 
+  // Mutation to remove a project
+  const [removeProject] = useMutation(queries.REMOVE_PROJECT);
+
+  const handleDelete = async () => {
+    if (!selectedProject?._id) return;
+
+    const confirmDeletion = window.confirm(
+      `Are you sure you want to delete the project "${selectedProject.title}"?`
+    );
+
+    if (confirmDeletion) {
+      try {
+        await removeProject({ variables: { id: selectedProject._id } });
+        await refetch();
+      } catch (error) {
+        console.error("Deletion failed:", error);
+      }
+    }
+  };
+
   useEffect(() => {
-    // Load data from props or default project data
-    setProjects(props.projects || projectData || []);
-  }, [props.projects]);
+    if (data) {
+      setSelectedProject(null); // Reset selected project when data changes
+    }
+  }, [data]);
+
+  if (loading) return <p>Loading projects...</p>;
+  if (error) return <p>Error loading projects: {error.message}</p>;
+
+  const projects = data?.getUserById?.projects || [];
 
   return (
     <main className="dashboard">
@@ -85,15 +58,20 @@ const ProjectList = (props) => {
                 </div>
 
                 <div className="col-auto d-flex">
-                  {selectedProject?.id ? (
+                  {selectedProject?._id ? (
                     <div className="d-flex">
                       <Link
                         className="nav-link"
-                        to={"/project/" + selectedProject?.id}
+                        to={`/project/${selectedProject._id}`}
                       >
                         <button className="btn btn-info ms-2">Details</button>
                       </Link>
-                      <button className="btn btn-danger ms-2">Delete</button>
+                      <button
+                        className="btn btn-danger ms-2"
+                        onClick={handleDelete}
+                      >
+                        Delete
+                      </button>
                     </div>
                   ) : (
                     <div className="d-flex">
@@ -106,7 +84,7 @@ const ProjectList = (props) => {
                     </div>
                   )}
 
-                  <Link className="nav-link" to={"/project/add"}>
+                  <Link className="nav-link" to="/project/add">
                     <button className="btn btn-success ms-2">Add</button>
                   </Link>
                 </div>
@@ -120,15 +98,15 @@ const ProjectList = (props) => {
                 <ul className="chat-list">
                   {projects.map((project, index) => (
                     <li
-                      key={project.id}
+                      key={project._id}
                       onClick={() => setSelectedProject(project)}
                       className={
-                        selectedProject?.id === project.id ? "active" : ""
+                        selectedProject?._id === project._id ? "active" : ""
                       }
                     >
                       <span className="chat-list-number">{index + 1}.</span>
-                      <p className="chat-list-header">{project.name}</p>
-                      <p>{project.description}</p>
+                      <p className="chat-list-header">{project.title}</p>
+                      <p>{project.department}</p>
                     </li>
                   ))}
                 </ul>
@@ -137,7 +115,8 @@ const ProjectList = (props) => {
               <div className="col-md-8 my-3 border-start">
                 {selectedProject ? (
                   <div>
-                    <h2>{selectedProject.name}</h2>
+                    <h2>{selectedProject.title}</h2>
+                    <p>{selectedProject.department}</p>
                     <p>{selectedProject.description}</p>
                   </div>
                 ) : (
