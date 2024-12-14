@@ -75,6 +75,7 @@ function checkArg(argument, type, argumentName) {
   }
 
   if (argumentName === "email") {
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(argument)) {
