@@ -321,7 +321,7 @@ export const typeDefs = `#graphql
             role: Role                       
             department: Department           
             bio: String        
-            projectRemovalId: String
+            ed: String
             projectEditId: String
             applicationRemovalId: String
             applicationEditId: String

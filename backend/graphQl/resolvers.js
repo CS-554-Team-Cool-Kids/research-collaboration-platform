@@ -360,7 +360,7 @@ export const resolvers = {
       }
 
       //If not cached, pull project collection and then findOne specific project
-      const projects = await projectCollectionCollection();
+      const projects = await projectCollection();
       const project = await projects.findOne({ _id: new ObjectId(args._id) });
 
       //If no project, throw GraphQLError
@@ -602,11 +602,18 @@ export const resolvers = {
         _id: new ObjectId(args.projectId),
       });
 
+      // Check if project exists
+      if (!project) {
+        throw new GraphQLError("Project not found in the database.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       // Extract professors field
       const professors = project.professors || [];
 
       // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(professors));
+      await redisClient.set(cacheKey, JSON.stringify(professors), { EX: 3600 });
 
       // Return the list of professors
       return professors;
@@ -654,11 +661,18 @@ export const resolvers = {
         _id: new ObjectId(args.projectId),
       });
 
+      // Check if project exists
+      if (!project) {
+        throw new GraphQLError("Project not found in the database.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       // Extract students field
       const students = project.students || [];
 
       // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(students));
+      await redisClient.set(cacheKey, JSON.stringify(students), { EX: 3600 });
 
       // Return the list of students
       return students;
@@ -685,13 +699,18 @@ export const resolvers = {
       //Check objectID
       helpers.checkArg(args._id, "string", "id");
 
+      //Turn args._id into an object id 
+      const userId = new ObjectId(args._id);
+
+
       //If not cached, pull entire project collction
       const projects = await projectCollection();
 
       //Pull all projects associated with the provided userId using find.
       //Change the string userId argument into an objectId
+      //$elemMatch: MongoDB query operator; match documents that contain an array with at least one element satisfying criteria
       const userProjects = await projects
-        .find({ professors: { $elemMatch: { _id: args._id } } })
+        .find({ professors: { $elemMatch: { _id: userId } } })
         .toArray();
 
       // Return the list of projects
@@ -740,11 +759,18 @@ export const resolvers = {
         _id: new ObjectId(args.updateId),
       });
 
+      //Handle missing update
+      if (!update) {
+        throw new GraphQLError("Update not found in the database.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       // Extract comments field
       const comments = update.comments || [];
 
       // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(comments));
+      await redisClient.set(cacheKey, JSON.stringify(comments), { EX: 3600 });
 
       // Return the list of comments
       return comments;
@@ -792,11 +818,18 @@ export const resolvers = {
         _id: new ObjectId(args.applicationId),
       });
 
+      //Handle missing application
+      if (!application) {
+        throw new GraphQLError("Application not found in the database.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       // Extract comments field
       const comments = application.comments || [];
 
       // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(comments));
+      await redisClient.set(cacheKey, JSON.stringify(comments), { EX: 3600 });
 
       // Return the list of comments
       return comments;
@@ -1244,6 +1277,18 @@ export const resolvers = {
   },
 
   Project: {
+
+    applications: async (parentValue) => {
+      // Pull the applications collection
+      const applications = await applicationCollection();
+      // Query all applications where project._id matches this project’s _id
+      const projectApplications = await applications
+        .find({ "project._id": new ObjectId(parentValue._id) })
+        .toArray();
+        
+      return projectApplications;
+    },
+
     // numOfApplications
     // Purpose: Compute the number of applications there are for a specific project
     // parentValue = Project object; numOfApplicants will appear in the Project object
@@ -1357,6 +1402,19 @@ export const resolvers = {
         helpers.checkArg(args.bio, "string", "bio");
       }
 
+
+      //Pull user collection
+      const users = await userCollection();
+
+      //Extra email check for duplicates
+      const existingUser = await users.findOne({ email: args.email.trim() });
+  
+      if (existingUser) {
+        throw new GraphQLError("Email already exists.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       // Creates a new user in Firebase Authentication with email, password, and display name.
       // Managed by Firebase for authentication purposes.
       const userRecord = await admin.auth().createUser({
@@ -1364,9 +1422,6 @@ export const resolvers = {
         password: args.password,
         displayName: `${args.firstName} ${args.lastName}`,
       });
-
-      //Pull the user collection
-      const users = await userCollection();
 
       // Create a User object, toAddUser, using the arguments, set objectId
       const toAddUser = {
@@ -1478,6 +1533,12 @@ export const resolvers = {
       //Use find one to have a local object to add updates to.
       let userToUpdate = await users.findOne({ _id: userId });
 
+      if (!userToUpdate) {
+        throw new GraphQLError("The user ID provided is invalid.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       //Object to hold fields to update
       const updateFields = {};
 
@@ -1530,25 +1591,46 @@ export const resolvers = {
 
         //Project Removal Id
         if (args.projectRemovalId) {
+         
           helpers.checkArg(args.projectRemovalId, "string", "id");
+          
           const newProjectArray = (userToUpdate.projects || []).filter(
             (project) =>
               !project._id.equals(new ObjectId(args.projectRemovalId))
           );
+
           updateFields.projects = newProjectArray;
         }
 
         //Project Edit Id
         if (args.projectEditId) {
+          
           helpers.checkArg(args.projectEditId, "string", "id");
-          const newProjectArray = (userToUpdate.projects || []).filter(
-            (project) => !project._id.equals(new ObjectId(args.projectEditId))
-          );
-          const projectToAdd = getProjectById(args.projectEditId);
-          if (projectToAdd) {
-            newProjectArray.push(projectToAdd);
+
+          const updatedProjectId = new ObjectId(args.projectEditId);
+          
+          //Pull the updated project
+          const updatedProject = await getProjectById(args.projectEditId);
+
+          if (!updatedProject) {
+            throw new GraphQLError("Project with the given ID does not exist.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
           }
-          updateFields.projects = newProjectArray;
+          
+          // Replace the old project with the updated version
+          const updatedProjectArray = (userToUpdate.projects || []).map((project) => {
+            // Check if the current project matches the projectEditId
+            if (project._id.equals(updatedProjectId)) {
+              // Replace with the updated project if the project id matches
+              return updatedProject; 
+            }
+            // Retrun the project as-is if its id doesn't match
+            return project; 
+          });
+
+          updateFields.projects = updatedProjectArray;
+
         }
 
         //Application Removal Id
@@ -1562,17 +1644,28 @@ export const resolvers = {
         }
 
         //Applications Edit Id
+        //Line by line comments available in projects edit id. This mirrors that code.
         if (args.applicationEditId) {
           helpers.checkArg(args.applicationEditId, "string", "id");
-          const newApplicationArray = (userToUpdate.applications || []).filter(
-            (application) =>
-              !application._id.equals(new ObjectId(args.applicationEditId))
-          );
-          const applicationToAdd = getApplicationById(args.applicationEditId);
-          if (applicationToAdd) {
-            newApplicationArray.push(applicationToAdd);
+        
+          const updatedApplicationId = new ObjectId(args.applicationEditId);
+        
+          const updatedApplication = await getApplicationById(args.applicationEditId);
+        
+          if (!updatedApplication) {
+            throw new GraphQLError("Application with the given ID does not exist.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
           }
-          updateFields.applications = newApplicationArray;
+        
+          const updatedApplicationArray = (userToUpdate.applications || []).map((application) => {
+            if (application._id.equals(updatedApplicationId)) {
+              return updatedApplication;
+            }
+            return application;
+          });
+        
+          updateFields.applications = updatedApplicationArray;
         }
 
         //Use updateOne, matching the _id to the args._id. Note: the ID cannot be updated
@@ -1703,7 +1796,7 @@ export const resolvers = {
       }
 
       //Return the value of the deleted user
-      return deletedUser.value;
+      return deletedUser;
     },
 
     // addProject
@@ -1967,18 +2060,30 @@ export const resolvers = {
 
         //Applications Edit Id
         if (args.applicationEditId) {
+
           helpers.checkArg(args.applicationEditId, "string", "id");
-          const newApplicationArray = (
-            projectToUpdate.applications || []
-          ).filter(
-            (application) =>
-              !application._id.equals(new ObjectId(args.applicationEditId))
-          );
-          const applicationToAdd = getApplicationById(args.applicationEditId);
-          if (applicationToAdd) {
-            newApplicationArray.push(applicationToAdd);
+
+          const updatedApplicationId = new ObjectId(args.applicationEditId);
+
+          const updatedApplication = await getApplicationById(args.applicationEditId);
+
+          if (!updatedApplication) {
+            throw new GraphQLError("Application with the given ID does not exist.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
           }
-          updateFields.applications = newApplicationArray;
+
+          const updatedApplicationArray = (projectToUpdate.applications || []).map(
+            (application) => {
+              if (application._id.equals(updatedApplicationId)) {
+                return updatedApplication;
+              }
+              return application;
+            }
+          );
+
+          updateFields.applications = updatedApplicationArray;
+          
         }
 
         //Use updateOne, matching the _id to the args._id. Note: the ID cannot be updated
@@ -2341,14 +2446,27 @@ export const resolvers = {
         //Comments Edit Id
         if (args.commentEditId) {
           helpers.checkArg(args.commentEditId, "string", "id");
-          const newCommentArray = (updateToUpdate.comments || []).filter(
-            (comment) => !comment._id.equals(new ObjectId(args.commentEditId))
-          );
-          const commentToAdd = getCommentById(args.commentEditId);
-          if (commentToAdd) {
-            newCommentArray.push(commentToAdd);
+        
+          const updatedCommentId = new ObjectId(args.commentEditId);
+        
+          const updatedComment = await getCommentById(args.commentEditId);
+        
+          if (!updatedComment) {
+            throw new GraphQLError("Comment with the given ID does not exist.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
           }
-          updateToUpdate.comments = newCommentArray;
+        
+          const updatedCommentArray = (updateToUpdate.comments || []).map(
+            (comment) => {
+              if (comment._id.equals(updatedCommentId)) {
+                return updatedComment;
+              }
+              return comment;
+            }
+          );
+        
+          updateToUpdate.comments = updatedCommentArray;
         }
 
         //NOW, update the update in the mongodb. Use $set, which will not affect unupdated values
@@ -2698,14 +2816,27 @@ export const resolvers = {
       //Comments Edit Id
       if (args.commentEditId) {
         helpers.checkArg(args.commentEditId, "string", "id");
-        const newCommentArray = (applicationToUpdate.comments || []).filter(
-          (comment) => !comment._id.equals(new ObjectId(args.commentEditId))
-        );
-        const commentToAdd = getCommentById(args.commentEditId);
-        if (commentToAdd) {
-          newCommentArray.push(commentToAdd);
+      
+        const updatedCommentId = new ObjectId(args.commentEditId);
+      
+        const updatedComment = await getCommentById(args.commentEditId);
+      
+        if (!updatedComment) {
+          throw new GraphQLError("Comment with the given ID does not exist.", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
         }
-        applicationToUpdate.comments = newCommentArray;
+      
+        const updatedCommentArray = (applicationToUpdate.comments || []).map(
+          (comment) => {
+            if (comment._id.equals(updatedCommentId)) {
+              return updatedComment;
+            }
+            return comment;
+          }
+        );
+      
+        applicationToUpdate.comments = updatedCommentArray;
       }
 
       //Automatically update lastUpdatedDate
@@ -2729,7 +2860,7 @@ export const resolvers = {
       //Propagate this removal across all objects with application objects
       await propagators.propagateApplicationEditChanges(
         applicationToUpdate._id,
-        { ...applicationToUpdate, ...updateFields }
+        { ...applicationToUpdate }
       );
 
       // Update Redis cache
@@ -3154,7 +3285,7 @@ export const resolvers = {
       }
 
       //Return the value of deletedComment
-      return deletedComment.value;
+      return deletedComment;
     },
 
     login: async (_, { token }) => {
