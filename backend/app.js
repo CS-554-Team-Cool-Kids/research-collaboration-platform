@@ -6,7 +6,7 @@ import { typeDefs } from "./graphQl/typeDefs.js";
 import { resolvers } from "./graphQl/resolvers.js";
 import dotenv from "dotenv";
 import { Server as SocketServer } from "socket.io";
-
+import { addMessage, getMessagesByChannel } from "./messageOperations/index.js";
 dotenv.config();
 
 const serviceAccount = {
@@ -29,27 +29,60 @@ const io = new SocketServer(httpServer, {
     origin: "*",
   },
 });
+const activeUsers = {}; // Store active users with their channel subscriptions
 
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
+  // Handle user connection and channel subscription
   socket.on("user_connected", (data) => {
-    // activeUsers[socket.id] = data; // Map socket ID to user details
     console.log("User connected:", data);
-    // console.log("Active Users:", activeUsers);
 
-    // Optionally notify other users about the new connection
+    // Optionally store user data
+    activeUsers[socket.id] = data;
+
+    // Notify other users if needed
     socket.broadcast.emit("user_joined", { user: data });
   });
 
-  // Handle chat message events
-  socket.on("chat_message", (data) => {
-    console.log("Message received:", data);
-    io.emit("chat_message", data);
+  // Handle joining a channel
+  socket.on("join_channel", async (channel) => {
+    console.log(`${socket.id} joined channel: ${channel}`);
+    try {
+      const messages = await getMessagesByChannel(channel);
+      socket.emit("previous_messages", messages);
+    } catch (e) {
+      console.log(e);
+    }
+    socket.join(channel);
   });
 
+  // Handle chat message events
+  socket.on("chat_message", async (data) => {
+    console.log(
+      "Message received for channel:",
+      data.channel,
+      "Message:",
+      data
+    );
+
+    const messageDocument = {
+      channel: data.channel,
+      user: data.user,
+      message: data.message,
+      timestamp: new Date(),
+    };
+
+    await addMessage(messageDocument);
+
+    // Emit the message to all users in the specific channel
+    io.to(data.channel).emit("chat_message", data);
+  });
+
+  // Handle user disconnection
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
+    delete activeUsers[socket.id]; // Remove the user from active users
   });
 });
 

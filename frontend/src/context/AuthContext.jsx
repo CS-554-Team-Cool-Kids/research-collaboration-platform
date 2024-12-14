@@ -1,12 +1,19 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [authState, setAuthState] = useState({
-    isAuthenticated: false,
-    user: null,
+  const [authState, setAuthState] = useState(() => {  
+    const storedAuthState = localStorage.getItem("authState");
+    return storedAuthState
+      ? JSON.parse(storedAuthState)
+      : { isAuthenticated: false, user: null };
   });
+
+  useEffect(() => {
+    // Save the state to localStorage whenever it changes
+    localStorage.setItem("authState", JSON.stringify(authState));
+  }, [authState]);
 
   const login = (user) => {
     setAuthState({
