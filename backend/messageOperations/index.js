@@ -8,10 +8,10 @@ export async function addMessage(message) {
 export async function getMessagesByChannel(channelId) {
   const messages = await messageCollection();
   const allMessages = await messages
-    .find({ channelId })
+    .find({ channel: channelId })
     .sort({ timestamp: -1 })
     .limit(50)
     .toArray();
 
-  return allMessages;
+  return allMessages.reverse();
 }

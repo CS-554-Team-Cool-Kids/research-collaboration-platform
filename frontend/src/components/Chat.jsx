@@ -32,14 +32,14 @@ function Chat() {
       role: authState.user.role,
     });
 
-    if (socket && selectedChannel) {
-      socket.emit("join_channel", selectedChannel);
+    // if (socket && selectedChannel) {
+    //   socket.emit("join_channel", selectedChannel);
 
-      // Listen for previous messages
-      socket.on("previous_messages", (previousMessages) => {
-        setMessages(previousMessages);
-      });
-    }
+    //   // Listen for previous messages
+    //   socket.on("previous_messages", (previousMessages) => {
+    //     setMessages(previousMessages);
+    //   });
+    // }
 
     // Listen for incoming messages
     newSocket.on("chat_message", (data) => {
@@ -50,7 +50,27 @@ function Chat() {
     return () => {
       newSocket.disconnect();
     };
-  }, [authState.isAuthenticated, socket, selectedChannel]);
+  }, [authState]);
+
+  useEffect(() => {
+    if (socket && selectedChannel) {
+      socket.emit("join_channel", selectedChannel);
+
+      // setMessages([]);
+      // socket.emit("fetch_previous_messages", selectedChannel);
+
+      socket.on("previous_messages", (previousMessages) => {
+        setMessages(previousMessages); // Set previous messages for the new channel
+      });
+    }
+
+    // Cleanup the "previous_messages" listener when the channel changes
+    // return () => {
+    //   if (socket) {
+    //     socket.off("previous_messages");
+    //   }
+    // };
+  }, [socket, selectedChannel]);
 
   const handleChannelSelect = (channelId) => {
     if (socket) {
@@ -104,13 +124,20 @@ function Chat() {
           <h4>
             Channel: {projects.find((p) => p._id === selectedChannel)?.title}
           </h4>
-          {messages
-            .filter((msg) => msg.channel === selectedChannel)
-            .map((msg, index) => (
-              <div key={index} className="message">
+          <div className="message-list">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`message ${
+                  msg.user === authState.user.email
+                    ? "current-user"
+                    : "other-user"
+                }`}
+              >
                 <strong>{msg.user}:</strong> {msg.message}
               </div>
             ))}
+          </div>
         </div>
       )}
 
@@ -122,7 +149,10 @@ function Chat() {
           onChange={(e) => setMessage(e.target.value)}
           disabled={!selectedChannel}
         />
-        <button onClick={handleSendMessage} disabled={!selectedChannel}>
+        <button
+          onClick={handleSendMessage}
+          disabled={!selectedChannel || !message.trim()}
+        >
           Send
         </button>
       </div>
