@@ -11,7 +11,7 @@ const UserDashboard = () => {
     const id = authState.user.id;
 
     const userData = useQuery(queries.GET_USER_BY_ID, {
-        variables: { id },
+        variables: { id: id },
         fetchPolicy: 'network-only'
     });
     console.log("userData: ", userData);
