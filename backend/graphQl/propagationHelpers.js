@@ -68,8 +68,10 @@ export async function propagateUserRemovalChanges(userId) {
 
     //If there are related projects, proceed in updating embedded user objects
     if (relatedProjects.length > 0) {
-      
+      console.log('Found related projects:', relatedProjects.map(p => p._id.toString()));
+
       for (const project of relatedProjects) {
+        console.log(`Processing project with ID: ${project._id}`);
 
         const updatedProjectFields = {};
 
@@ -77,12 +79,18 @@ export async function propagateUserRemovalChanges(userId) {
         //`some`: method that determines if there is any professor that has an `_id` that matches the given `userId`
         if (project.professors.some((prof) => prof._id.equals(userObjectId))) {
 
+          console.log(`User ${userObjectId} found as professor in project ${project._id}`);
           //If the removed professor is in this project, use filter to remove the reference, and then map a new array of professor ids
           //The array of ID strings if what is needed by the edit project resolver
           updatedProjectFields.professorIds = project.professors
             .filter((prof) => !prof._id.equals(userObjectId))
             .map((prof) => prof._id.toString());
         }
+
+        console.log(
+          `Updated professorIds for project ${project._id}:`,
+          updatedProjectFields.professorIds
+        );
 
         //Repeat the above process for students
         if (project.students.some((stud) => stud._id.equals(userObjectId))) {
@@ -93,13 +101,19 @@ export async function propagateUserRemovalChanges(userId) {
 
         //If for this project the code has collected fields to update, call the edit project resolver.
         if (Object.keys(updatedProjectFields).length > 0) {
+          console.log(`Updating project ${project._id} with fields:`, updatedProjectFields);
+
           await noPropResolvers.editProject(null, {
             _id: project._id.toString(),
             ...updatedProjectFields,
           });
+        } else {
+          console.log(`No updates required for project ${project._id}`);
         }
 
       }
+    } else {
+      console.log('No related projects found for the given user.');
     }
 
     console.log(`Removed user from related projects ${userId}`);
@@ -799,7 +813,7 @@ export async function propagateCommentRemovalChanges(commentId) {
         "comments._id": commentObjectId,
       })
       .toArray();
-      
+
     if (relatedApplications.length > 0) {
       for (const application of relatedApplications) {
         await noPropResolvers.editApplication(null, {

@@ -74,10 +74,12 @@ import * as helpers from "./helpers.js";
         //Have to go before traditional checks. Why? confirm they exist before you use them.
       // Check if required fields are present
       if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
+        /*throw new GraphQLError("The _id field is required.", {
           //Similar status code: 404
           extensions: { code: "BAD_USER_INPUT" },
-        });
+        });*/
+        console.log("The _id field is missing. Skipping user edit.");
+        return { message: "User ID (_id) is required but was not provided." };
       }
 
       // Check that no extra fields are provided
@@ -98,10 +100,11 @@ import * as helpers from "./helpers.js";
       ];
       for (let key in args) {
         if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            //Similar status code: 404
+          /*throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+            //404
             extensions: { code: "BAD_USER_INPUT" },
-          });
+          });*/
+          console.log(`Unexpected field '${key}' provided. Ignoring this field.`);
         }
       }
 
@@ -118,9 +121,11 @@ import * as helpers from "./helpers.js";
       let userToUpdate = await users.findOne({ _id: userId });
 
       if (!userToUpdate) {
-        throw new GraphQLError("The user ID provided is invalid.", {
+       /*throw new GraphQLError("The user ID provided is invalid.", {
           extensions: { code: "BAD_USER_INPUT" },
-        });
+        });*/
+        console.log(`User with ID ${args._id} not found. Skipping user edit.`);
+        return { message: `User with ID ${args._id} was not found.` };
       }
 
       //Object to hold fields to update
@@ -200,9 +205,11 @@ import * as helpers from "./helpers.js";
           );
 
           if (!updatedProject) {
-            throw new GraphQLError("Project with the given ID does not exist.", {
+            /*throw new GraphQLError("Project with the given ID does not exist.", {
               extensions: { code: "BAD_USER_INPUT" },
-            });
+            });*/
+            console.log(`Project with ID ${args.projectEditId} not found. Skipping project edit.`);
+            return { message: `Project with ID ${args.projectEditId} was not found.` };
           }
           
           // Replace the old project with the updated version
@@ -242,9 +249,11 @@ import * as helpers from "./helpers.js";
           const updatedApplication = await applications.findOne({ _id: updatedApplicationId });
         
           if (!updatedApplication) {
-            throw new GraphQLError("Application with the given ID does not exist.", {
+            /*throw new GraphQLError("Application with the given ID does not exist.", {
               extensions: { code: "BAD_USER_INPUT" },
-            });
+            });*/
+            console.log(`Application with ID ${args.applicationEditId} not found. Skipping user edit.`);
+            return { message: `Application with ID ${args.applicationEditId} was not found.` };
           }
         
           const updatedApplicationArray = (userToUpdate.applications || []).map((application) => {
@@ -268,12 +277,14 @@ import * as helpers from "./helpers.js";
           });
 
           if (!addedApplication) {
-            throw new GraphQLError(
+            /*throw new GraphQLError(
               `Application with ID ${args.applicationAddition} does not exist.`,
               {
                 extensions: { code: "BAD_USER_INPUT" },
               }
-            );
+            );*/
+            console.log(`Application with ID ${args.applicationAddition} not found. Skipping addition.`);
+            return { message: `Application with ID ${args.applicationAddition} was not found.` };
           }
 
           const updatedApplications = [
@@ -292,12 +303,14 @@ import * as helpers from "./helpers.js";
         );
 
         if (result.modifiedCount === 0) {
-          throw new GraphQLError(
+          /*throw new GraphQLError(
             `The user with ID ${args._id} was not successfully updated.`,
             {
               extensions: { code: "INTERNAL_SERVER_ERROR" },
             }
-          );
+          );*/
+          console.log(`No changes were made to the user with ID ${args._id}.`);
+          return { message: `No changes were made to the user with ID ${args._id}.` };
         }
         try {
           // Delete the individual user cache (data no longer accurate)
@@ -308,7 +321,7 @@ import * as helpers from "./helpers.js";
         } catch (error) {
           console.error("Redis operation failed:", error);
 
-          throw new GraphQLError(
+          /*throw new GraphQLError(
             "Failed to update Redis cache after editing the user.",
             {
               extensions: {
@@ -316,15 +329,19 @@ import * as helpers from "./helpers.js";
                 cause: error.message,
               },
             }
-          );
+          );*/
+          console.error("Failed to update Redis cache:", error.message);
+          return { message: "User was updated, but Redis cache update failed." };
         }
       } else {
         //Throw GraphQLError if something went wrong when pulling and updating the user Id
-        throw new GraphQLError(
+        /*throw new GraphQLError(
           `The user was not successfully updated. Either the user wasn't found or the update for user with ID of ${args._id} was unsucessful.`,
           //Similar status code: 404
           { extensions: { code: "BAD_USER_INPUT" } }
-        );
+        );*/
+        console.log(`The user with ID ${args._id} was not successfully updated.`);
+        return { message: `User with ID ${args._id} was not successfully updated.` };
       }
 
       //Return updated fields of the user without exposing password
@@ -337,9 +354,11 @@ import * as helpers from "./helpers.js";
     export const editProject = async (_ = null, args) => {
        // Check if required fields are present
        if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
+        /*throw new GraphQLError("The _id field is required.", {
           extensions: { code: "BAD_USER_INPUT" },
-        });
+        });*/
+        console.log("The _id field is missing. Skipping project edit.");
+        return { message: "Project ID (_id) is required but was not provided." };
       }
 
       // Check for extra fields
@@ -358,10 +377,11 @@ import * as helpers from "./helpers.js";
 
       for (let key in args) {
         if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            // Similar status code: 404
+          /*throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+            //404
             extensions: { code: "BAD_USER_INPUT" },
-          });
+          });*/
+          console.log(`Unexpected field '${key}' provided. Ignoring this field.`);
         }
       }
 
@@ -456,9 +476,8 @@ import * as helpers from "./helpers.js";
           );
 
           if (!updatedApplication) {
-            throw new GraphQLError("Application with the given ID does not exist.", {
-              extensions: { code: "BAD_USER_INPUT" },
-            });
+            console.log(`Application with ID ${args.applicationEditId} not found. Skipping project edit.`);
+            return { message: `Application with ID ${args.applicationEditId} was not found.` };
           }
 
           const updatedApplicationArray = (projectToUpdate.applications || []).map(
@@ -484,12 +503,14 @@ import * as helpers from "./helpers.js";
           });
 
           if (!addedApplication) {
-            throw new GraphQLError(
+            /*throw new GraphQLError(
               `Application with ID ${args.applicationAddition} does not exist.`,
               {
                 extensions: { code: "BAD_USER_INPUT" },
               }
-            );
+            );*/
+            console.log(`Application with ID ${args.applicationAddition} not found. Skipping addition.`);
+            return { message: `Application with ID ${args.applicationAddition} does not exist.` };
           }
 
           const updatedApplications = [
@@ -508,12 +529,14 @@ import * as helpers from "./helpers.js";
         );
 
         if (result.modifiedCount === 0) {
-          throw new GraphQLError(
+          /*throw new GraphQLError(
             `The project with ID ${args._id} was not successfully updated.`,
             {
               extensions: { code: "INTERNAL_SERVER_ERROR" },
             }
-          );
+          );*/
+          console.log(`No changes were made to the project with ID ${args._id}.`);
+          return { message: `No changes were made to the project with ID ${args._id}.` };
         }
 
         // Fetch the updated project data after successful update
@@ -530,7 +553,7 @@ import * as helpers from "./helpers.js";
             JSON.stringify(updatedProject)
           );
         } catch (error) {
-          console.error("Failed to update Redis cache:", error);
+          /*console.error("Failed to update Redis cache:", error);
           throw new GraphQLError(
             "Failed to update Redis cache after updating the project.",
             {
@@ -539,20 +562,24 @@ import * as helpers from "./helpers.js";
                 cause: error.message,
               },
             }
-          );
+          );*/
+          console.error("Failed to update Redis cache:", error.message);
+          return { message: "Project was updated, but Redis cache update failed." };
         }
 
         //Return the updated project object, which shows the new field values
         return updatedProject;
     } else {
         // If something goes wrong, throw a GraphQLError
-        throw new GraphQLError(
+        /*throw new GraphQLError(
           `The project with the ID of ${args._id} could not be found or updated.`,
           {
             // Similar status code: 404
             extensions: { code: "BAD_USER_INPUT" },
           }
-        );
+        );*/
+        console.log(`The project with the ID ${args._id} could not be found or updated.`);
+        return { message: `The project with the ID ${args._id} could not be found or updated.` };
       }
     };
 
@@ -560,10 +587,12 @@ import * as helpers from "./helpers.js";
     export const editApplication = async (_ = null, args) => {
         // Check if required fields are present
       if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
+        /*throw new GraphQLError("The _id field is required.", {
           //404
           extensions: { code: "BAD_USER_INPUT" },
-        });
+        });*/
+        console.log("The _id field is missing. Skipping application edit.");
+        return { message: "Application ID (_id) is required but was not provided." };
       }
 
       // Check for extra fields
@@ -579,10 +608,11 @@ import * as helpers from "./helpers.js";
       ];
       for (let key in args) {
         if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+          /*throw new GraphQLError(`Unexpected field '${key}' provided.`, {
             //404
             extensions: { code: "BAD_USER_INPUT" },
-          });
+          });*/
+          console.log(`Unexpected field '${key}' provided. Ignoring this field.`);
         }
       }
 
@@ -597,13 +627,15 @@ import * as helpers from "./helpers.js";
 
       //If an applicaiton cannot be pulled from the collection, throw an GraphQLError
       if (!applicationToUpdate) {
-        throw new GraphQLError(
+        /*throw new GraphQLError(
           "The application ID provided by the user was not valid.",
           {
             //Similar status code: 404
             extensions: { code: "BAD_USER_INPUT" },
           }
-        );
+        );*/
+        console.log("The application ID provided by the user was not valid.");
+        return { message: "The application ID provided by the user was not valid." };
       }
 
       //Checks and updates to appliciationToUpdate
@@ -623,13 +655,15 @@ import * as helpers from "./helpers.js";
 
         //If user not found, throw a GraphQLError
         if (!pulledUser) {
-          throw new GraphQLError(
+          /*throw new GraphQLError(
             "A user could not be found with the applicantId provided.",
             {
               //Similar status code: 404
               extensions: { code: "BAD_USER_INPUT" },
             }
-          );
+          );*/
+          console.log("A user could not be found with the applicantId provided.");
+          return { message: "A user could not be found with the applicantId provided." };
         }
 
         //If the user exists, set the applicantId to the args.applicantId
@@ -649,13 +683,15 @@ import * as helpers from "./helpers.js";
 
         //If not project found, throw a GraphQLError
         if (!pulledProject) {
-          throw new GraphQLError(
+          /*throw new GraphQLError(
             "A project could not be found with the projectId provided.",
             {
               //Similar status code: 404
               extensions: { code: "BAD_USER_INPUT" },
             }
-          );
+          );*/
+          console.log("A project could not be found with the projectId provided.");
+          return { message: "A project could not be found with the projectId provided." };
         }
 
         //If the project exists, set the projectId to the args.projectId
@@ -687,9 +723,11 @@ import * as helpers from "./helpers.js";
         );
       
         if (!updatedComment) {
-          throw new GraphQLError("Comment with the given ID does not exist.", {
+          /*throw new GraphQLError("Comment with the given ID does not exist.", {
             extensions: { code: "BAD_USER_INPUT" },
-          });
+          });*/
+          console.log("Comment with the given ID does not exist.");
+          return { message: "Comment with the given ID does not exist." };
         }
       
         const updatedCommentArray = (applicationToUpdate.comments || []).map(
@@ -711,11 +749,13 @@ import * as helpers from "./helpers.js";
         const requiredCommentFields = ["_id", "commenter", "content", "postedDate", "commentDestination", "destinationId"];
         for (const field of requiredCommentFields) {
           if (!args.commentAddition[field]) {
-            console.error(`Missing field '${field}' in commentAddition.`);
+            /*console.error(`Missing field '${field}' in commentAddition.`);
             throw new GraphQLError(
               `The field '${field}' is missing in the commentAddition object.`,
               { extensions: { code: "BAD_USER_INPUT" } }
-            );
+            );*/
+            console.error(`Missing field '${field}' in commentAddition.`);
+            return { message: `The field '${field}' is missing in the commentAddition object.` };
           }
         }
       
@@ -735,12 +775,14 @@ import * as helpers from "./helpers.js";
       );
 
       if (result.modifiedCount === 0) {
-        throw new GraphQLError(
+        /*throw new GraphQLError(
           `Failed to update the update with ID ${args._id}.`,
           {
             extensions: { code: "INTERNAL_SERVER_ERROR" },
           }
-        );
+        );*/
+        console.log(`Failed to update the update with ID ${args._id}.`);
+        return { message: `Failed to update the update with ID ${args._id}.` };
       }
 
       // Update Redis cache
@@ -755,13 +797,15 @@ import * as helpers from "./helpers.js";
         const cacheKey = `application:${args._id}`;
         await redisClient.set(cacheKey, JSON.stringify(applicationToUpdate));
       } catch (error) {
-        console.error("Failed to update Redis cache:", error);
+        /*console.error("Failed to update Redis cache:", error);
         throw new GraphQLError(
           "Failed to update Redis cache after editing the applications.",
           {
             extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
           }
-        );
+        );*/
+        console.error("Failed to update Redis cache:", error.message);
+        return { message: "Applications were updated, but Redis cache update failed." };
       }
 
       //Return applicationToUpdate, which doesn't have metadata
@@ -772,20 +816,23 @@ import * as helpers from "./helpers.js";
     export const removeApplication = async (_ = null, args) => {
         // Check if required fields are present
       if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
+        /*throw new GraphQLError("The _id field is required.", {
           //404
           extensions: { code: "BAD_USER_INPUT" },
-        });
+        });*/
+        console.log("The _id field is missing. Skipping application removal.");
+        return { message: "User ID (_id) is required but was not provided." };
       }
 
       // Check for extra fields
       const fieldsAllowed = ["_id"];
       for (let key in args) {
         if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+          /*throw new GraphQLError(`Unexpected field '${key}' provided.`, {
             //404
             extensions: { code: "BAD_USER_INPUT" },
-          });
+          });*/
+          console.log(`Unexpected field '${key}' provided. Ignoring this field.`);
         }
       }
 
@@ -802,13 +849,15 @@ import * as helpers from "./helpers.js";
 
       //Confirm that the deletedApplication has a value. If not, throw a GraphQLError
       if (!deletedApplication) {
-        throw new GraphQLError(
+        /*throw new GraphQLError(
           "Could not find or delete application with the provided ID.",
           {
             //Similar status code: 404
             extensions: { code: "BAD_USER_INPUT" },
           }
-        );
+        );*/
+        console.log("Could not find or delete application with the provided ID.");
+        return { message: "Could not find or delete application with the provided ID." };
       }
 
       //Delete the individual application cache, and the applications cache, as this is now out of data
@@ -823,25 +872,33 @@ import * as helpers from "./helpers.js";
     export const removeComment = async (_ = null, args) => {
         // Check if required fields are present
       if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
+        /*throw new GraphQLError("The _id field is required.", {
           //404
           extensions: { code: "BAD_USER_INPUT" },
-        });
+        });*/
+        console.log("The _id field is missing. Skipping comment removal.");
+        return { message: "Comment ID (_id) is required but was not provided." };
       }
 
       // Check for extra fields
       const fieldsAllowed = ["_id"];
       for (let key in args) {
         if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+          /*throw new GraphQLError(`Unexpected field '${key}' provided.`, {
             //404
             extensions: { code: "BAD_USER_INPUT" },
-          });
+          });*/
+          console.log(`Unexpected field '${key}' provided. Ignoring this field.`);
         }
       }
 
       //Checks
-      helpers.checkArg(args._id, "string", "id");
+      try {
+        helpers.checkArg(args._id, "string", "id");
+      } catch (e) {
+        console.log("The _id field could not be validated. Skipping comment removal.");
+        return { message: "Comment ID (_id) could not be validated. Comment was not removed." };
+      }
 
       //Pull the commentCollection
       const comments = await commentCollection();
@@ -853,13 +910,8 @@ import * as helpers from "./helpers.js";
 
       //Confirm deletedComment the deletedComment has a value. If not, throw a GraphQLError
       if (!deletedComment.value) {
-        throw new GraphQLError(
-          "Could not find or delete comment with the provided ID.",
-          {
-            //Similar status code: 404
-            extensions: { code: "BAD_USER_INPUT" },
-          }
-        );
+        console.log(`Comment with ID ${args._id} does not exist. Skipping deletion.`);
+        return { message: `Comment with ID ${args._id} was already removed or not found.` };
       }
 
       try {
@@ -882,27 +934,30 @@ import * as helpers from "./helpers.js";
           await redisClient.del("applications");
         }
       } catch (error) {
-        console.error("Failed to update Redis cache:", error);
-        throw new GraphQLError(
+        console.log("Failed to update Redis cache:", error);
+        return { message: "Comment was removed, but Redis cache update failed." };
+        /*throw new GraphQLError(
           "Failed to update Redis cache after removing the comment.",
           {
             extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
           }
-        );
+        );*/
       }
 
       //Return the value of deletedComment
       return deletedComment;
-    };
+    }
 
     // EDIT UPDATE
     export const editUpdate = async (_ = null, args) => {
       // Check if required fields are present
       if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
+        /*throw new GraphQLError("The _id field is required.", {
           //404
           extensions: { code: "BAD_USER_INPUT" },
-        });
+        });*/
+        console.log("The _id field is missing. Skipping update edit.");
+        return { message: "Update ID (_id) is required but was not provided." };
       }
 
       // Check for extra fields
@@ -918,10 +973,11 @@ import * as helpers from "./helpers.js";
       ];
       for (let key in args) {
         if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+          /*throw new GraphQLError(`Unexpected field '${key}' provided.`, {
             //404
             extensions: { code: "BAD_USER_INPUT" },
-          });
+          });*/
+          console.log(`Unexpected field '${key}' provided. Ignoring this field.`);
         }
       }
 
@@ -949,9 +1005,11 @@ import * as helpers from "./helpers.js";
           });
 
           if (!user) {
-            throw new GraphQLError("Invalid user ID", {
+            /*throw new GraphQLError("Invalid user ID", {
               extensions: { code: "BAD_USER_INPUT" },
-            });
+            });*/
+            console.log("Invalid user ID provided. Skipping editupdate operation.");
+            return { message: "Invalid user ID provided." };
           }
 
           updateToUpdate.posterUser = user;
@@ -980,9 +1038,11 @@ import * as helpers from "./helpers.js";
           });
 
           if (!project) {
-            throw new GraphQLError("Invalid project ID", {
+            /*throw new GraphQLError("Invalid project ID", {
               extensions: { code: "BAD_USER_INPUT" },
-            });
+            });*/
+            console.log("Invalid project ID provided. Skipping project edit.");
+            return { message: "Invalid project ID provided." };
           }
 
           updateToUpdate.project = project;
@@ -1010,9 +1070,11 @@ import * as helpers from "./helpers.js";
           );
 
           if (!updatedComment) {
-            throw new GraphQLError("Comment with the given ID does not exist.", {
+            /*throw new GraphQLError("Comment with the given ID does not exist.", {
               extensions: { code: "BAD_USER_INPUT" },
-            });
+            });*/
+            console.log("Comment with the given ID does not exist.");
+            return { message: "Comment with the given ID does not exist." };
           }
 
           const updatedCommentArray = (updateToUpdate.comments || []).map(
@@ -1040,12 +1102,14 @@ import * as helpers from "./helpers.js";
           ];
           for (const field of requiredCommentFields) {
             if (!args.commentAddition[field]) {
-              throw new GraphQLError(
+              /*throw new GraphQLError(
                 `The field '${field}' is missing in the commentAddition object.`,
                 {
                   extensions: { code: "BAD_USER_INPUT" },
                 }
-              );
+              );*/
+              console.log(`The field '${field}' is missing in the commentAddition object.`);
+              return { message: `The field '${field}' is missing in the commentAddition object.` };
             }
           }
 
@@ -1063,12 +1127,14 @@ import * as helpers from "./helpers.js";
         );
 
         if (result.modifiedCount === 0) {
-          throw new GraphQLError(
+          /*throw new GraphQLError(
             `Failed to update the update with ID ${args._id}.`,
             {
               extensions: { code: "INTERNAL_SERVER_ERROR" },
             }
-          );
+          );*/
+          console.log(`Failed to update the update with ID ${args._id}.`);
+          return { message: `Failed to update the update with ID ${args._id}.` };
         }
 
         // Update Redis cache
@@ -1079,7 +1145,7 @@ import * as helpers from "./helpers.js";
             JSON.stringify(updateToUpdate)
           );
         } catch (error) {
-          throw new GraphQLError(
+          /*throw new GraphQLError(
             "Failed to update Redis cache after editing the update.",
             {
               extensions: {
@@ -1087,15 +1153,19 @@ import * as helpers from "./helpers.js";
                 cause: error.message,
               },
             }
-          );
+          );*/
+          console.log("Failed to update Redis cache:", error.message);
+          return { message: "Update was modified, but Redis cache update failed." };
         }
       } else {
-        throw new GraphQLError(
+        /*throw new GraphQLError(
           `The update with ID of ${args._id} could not be updated or found.`,
           {
             extensions: { code: "BAD_USER_INPUT" },
           }
-        );
+        );*/
+        console.log(`The update with ID ${args._id} could not be updated or found.`);
+        return { message: `The update with ID ${args._id} could not be updated or found.` };
       }
 
       return updateToUpdate;
@@ -1105,20 +1175,23 @@ import * as helpers from "./helpers.js";
     export const removeUpdate = async (_ = null, args) => {
         // Check if required fields are present
       if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
+        /*throw new GraphQLError("The _id field is required.", {
           //404
           extensions: { code: "BAD_USER_INPUT" },
-        });
+        });*/
+        console.log("The _id field is missing. Skipping update removal.");
+        return { message: "User ID (_id) is required but was not provided." };
       }
 
       // Check for extra fields
       const fieldsAllowed = ["_id"];
       for (let key in args) {
         if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+          /*throw new GraphQLError(`Unexpected field '${key}' provided.`, {
             //404
             extensions: { code: "BAD_USER_INPUT" },
-          });
+          });*/
+          console.log(`Unexpected field '${key}' provided. Ignoring this field.`);
         }
       }
       //Checks
@@ -1132,15 +1205,17 @@ import * as helpers from "./helpers.js";
         _id: new ObjectId(args._id),
       });
 
-      // If the bupdateook couldn't be found or deleted, throw an error
+      // If the update couldn't be found or deleted, throw an error
       if (!deletedUpdate) {
-        throw new GraphQLError(
+        /*throw new GraphQLError(
           `Could not find or delete update with ID of ${args._id}`,
           {
             //Similar status code: 404
             extensions: { code: "BAD_USER_INPUT" },
           }
-        );
+        );*/
+        console.log(`Could not find or delete update with ID of ${args._id}`);
+        return { message: `Could not find or delete update with ID of ${args._id}` };
       }
 
       // Update Redis cache
@@ -1150,13 +1225,14 @@ import * as helpers from "./helpers.js";
         // Delete the individual cache for this update
         await redisClient.del(`update:${args._id}`);
       } catch (error) {
-        console.error("Failed to update Redis cache:", error);
-        throw new GraphQLError(
+        /*throw new GraphQLError(
           "Failed to update Redis cache after deleting the update.",
           {
             extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
           }
-        );
+        );*/
+        console.log("Failed to update Redis cache:", error.message);
+        return { message: "Update was modified, but Redis cache update failed." };
       }
 
       // Return the deleted update object
