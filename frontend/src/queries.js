@@ -41,15 +41,25 @@ const GET_APPLICATIONS = gql`
 `;
 const GET_UPDATES = gql`
   query Update {
-    update {
+    updates {
       _id
-      posterId
-      subject
-      constent
-      projectId
-      poastedDate
-      comments
+      comments {
+        _id
+        content
+      }
+      content
       numOfComments
+      postedDate
+      posterUser {
+        firstName
+        lastName
+        _id
+      }
+      project {
+        _id
+        title
+      }
+      subject
     }
   }
 `;
