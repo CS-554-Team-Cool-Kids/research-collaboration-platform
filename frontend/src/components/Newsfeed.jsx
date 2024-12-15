@@ -7,7 +7,6 @@ const Newsfeed = () => {
       posterUser: {
         firstName: "John",
         lastName: "Doe",
-        email: "john.doe@example.com",
         role: "PROFESSOR",
         department: "COMPUTER_SCIENCE",
       },
@@ -25,7 +24,6 @@ const Newsfeed = () => {
       posterUser: {
         firstName: "Jane",
         lastName: "Smith",
-        email: "jane.smith@example.com",
         role: "STUDENT",
         department: "ELECTRICAL_AND_COMPUTER_ENGINEERING",
       },
@@ -43,39 +41,40 @@ const Newsfeed = () => {
   const [updates] = useState(mockUpdates);
 
   const renderUpdate = (update) => (
-    <div key={update._id} className="update-card">
-      <h3>
-        {update.subject}
-        <span className="role-badge">{update.posterUser.role}</span>
-      </h3>
-      <p>{update.content}</p>
-      <p>
-        <strong>Project:</strong> {update.project.title}
-      </p>
-      <p>
-        <strong>Posted By:</strong> {update.posterUser.firstName}{" "}
-        {update.posterUser.lastName} ({update.posterUser.department})
-      </p>
-      <p>
-        <strong>Posted On:</strong>{" "}
-        <small>{new Date(update.postedDate).toLocaleDateString()}</small>
-      </p>
-      <p>
-        <strong>Comments:</strong> {update.numOfComments}
-      </p>
-      <button
-        className="btn-primary"
-        onClick={() => alert("Comments feature pending implementation!")}
-      >
-        View Comments
-      </button>
+    <div key={update._id} className="news-card">
+      <div className="news-header">
+        <div className="user-avatar">{update.posterUser.firstName[0]}</div>
+        <div>
+          <h3>
+            {update.posterUser.firstName} {update.posterUser.lastName}
+          </h3>
+          <p className="news-meta">
+            {update.posterUser.role} · {update.posterUser.department}
+          </p>
+        </div>
+      </div>
+      <div className="news-body">
+        <h4>{update.subject}</h4>
+        <p>{update.content}</p>
+        <p>
+          <strong>Project:</strong> {update.project.title}
+        </p>
+      </div>
+      <div className="news-footer">
+        <p className="news-date">
+          {new Date(update.postedDate).toLocaleDateString()}
+        </p>
+        <button className="btn-view-comments">
+          View Comments ({update.numOfComments})
+        </button>
+      </div>
     </div>
   );
 
   return (
-    <div className="newsfeed-container">
-      <h1>Newsfeed</h1>
-      <div className="updates-list">
+    <div className="newsfeed">
+      <div className="newsfeed-content">
+        <h2>Newsfeed</h2>
         {updates.map((update) => renderUpdate(update))}
       </div>
     </div>

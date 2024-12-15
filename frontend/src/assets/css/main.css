@@ -725,84 +725,100 @@ footer {
   border: 1px solid #ccc;
 }
 
-/* Newsfeed Container */
-.newsfeed-container {
-  padding: 20px;
-  background: linear-gradient(to bottom, #ffffff, #f3f4f6);
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin: 20px 0;
-}
 
-/* Updates List */
-.updates-list {
+/* General Newsfeed Styles */
+.newsfeed {
   display: flex;
-  flex-direction: column;
-  gap: 20px; /* Increased gap between cards */
+  justify-content: center;
+  margin-top: 20px;
 }
 
-/* Update Card */
-.update-card {
-  padding: 20px;
-  background: linear-gradient(135deg, #ffffff, #f9f9ff);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+.newsfeed-content {
+  width: 60%;
+  max-width: 800px;
 }
 
-.update-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+/* News Card */
+.news-card {
+  background-color: #ffffff;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
 }
 
-/* Card Title */
-.update-card h3 {
-  font-size: 20px;
+.news-card:hover {
+  transform: scale(1.02);
+}
+
+/* News Header */
+.news-header {
+  display: flex;
+  align-items: center;
   margin-bottom: 10px;
-  color: #6a1b9a;
 }
 
-/* Card Content */
-.update-card p {
-  margin: 5px 0;
-  font-size: 14px;
-  line-height: 1.6;
-  color: #555;
+.user-avatar {
+  background-color: #6a1b9a;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: bold;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 15px;
 }
 
-/* Metadata Styling */
-.update-card p strong {
-  font-weight: 600;
+.news-header h3 {
+  margin: 0;
+  font-size: 16px;
   color: #333;
 }
-.update-card p small {
+
+.news-meta {
+  font-size: 12px;
+  color: #777;
+}
+
+/* News Body */
+.news-body h4 {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.news-body p {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* News Footer */
+.news-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.news-date {
   font-size: 12px;
   color: #888;
 }
 
-/* Buttons */
-.btn-primary {
-  padding: 10px 15px;
-  background: linear-gradient(135deg, #6a1b9a, #9c27b0);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background 0.3s ease;
-}
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, #4a148c, #7b1fa2);
-}
-
-/* Role Badge */
-.role-badge {
-  display: inline-block;
-  padding: 4px 8px;
+.btn-view-comments {
   background-color: #6a1b9a;
-  color: white;
-  font-size: 12px;
-  border-radius: 4px;
-  margin-left: 8px;
+  color: #ffffff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-view-comments:hover {
+  background-color: #4a148c;
 }
