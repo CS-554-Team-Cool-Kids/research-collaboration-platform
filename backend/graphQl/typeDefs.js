@@ -134,7 +134,8 @@ export const typeDefs = `#graphql
             
                 searchUserByName(searchTerm: String!): [User]
 
-
+            # Purpose: Returns an array of projects that had the usersIds stored in the professor or student arrays
+            # Caching: One-hour expiration; completed in resolvers.js.
                 getProjectsByUserId (_id: String!): [Project]
 
     }

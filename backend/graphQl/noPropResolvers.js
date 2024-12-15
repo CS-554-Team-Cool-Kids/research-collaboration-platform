@@ -34,7 +34,7 @@ Maintaining these separate resolvers is currently the fastest way to produce wor
 
 //GraphQLError: Used for handling GraphQL-specific errors
 import { GraphQLError } from "graphql";
-import admin from "firebase-admin";
+// import admin, { app } from "firebase-admin";
 
 //MongoDB: collections for users, projects, updates, and applications
 import {
@@ -94,6 +94,7 @@ import * as helpers from "./helpers.js";
         "projectEditId",
         "applicationRemovalId",
         "applicationEditId",
+        "applicationAddition"
       ];
       for (let key in args) {
         if (!fieldsAllowed.includes(key)) {
@@ -193,7 +194,10 @@ import * as helpers from "./helpers.js";
           const updatedProjectId = new ObjectId(args.projectEditId);
           
           //Pull the updated project
-          const updatedProject = await getProjectById(args.projectEditId);
+          const projects = await projectCollection();
+          const updatedProject = await projects.then((collection) =>
+            collection.findOne({ _id: new ObjectId(args.projectEditId) })
+          );
 
           if (!updatedProject) {
             throw new GraphQLError("Project with the given ID does not exist.", {
@@ -233,7 +237,9 @@ import * as helpers from "./helpers.js";
         
           const updatedApplicationId = new ObjectId(args.applicationEditId);
         
-          const updatedApplication = await getApplicationById(args.applicationEditId);
+          // Pull the updated application directly from the applications collection
+          const applications = await applicationCollection();
+          const updatedApplication = await applications.findOne({ _id: updatedApplicationId });
         
           if (!updatedApplication) {
             throw new GraphQLError("Application with the given ID does not exist.", {
@@ -249,6 +255,33 @@ import * as helpers from "./helpers.js";
           });
         
           updateFields.applications = updatedApplicationArray;
+        }
+
+        // If Application Addition
+        if (args.applicationAddition) {
+          
+          helpers.checkArg(args.applicationAddition, "string", "id");
+
+          const applications = await applicationCollection();
+          const addedApplication = await applications.findOne({
+            _id: new ObjectId(args.applicationAddition),
+          });
+
+          if (!addedApplication) {
+            throw new GraphQLError(
+              `Application with ID ${args.applicationAddition} does not exist.`,
+              {
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
+          }
+
+          const updatedApplications = [
+            ...(userToUpdate.applications || []),
+            addedApplication,
+          ];
+
+          updateFields.applications = updatedApplications;
         }
 
         //Use updateOne, matching the _id to the args._id. Note: the ID cannot be updated
@@ -320,6 +353,7 @@ import * as helpers from "./helpers.js";
         "createdYear",
         "applicationRemovalId",
         "applicationEditId",
+        "applicationAddition"
       ];
 
       for (let key in args) {
@@ -416,7 +450,10 @@ import * as helpers from "./helpers.js";
 
           const updatedApplicationId = new ObjectId(args.applicationEditId);
 
-          const updatedApplication = await getApplicationById(args.applicationEditId);
+          const applications = await applicationCollection();
+          const updatedApplication = await applications.then((collection) =>
+            collection.findOne({ _id: new ObjectId(args.applicationEditId) })
+          );
 
           if (!updatedApplication) {
             throw new GraphQLError("Application with the given ID does not exist.", {
@@ -435,6 +472,32 @@ import * as helpers from "./helpers.js";
 
           updateFields.applications = updatedApplicationArray;
           
+        }
+
+        // If Application Addition
+        if (args.applicationAddition) {
+          helpers.checkArg(args.applicationAddition, "string", "id");
+
+          const applications = await applicationCollection();
+          const addedApplication = await applications.findOne({
+            _id: new ObjectId(args.applicationAddition),
+          });
+
+          if (!addedApplication) {
+            throw new GraphQLError(
+              `Application with ID ${args.applicationAddition} does not exist.`,
+              {
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
+          }
+
+          const updatedApplications = [
+            ...(projectToUpdate.applications || []),
+            addedApplication,
+          ];
+
+          updateFields.applications = updatedApplications;
         }
 
         //Use updateOne, matching the _id to the args._id. Note: the ID cannot be updated
@@ -617,8 +680,10 @@ import * as helpers from "./helpers.js";
         helpers.checkArg(args.commentEditId, "string", "id");
       
         const updatedCommentId = new ObjectId(args.commentEditId);
-      
-        const updatedComment = await getCommentById(args.commentEditId);
+        const comments = await commentCollection();
+        const updatedComment = await comments.then((collection) =>
+          collection.findOne({ _id: new ObjectId(args.commentEditId) })
+        );
       
         if (!updatedComment) {
           throw new GraphQLError("Comment with the given ID does not exist.", {
@@ -636,6 +701,27 @@ import * as helpers from "./helpers.js";
         );
       
         applicationToUpdate.comments = updatedCommentArray;
+      }
+
+      if (args.commentAddition) {
+        console.log("Adding comment:", args.commentAddition);
+        helpers.checkArg(args.commentAddition, "object", "commentAddition");
+      
+        const requiredCommentFields = ["_id", "commenter", "content", "postedDate", "commentDestination", "destinationId"];
+        for (const field of requiredCommentFields) {
+          if (!args.commentAddition[field]) {
+            console.error(`Missing field '${field}' in commentAddition.`);
+            throw new GraphQLError(
+              `The field '${field}' is missing in the commentAddition object.`,
+              { extensions: { code: "BAD_USER_INPUT" } }
+            );
+          }
+        }
+      
+        applicationToUpdate.comments = [
+          ...(applicationToUpdate.comments || []),
+          args.commentAddition,
+        ];
       }
 
       //Automatically update lastUpdatedDate
@@ -808,191 +894,211 @@ import * as helpers from "./helpers.js";
       return deletedComment;
     };
 
-// EDIT UPDATE
+    // EDIT UPDATE
     export const editUpdate = async (_, args) => {
-            // Check if required fields are present
-            if (!args._id) {
-              throw new GraphQLError("The _id field is required.", {
-                //404
-                extensions: { code: "BAD_USER_INPUT" },
-              });
-            }
-      
-            // Check for extra fields
-            const fieldsAllowed = [
-              "_id",
-              "posterId",
-              "subject",
-              "content",
-              "projectId",
-              "commentRemovalId",
-              "commentEditId",
-            ];
-            for (let key in args) {
-              if (!fieldsAllowed.includes(key)) {
-                throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-                  //404
-                  extensions: { code: "BAD_USER_INPUT" },
-                });
-              }
-            }
-      
-            //Checks
-            helpers.checkArg(args._id, "string", "id");
-      
-            //Pull the update collection
-            const updates = await updateCollection();
-      
-            //Use findOne to get the update that is to be updated, and save to local object
-            let updateToUpdate = await updates.findOne({
-              _id: new ObjectId(args._id),
+      // Check if required fields are present
+      if (!args._id) {
+        throw new GraphQLError("The _id field is required.", {
+          //404
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      // Check for extra fields
+      const fieldsAllowed = [
+        "_id",
+        "posterId",
+        "subject",
+        "content",
+        "projectId",
+        "commentRemovalId",
+        "commentEditId",
+        "commentAddition",
+      ];
+      for (let key in args) {
+        if (!fieldsAllowed.includes(key)) {
+          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+            //404
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+      }
+
+      // Validate _id
+      helpers.checkArg(args._id, "string", "id");
+
+      // Pull the update collection
+      const updates = await updateCollection();
+
+      // Use findOne to get the update to be updated
+      let updateToUpdate = await updates.findOne({
+        _id: new ObjectId(args._id),
+      });
+    
+      // Confirm that an update was located
+      if (updateToUpdate) {
+
+        // Poster Id edit
+        if (args.posterId) {
+          console.log("Editing posterId:", args.posterId);
+
+          const users = await userCollection();
+          const user = await users.findOne({
+            _id: new ObjectId(args.posterId),
+          });
+
+          if (!user) {
+            throw new GraphQLError("Invalid user ID", {
+              extensions: { code: "BAD_USER_INPUT" },
             });
-      
-            //Confirm that a update was located
-            if (updateToUpdate) {
-              //Go through each value that can be updated. Do not skip ahead or return early, as multiple values can be updated at once
-      
-              //Poster Id edit
-              if (args.posterId) {
-                helpers.checkArg(args.posterId, "string", "id");
-      
-                //Pull users collection; Use findOne to confirm the user exists
-                const users = await userCollection();
-                const user = await users.findOne({
-                  _id: new ObjectId(args.posterId),
-                });
-      
-                //If there isn't an user, throw an error
-                if (!user) {
-                  throw new GraphQLError("Invalid user ID", {
-                    //Similar status code: 404
-                    extensions: { code: "BAD_USER_INPUT" },
-                  });
-                }
-      
-                //If the user exists, safe to save the provided posterId in the updateToUpdate
-                updateToUpdate.posterUser = user;
+          }
+
+          updateToUpdate.posterUser = user;
+        }
+
+        // Subject edit
+        if (args.subject) {
+          helpers.checkArg(args.subject, "string", "subject");
+          updateToUpdate.subject = args.subject.trim();
+        }
+
+        // Content edit
+        if (args.content) {
+          helpers.checkArg(args.content, "string", "content");
+          updateToUpdate.content = args.content.trim();
+        }
+
+        // Project Id edit
+        if (args.projectId) {
+          
+          helpers.checkArg(args.projectId, "string", "id");
+
+          const projects = await projectCollection();
+          const project = await projects.findOne({
+            _id: new ObjectId(args.projectId),
+          });
+
+          if (!project) {
+            throw new GraphQLError("Invalid project ID", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+
+          updateToUpdate.project = project;
+        }
+
+        // Comment Removal Id
+        if (args.commentRemovalId) {
+          helpers.checkArg(args.commentRemovalId, "string", "id");
+
+          const newCommentArray = (updateToUpdate.comments || []).filter(
+            (comment) =>
+              !comment._id.equals(new ObjectId(args.commentRemovalId))
+          );
+          updateToUpdate.comments = newCommentArray;
+        }
+
+        // Comment Edit Id
+        if (args.commentEditId) {
+          helpers.checkArg(args.commentEditId, "string", "id");
+
+          const updatedCommentId = new ObjectId(args.commentEditId);
+          const comments = commentCollection();
+          const updatedComment = await comments.then((collection) =>
+            collection.findOne({ _id: new ObjectId(args.commentEditId) })
+          );
+
+          if (!updatedComment) {
+            throw new GraphQLError("Comment with the given ID does not exist.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+
+          const updatedCommentArray = (updateToUpdate.comments || []).map(
+            (comment) => {
+              if (comment._id.equals(updatedCommentId)) {
+                return updatedComment;
               }
-      
-              //Subject  edit
-              if (args.subject) {
-                helpers.checkArg(args.subject, "string", "subject");
-                updateToUpdate.subject = args.subject.trim();
-              }
-      
-              //Content edit
-              if (args.content) {
-                helpers.checkArg(args.content, "string", "content");
-                updateToUpdate.content = args.content.trim();
-              }
-      
-              //Project Id edit
-              if (args.projectId) {
-                helpers.checkArg(args.projectId, "string", "id");
-      
-                //Pull project collection; Use findOne to confirm the project exists
-                const projects = await projectCollection();
-                const project = await projects.findOne({
-                  _id: new ObjectId(args.projectId),
-                });
-      
-                //If there isn't an user, throw an error
-                if (!project) {
-                  throw new GraphQLError("Invalid project ID", {
-                    //Similar status code: 404
-                    extensions: { code: "BAD_USER_INPUT" },
-                  });
-                }
-      
-                //If the project exists, safe to save the provided projectId in the updateToUpdate
-                updateToUpdate.project = project;
-              }
-      
-              //Comment Removal Id
-              if (args.commentRemovalId) {
-                helpers.checkArg(args.commentRemovalId, "string", "id");
-                const newCommentArray = (updateToUpdate.comments || []).filter(
-                  (comment) =>
-                    !comment._id.equals(new ObjectId(args.commentRemovalId))
-                );
-                updateToUpdate.comments = newCommentArray;
-              }
-      
-              //Comments Edit Id
-              if (args.commentEditId) {
-                helpers.checkArg(args.commentEditId, "string", "id");
-              
-                const updatedCommentId = new ObjectId(args.commentEditId);
-              
-                const updatedComment = await getCommentById(args.commentEditId);
-              
-                if (!updatedComment) {
-                  throw new GraphQLError("Comment with the given ID does not exist.", {
-                    extensions: { code: "BAD_USER_INPUT" },
-                  });
-                }
-              
-                const updatedCommentArray = (updateToUpdate.comments || []).map(
-                  (comment) => {
-                    if (comment._id.equals(updatedCommentId)) {
-                      return updatedComment;
-                    }
-                    return comment;
-                  }
-                );
-              
-                updateToUpdate.comments = updatedCommentArray;
-              }
-      
-              //NOW, update the update in the mongodb. Use $set, which will not affect unupdated values
-              const result = await updates.updateOne(
-                { _id: new ObjectId(args._id) },
-                { $set: updateToUpdate }
-              );
-              if (result.modifiedCount === 0) {
-                throw new GraphQLError(
-                  `Failed to update the update with ID ${args._id}.`,
-                  {
-                    extensions: { code: "INTERNAL_SERVER_ERROR" },
-                  }
-                );
-              }
-      
-              // Update Redis cache
-              try {
-                // Delete updates cache, as it's now out of date
-                await redisClient.del("updates");
-      
-                //Add/update the update's individual cache
-                await redisClient.set(
-                  `update:${args._id}`,
-                  JSON.stringify(updateToUpdate)
-                );
-              } catch (error) {
-                console.error("Failed to update Redis cache:", error);
-                throw new GraphQLError(
-                  "Failed to update Redis cache after editing the update.",
-                  {
-                    extensions: {
-                      code: "INTERNAL_SERVER_ERROR",
-                      cause: error.message,
-                    },
-                  }
-                );
-              }
-            } else {
+              return comment;
+            }
+          );
+          updateToUpdate.comments = updatedCommentArray;
+        }
+
+        // Handle Comment Addition
+        if (args.commentAddition) {
+          helpers.checkArg(args.commentAddition, "object", "commentAddition");
+
+          const requiredCommentFields = [
+            "_id",
+            "commenter",
+            "content",
+            "postedDate",
+            "commentDestination",
+            "destinationId",
+          ];
+          for (const field of requiredCommentFields) {
+            if (!args.commentAddition[field]) {
               throw new GraphQLError(
-                `The update with ID of ${args._id} could not be updated or found.`,
+                `The field '${field}' is missing in the commentAddition object.`,
                 {
-                  //Similar status code: 404
                   extensions: { code: "BAD_USER_INPUT" },
                 }
               );
             }
-      
-            //Return the updated update's local object
-            return updateToUpdate;
-        };
+          }
+
+          const newCommentsArray = [
+            ...(updateToUpdate.comments || []),
+            args.commentAddition,
+          ];
+          updateToUpdate.comments = newCommentsArray;
+        }
+
+        // Update the update in MongoDB
+        const result = await updates.updateOne(
+          { _id: new ObjectId(args._id) },
+          { $set: updateToUpdate }
+        );
+
+        if (result.modifiedCount === 0) {
+          throw new GraphQLError(
+            `Failed to update the update with ID ${args._id}.`,
+            {
+              extensions: { code: "INTERNAL_SERVER_ERROR" },
+            }
+          );
+        }
+
+        // Update Redis cache
+        try {
+          await redisClient.del("updates");
+          await redisClient.set(
+            `update:${args._id}`,
+            JSON.stringify(updateToUpdate)
+          );
+        } catch (error) {
+          throw new GraphQLError(
+            "Failed to update Redis cache after editing the update.",
+            {
+              extensions: {
+                code: "INTERNAL_SERVER_ERROR",
+                cause: error.message,
+              },
+            }
+          );
+        }
+      } else {
+        throw new GraphQLError(
+          `The update with ID of ${args._id} could not be updated or found.`,
+          {
+            extensions: { code: "BAD_USER_INPUT" },
+          }
+        );
+      }
+
+      return updateToUpdate;
+    };
 
 // REMOVE UPDATE
     export const removeUpdate = async (_, args) => {
