@@ -359,8 +359,7 @@ export const typeDefs = `#graphql
             department: Department
             professorIds: [String]
             studentIds: [String]
-            applicationRemovalId: String
-            applicationEditId: String
+            applicationIds: [String]
         ): Project
   
     # addUpdate
