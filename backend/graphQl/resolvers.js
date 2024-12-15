@@ -120,7 +120,7 @@ export const resolvers = {
       const allProjects = await projects.find({}).toArray();
 
       //If no projects, throw GraphQLError
-      if (allProjects.length === 0) {
+      if (!allProjects || !Array) {
         throw new GraphQLError("Internal Server Error", {
           //INTERNAL_SERVER_ERROR = status code 500
           extensions: { code: "INTERNAL_SERVER_ERROR" },

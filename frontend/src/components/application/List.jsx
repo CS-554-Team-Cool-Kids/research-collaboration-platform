@@ -21,6 +21,8 @@ function ApplicationList(props) {
    
     const {authState} = useAuth();
     const id = authState.user.id;
+    const userRole = authState.user.role;
+    
     const {loading, error, data, refetch} = useQuery(queries.GET_USER_BY_ID, {
         variables: { id },
         fetchPolicy: 'network-only'
@@ -63,7 +65,6 @@ function ApplicationList(props) {
         );
     } else {
         const applications = data?.getUserById?.applications || [];
-        console.log(data);
         return (
             <main className="dashboard">
                 <div className="container my-3">
@@ -73,7 +74,7 @@ function ApplicationList(props) {
                                 <div className="col my-auto">
                                     <h2>Application List</h2>
                                 </div>
-                                <div className="col-auto">
+                                <div className="col-auto d-flex">
                                     {selectedApplication?._id ? (
                                         <div className="d-flex">
                                             <Link

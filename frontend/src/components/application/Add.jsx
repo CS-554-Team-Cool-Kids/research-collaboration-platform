@@ -8,20 +8,26 @@ const AddApplication = () => {
     const {authState} = useAuth();
     const applicantId = authState.user.id;
 
-    const[project, setProject] = useState("");
+    const[projectId, setProjectId] = useState("");
 
-    const projects = useQuery(queries.GET_PROJECTS);
+    const projectsData = useQuery(queries.GET_PROJECTS, {
+        fetchPolicy: 'network-only'
+    });
+    console.log("projectsData: ", projectsData);
 
     const [addApplicationMutation] = useMutation(queries.ADD_APPLICATION);
     const navigate = useNavigate();
 
+    
     const handleSubmit = async (e) => {
         e.preventDefault(); 
-
+        console.log("applicant id: ", applicantId);
+        console.log("project id: ", projectId);
         try {
             const {data} = await addApplicationMutation({
                 variables: {
-                    applicantId
+                    applicantId: applicantId,
+                    projectId: projectId
                 },
             });
             console.log("Application added: ", data.addApplication);
@@ -30,8 +36,8 @@ const AddApplication = () => {
             alert(`Error adding application: ${error.message}`);
         }
     };
-    if(projects.loading) return <p>Loading projects...</p>;
-    if(projects.error) return <p>Error loading projects: {projects.error.message}</p>;
+    if(projectsData.loading) return <p>Loading projects...</p>;
+    if(projectsData.error) return <p>Error loading projects: {projectsData.error.message}</p>;
     return (
         <div className="d-card col-12 col-md-6 glassEffect my-4 mx-auto">
             <div className="d-card-header">
@@ -45,12 +51,18 @@ const AddApplication = () => {
                             type="text"
                             id="project"
                             name="project"
-                            value={project}
-                            onChange={(e) => setProject(e.target.value)}
+                            value={projectId}
+                            onChange={(e) => setProjectId(e.target.value)}
                             required
                         >
                             <option value="" disabled>Select Project</option>
-                            <option value="testValue">Test Value</option>
+                            {projectsData?.data?.projects.map((project) => {
+                                return(
+                                    <option key={project._id} value={project._id}>
+                                        {project.title}
+                                    </option>
+                                );
+                            })}
                         </select>
                         <label htmlFor="department">Project:</label>
                     </div>
