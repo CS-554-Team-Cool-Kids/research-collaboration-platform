@@ -93,7 +93,7 @@ export async function propagateUserRemovalChanges(userId) {
 
         //If for this project the code has collected fields to update, call the edit project resolver.
         if (Object.keys(updatedProjectFields).length > 0) {
-          await noPropResolvers.editProject({
+          await noPropResolvers.editProject(null, {
             _id: project._id.toString(),
             ...updatedProjectFields,
           });
@@ -133,7 +133,7 @@ export async function propagateUserRemovalChanges(userId) {
     if (userApplications.length > 0) {
       //Remove applcation needs the application _id as a string
       for (const application of userApplications) {
-        await noPropResolvers.removeApplication({ _id: application._id.toString() });
+        await noPropResolvers.removeApplication(null, { _id: application._id.toString() });
       }
 
       console.log(`Removed applications associated with user ${userId}`);
@@ -167,7 +167,7 @@ export async function propagateUserRemovalChanges(userId) {
     if (relatedComments.length > 0) {
       for (const comment of relatedComments) {
         // Use removeComment from resolvers; tthis needs the comment id to be made a string
-        await noPropResolvers.removeComment({ _id: comment._id.toString() });
+        await noPropResolvers.removeComment(null, { _id: comment._id.toString() });
       }
 
       console.log(`Removed comments associated with user ${userId}`);
@@ -215,7 +215,7 @@ export async function propagateUserEditChanges(userId, updatedUserData) {
       //For each of the applications, call editApplication to have the user object updated
       for (const application of userApplications) {
         
-        await noPropResolvers.editApplication({
+        await noPropResolvers.editApplication(null, {
           _id: application._id.toString(),
           applicantId: userId,
         });
@@ -269,7 +269,7 @@ export async function propagateUserEditChanges(userId, updatedUserData) {
 
         //If for this project the code has collected fields to update, call the edit project resolver.
         if (Object.keys(updatedProjectFields).length > 0) {
-          await noPropResolvers.editProject({
+          await noPropResolvers.editProject(null, {
             _id: project._id.toString(),
             ...updatedProjectFields,
           });
@@ -303,7 +303,7 @@ export async function propagateUserEditChanges(userId, updatedUserData) {
 
     if (relatedUpdates.length > 0) {
       for (const update of relatedUpdates) {
-        await noPropResolvers.editUpdate({
+        await noPropResolvers.editUpdate(null, {
           _id: update._id.toString(),
           posterId: userId,
         });
@@ -335,7 +335,7 @@ export async function propagateUserEditChanges(userId, updatedUserData) {
 
     if (relatedComments.length > 0) {
       for (const comment of relatedComments) {
-        await noPropResolvers.editComment({
+        await noPropResolvers.editComment(null, {
           _id: comment._id.toString(),
           commenterId: userId,
         });
@@ -377,7 +377,7 @@ export async function propagateProjectRemovalChanges(projectId) {
     // Use removeApplication to remove any applications associated with this removed projects
     if (relatedApplications.length > 0) {
       for (const application of relatedApplications) {
-        await noPropResolvers.removeApplication(
+        await noPropResolvers.removeApplication(null,
           { _id: application._id.toString() }
         );
       }
@@ -407,7 +407,7 @@ export async function propagateProjectRemovalChanges(projectId) {
 
     if (relatedUsers.length > 0) {
       for (const user of relatedUsers) {
-        noPropResolvers.editUser({
+        noPropResolvers.editUser(null, {
           _id: user._id.toString(),
           projectRemovalId: projectId,
         });
@@ -441,16 +441,20 @@ export async function propagateProjectRemovalChanges(projectId) {
       .toArray();
 
     if (relatedUpdates.length > 0) {
-
       for (const update of relatedUpdates) {
+        if (!update._id) {
+          console.error("Update with missing _id:", update);
+          continue; // Skips updates without a valid _id
+        }
+
         await noPropResolvers.removeUpdate(
+          null, 
           { _id: update._id.toString() }
         );
       }
-
       console.log(`Removed updates associated with project ${projectId}`);
-
     }
+
   } catch (error) {
     console.error(
       `Failed to remove updates for project ${projectId}: ${error.message}`
@@ -489,7 +493,7 @@ export async function propagateProjectEditChanges(
     if (relatedApplications.length > 0) {
       for (const application of relatedApplications) {
         // If the project data changes, update the application
-        await noPropResolvers.editApplication({
+        await noPropResolvers.editApplication(null, {
           _id: application._id.toString(),
           projectId: projectId,
         });
@@ -523,7 +527,7 @@ export async function propagateProjectEditChanges(
     if (relatedUpdates.length > 0) {
       for (const update of relatedUpdates) {
         // If the project data changes (e.g., title or project reference), update the update
-        await noPropResolvers.editUpdate({
+        await noPropResolvers.editUpdate(null, {
           _id: update._id.toString(),
           projectId: projectId,
         });
@@ -556,7 +560,7 @@ export async function propagateProjectEditChanges(
 
     if (relatedUsers.length > 0) {
       for (const user of relatedUsers) {
-        noPropResolvers.editUser({
+        noPropResolvers.editUser(null, {
           _id: user._id.toString(),
           projectEditId: projectId,
         });
@@ -597,7 +601,7 @@ export async function propagateApplicationRemovalChanges(applicationId) {
     if (relatedUsers.length > 0) {
       for (const user of relatedUsers) {
         // Update the user's applications array by removing the application
-        noPropResolvers.editUser({
+        noPropResolvers.editUser(null, {
           _id: user._id.toString(),
           applicationRemovalId: applicationId,
         });
@@ -628,7 +632,7 @@ export async function propagateApplicationRemovalChanges(applicationId) {
     if (relatedProjects.length > 0) {
       for (const project of relatedProjects) {
         // Update the project's applications array by removing the application
-        noPropResolvers.editProject({
+        noPropResolvers.editProject(null, {
           _id: project._id.toString(),
           applicationRemovalId: applicationId,
         });
@@ -673,7 +677,7 @@ export async function propagateApplicationEditChanges(
     if (relatedUsers.length > 0) {
       for (const user of relatedUsers) {
         // Update the specific application in the user's applications array
-        noPropResolvers.editUser({
+        noPropResolvers.editUser(null, {
           _id: user._id.toString(),
           applicationEditId: applicationId,
         });
@@ -714,7 +718,7 @@ export async function propagateApplicationEditChanges(
     if (relatedProjects.length > 0) {
       for (const project of relatedProjects) {
         // Update the specific application in the project's applications array
-        noPropResolvers.editProject({
+        noPropResolvers.editProject(null, {
           _id: project._id.toString(),
           applicationEditId: applicationId,
         });
@@ -782,10 +786,8 @@ export async function propagateCommentRemovalChanges(commentId) {
   
   // Convert string commentId to ObjectId
   const commentObjectId = new ObjectId(commentId);
-  
   // HANDLE APPLICATIONS - remove comment from applications comment lists
   try {
-
     const applications = await applicationCollection();
 
     if (!applications || typeof applications.find !== "function") {
@@ -797,13 +799,13 @@ export async function propagateCommentRemovalChanges(commentId) {
         "comments._id": commentObjectId,
       })
       .toArray();
-
+      
     if (relatedApplications.length > 0) {
       for (const application of relatedApplications) {
-        noPropResolvers.editApplication({
+        await noPropResolvers.editApplication(null, {
           _id: application._id.toString(),
           commentRemovalId: commentId,
-        });
+        });        
       }
 
       console.log(
@@ -834,7 +836,7 @@ export async function propagateCommentRemovalChanges(commentId) {
 
     if (relatedUpdates.length > 0) {
       for (const update of relatedUpdates) {
-        noPropResolvers.editUpdate({
+        await noPropResolvers.editUpdate(null, {
           _id: update._id.toString(),
           commentRemovalId: commentId,
         });
@@ -878,7 +880,7 @@ export async function propagateCommentEditChanges(commentId) {
 
     if (relatedApplications.length > 0) {
       for (const application of relatedApplications) {
-        noPropResolvers.editApplication({
+        noPropResolvers.editApplication(null, {
           _id: application._id.toString(),
           commentEditId: commentId,
         });
@@ -912,7 +914,7 @@ export async function propagateCommentEditChanges(commentId) {
 
     if (relatedUpdates.length > 0) {
       for (const update of relatedUpdates) {
-        noPropResolvers.editUpdate({
+        noPropResolvers.editUpdate(null, {
           _id: update._id.toString(),
           commentEditId: commentId,
         });

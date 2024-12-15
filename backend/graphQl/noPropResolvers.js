@@ -70,7 +70,7 @@ import * as helpers from "./helpers.js";
 
 
 // EDIT USER
-    export const editUser = async (_, args) => {
+    export const editUser = async (_ = null, args) => {
         //Have to go before traditional checks. Why? confirm they exist before you use them.
       // Check if required fields are present
       if (!args._id) {
@@ -334,7 +334,7 @@ import * as helpers from "./helpers.js";
     };
 
 // EDIT PROJECT
-    export const editProject = async (_, args) => {
+    export const editProject = async (_ = null, args) => {
        // Check if required fields are present
        if (!args._id) {
         throw new GraphQLError("The _id field is required.", {
@@ -557,7 +557,7 @@ import * as helpers from "./helpers.js";
     };
 
 // EDIT APPLICATION
-    export const editApplication = async (_, args) => {
+    export const editApplication = async (_ = null, args) => {
         // Check if required fields are present
       if (!args._id) {
         throw new GraphQLError("The _id field is required.", {
@@ -575,6 +575,7 @@ import * as helpers from "./helpers.js";
         "status",
         "commentRemovalId",
         "commentEditId",
+        "commentAddition"
       ];
       for (let key in args) {
         if (!fieldsAllowed.includes(key)) {
@@ -768,7 +769,7 @@ import * as helpers from "./helpers.js";
     };
 
 // REMOVE APPLICATION
-    export const removeApplication = async (_, args) => {
+    export const removeApplication = async (_ = null, args) => {
         // Check if required fields are present
       if (!args._id) {
         throw new GraphQLError("The _id field is required.", {
@@ -819,7 +820,7 @@ import * as helpers from "./helpers.js";
     };
 
 // REMOVE COMMENT
-    export const removeComment = async (_, args) => {
+    export const removeComment = async (_ = null, args) => {
         // Check if required fields are present
       if (!args._id) {
         throw new GraphQLError("The _id field is required.", {
@@ -895,7 +896,7 @@ import * as helpers from "./helpers.js";
     };
 
     // EDIT UPDATE
-    export const editUpdate = async (_, args) => {
+    export const editUpdate = async (_ = null, args) => {
       // Check if required fields are present
       if (!args._id) {
         throw new GraphQLError("The _id field is required.", {
@@ -1101,7 +1102,7 @@ import * as helpers from "./helpers.js";
     };
 
 // REMOVE UPDATE
-    export const removeUpdate = async (_, args) => {
+    export const removeUpdate = async (_ = null, args) => {
         // Check if required fields are present
       if (!args._id) {
         throw new GraphQLError("The _id field is required.", {
