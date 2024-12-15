@@ -66,8 +66,11 @@ redisClient.on("error", (err) => console.error("Redis Client Error", err));
 })();
 
 //Helpers
-import * as helpers from "./helpers.js";
 
+//noThrowHelpers: These do not throw errrors. 
+//Important bc noPropResolvers doesn't throw errors.
+//Change from using ./helpers
+import * as helpers from "./noThrowHelpers.js";
 
 // EDIT USER
     export const editUser = async (_ = null, args) => {
@@ -109,7 +112,12 @@ import * as helpers from "./helpers.js";
       }
 
       //Checks
-      helpers.checkArg(args._id, "string", "id");
+      //helpers.checkArg(args._id, "string", "id");
+      if (!ObjectId.isValid(args._id)) {
+        throw new GraphQLError("The _id field must be a valid ObjectId.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
 
       // Convert _id string to ObjectId
       const userId = new ObjectId(args._id);
@@ -837,7 +845,11 @@ import * as helpers from "./helpers.js";
       }
 
       //Checks
-      helpers.checkArg(args._id, "string", "id");
+      //helpers.checkArg(args._id, "string", "id");
+      if (!ObjectId.isValid(args._id)) {
+        console.error(`Invalid _id: ${args._id}. Skipping user edit.`);
+        return { message: "The _id field must be a valid ObjectId." };
+      }
 
       //Pull the applicationCollection
       const applications = await applicationCollection();
