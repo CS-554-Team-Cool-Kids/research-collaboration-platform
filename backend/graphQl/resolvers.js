@@ -875,10 +875,15 @@ export const resolvers = {
 
       //Pull all projects associated with the provided userId using find.
       //Change the string userId argument into an objectId
-      //$elemMatch: MongoDB query operator; match documents that contain an array with at least one element satisfying criteria
+      // $elemMatch: finds projects where the userId matches within the professors or students arrays.
       const userProjects = await projects
-        .find({ professors: { $elemMatch: { _id: userId } } })
-        .toArray();
+      .find({
+        $or: [
+          { professors: { $elemMatch: { _id: userId } } },
+          { students: { $elemMatch: { _id: userId } } },
+        ],
+      })
+      .toArray();
 
       // Return the list of projects
       return userProjects;
@@ -2009,9 +2014,9 @@ export const resolvers = {
 
     addProject: async (_, args) => {
       // Check if required fields are present
-      if (!args.title || !args.department || !args.professorIds) {
+      if (!args.title || !args.department) {
         throw new GraphQLError(
-          "The title, department, and profossor Ids are required to create a project.",
+          "The title and department are required to create a project.",
           {
             //Similar status code: 404
             extensions: { code: "BAD_USER_INPUT" },
@@ -2039,17 +2044,21 @@ export const resolvers = {
       //Checks
       helpers.checkArg(args.title, "string", "title");
       helpers.checkArg(args.department, "string", "department");
-      helpers.checkArg(args.professorIds, "array", "professorIds");
+      if (args.professorIds) {
+        helpers.checkArg(args.professorIds, "array", "professorIds");
+      }
       if (args.studentIds) {
         helpers.checkArg(args.studentIds, "array", "studentIds");
       }
 
       let toAddProfessorIds = [];
       let toAddStudentIds = [];
-
-      for (const id of args.professorIds) {
-        helpers.checkArg(id, "string", "id");
-        toAddProfessorIds.push(id.trim());
+      
+      if (args.professorIds) {
+        for (const id of args.professorIds) {
+          helpers.checkArg(id, "string", "id");
+          toAddProfessorIds.push(id.trim());
+        }
       }
 
       if (args.studentIds) {
@@ -2080,24 +2089,26 @@ export const resolvers = {
         channel: new ObjectId(),
       };
 
-      // Fetch professors individually and place in the newProject
-      for (const professorId of toAddProfessorIds) {
-        // const professor = await getUserById({ _id: professorId });
-        const professor = await users.findOne({
-          _id:
-            typeof professorId === "string"
-              ? new ObjectId(professorId)
-              : professorId,
-        });
-        newProject.professors.push(professor);
-        await users.updateOne(
-          {
-            _id: professor._id,
-          },
-          {
-            $set: { projects: { $push: newProject._id } },
-          }
-        );
+      if (toAddProfessorIds.length > 0) {
+        // Fetch professors individually and place in the newProject
+        for (const professorId of toAddProfessorIds) {
+          // const professor = await getUserById({ _id: professorId });
+          const professor = await users.findOne({
+            _id:
+              typeof professorId === "string"
+                ? new ObjectId(professorId)
+                : professorId,
+          });
+          newProject.professors.push(professor);
+          await users.updateOne(
+            {
+              _id: professor._id,
+            },
+            {
+              $set: { projects: { $push: newProject._id } },
+            }
+          );
+        }
       }
 
       // Fetch students individually if there are any
