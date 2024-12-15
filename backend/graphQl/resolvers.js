@@ -22,6 +22,7 @@ import {
   projects as projectCollection,
   updates as updateCollection,
   applications as applicationCollection,
+  comments as commentCollection
 } from "../config/mongoCollections.js";
 
 //ObjectId: MongoDB's unique IDs
@@ -151,7 +152,22 @@ export const resolvers = {
       //If projects are updates, return the parsed JSON (JSON string to object)
       if (cachedUpdates) {
         console.log("Returning updates from cache.");
-        return JSON.parse(cachedUpdates);
+        const parsedUpdates = JSON.parse(cachedUpdates);
+
+        // Filter out invalid comments for each update
+        // A comment is valid if:
+        // 1. It exists (not null or undefined).
+        // 2. It has a unique '_id'.
+        // 3. It has a 'commenter' object with its own '_id'.
+        parsedUpdates.forEach(update => {
+          if (update.comments) {
+            update.comments = update.comments.filter(comment => {
+              return comment && comment._id && comment.commenter && comment.commenter._id;
+            });
+          }
+        });
+
+        return parsedUpdates;
       }
 
       const updates = await updateCollection();
@@ -164,6 +180,15 @@ export const resolvers = {
           extensions: { code: "INTERNAL_SERVER_ERROR" },
         });
       }
+
+      // Filter out null comments for each update
+      allUpdates.forEach(update => {
+        if (update.comments) {
+          update.comments = update.comments.filter(comment => {
+            return comment && comment._id && comment.commenter && comment.commenter._id;
+          });
+        }
+      });
 
       //Cache pulled updates, set to cachekey
       //Expiration: 1 hour (60 x 60 = 3600 seconds)
@@ -202,6 +227,15 @@ export const resolvers = {
       //   });
       // }
 
+      // Filter out null comments for each application
+      allApplications.forEach(application => {
+        if (application.comments) {
+          application.comments = application.comments.filter(comment => {
+            return comment && comment._id && comment.commenter && comment.commenter._id;
+          });
+        }
+      });
+
       //Cache pulled applications, set to cachekey
       //Expiration: 1 hour (60 x 60 = 3600 seconds)
       await redisClient.set(cacheKey, JSON.stringify(allApplications), {
@@ -227,7 +261,36 @@ export const resolvers = {
       //If comments are cached, return the parsed JSON (JSON string to object)
       if (cachedComments) {
         console.log("Returning comments from cache.");
-        return JSON.parse(cachedComments);
+        const parsedComments = JSON.parse(cachedComments);
+
+        // Filter out comments associated with non-existent updates
+        const updates = await updateCollection();
+        // Use distinct to create an array of all unique update IDs
+        const validUpdateIds = await updates.distinct("_id");
+
+        const applications = await applicationCollection();
+        const validApplicationIds = await applications.distinct("_id");
+
+        // Filter out invalid comments
+        const filteredComments = parsedComments.filter(comment => {
+          
+          if (comment.commentDestination === "UPDATE") {
+            // Verify that the update associated with this comment exists in the list of valid update IDs
+            //So if some of the valid update ids have the comment's destintation id, return true
+            return validUpdateIds.some(id => id.equals(new ObjectId(comment.destinationId)));
+          }
+
+          if (comment.commentDestination === "APPLICATION") {
+            return validApplicationIds.some(id => id.equals(new ObjectId(comment.destinationId)));
+          }
+
+          //Returning true within the filter means that we want to keep this comment
+          return true; 
+
+        });
+
+        return filteredComments;
+
       }
 
       //If not cached, pull commentCollection and the find all [find({})] users
@@ -245,9 +308,27 @@ export const resolvers = {
         );
       }
 
+      //Repeat the filtering of invalid updates related comments like in the cache
+      const updates = await updateCollection();
+      const validUpdateIds = await updates.distinct("_id");
+
+      const applications = await applicationCollection();
+      const validApplicationIds = await applications.distinct("_id");
+
+      // Filter out invalid comments
+      const filteredComments = allComments.filter(comment => {
+        if (comment.commentDestination === "UPDATE") {
+          return validUpdateIds.some(id => id.equals(new ObjectId(comment.destinationId)));
+        }
+        if (comment.commentDestination === "APPLICATION") {
+          return validApplicationIds.some(id => id.equals(new ObjectId(comment.destinationId)));
+        }
+        return true; 
+      });
+
       //Cache pulled comments, set to cachekey
       //Expiration: 1 hour (60 x 60 = 3600 seconds)
-      await redisClient.set(cacheKey, JSON.stringify(allComments), {
+      await redisClient.set(cacheKey, JSON.stringify(filteredComments), {
         EX: 3600,
       });
       console.log(
@@ -255,7 +336,7 @@ export const resolvers = {
       );
 
       //Return allComments
-      return allComments;
+      return filteredComments;
     },
 
     //GET BY ID
@@ -360,7 +441,7 @@ export const resolvers = {
       }
 
       //If not cached, pull project collection and then findOne specific project
-      const projects = await projectCollectionCollection();
+      const projects = await projectCollection();
       const project = await projects.findOne({ _id: new ObjectId(args._id) });
 
       //If no project, throw GraphQLError
@@ -415,8 +496,14 @@ export const resolvers = {
 
       //If the update is cached, return the parsed JSON (JSON string to object)
       if (cachedUpdate) {
-        console.log("Returning update from cache.");
-        return JSON.parse(cachedUpdate);
+        const parsedUpdate = JSON.parse(cachedUpdate);
+        // Null check for comments to ensure no invalid data
+        if (parsedUpdate.comments) {
+          parsedUpdate.comments = parsedUpdate.comments.filter(comment => {
+            return comment && comment._id && comment.commenter && comment.commenter._id;
+          });
+        }
+        return parsedUpdate;
       }
 
       //If not cached, pull the update collection and then findOne based on update id
@@ -428,6 +515,13 @@ export const resolvers = {
         throw new GraphQLError("Update Not Found", {
           //Optional object: extra information. NOT_FOUND = status code 404
           extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      // Null check for comments to ensure no invalid data
+      if (update.comments) {
+        update.comments = update.comments.filter(comment => {
+          return comment && comment._id && comment.commenter && comment.commenter._id;
         });
       }
 
@@ -473,8 +567,18 @@ export const resolvers = {
 
       //If the application is cached, return the parsed JSON (JSON string to object)
       if (cachedApplication) {
+        
+        const parsedApplication = JSON.parse(cachedApplication);
+
+        // Filter out null comments
+        if (parsedApplication.comments) {
+          parsedApplication.comments = parsedApplication.comments.filter(comment => {
+            return comment && comment._id && comment.commenter && comment.commenter._id;
+          });
+        }
+
         console.log("Returning application from cache.");
-        return JSON.parse(cachedApplication);
+        return parsedApplication;
       }
 
       //If not cached, pull the application collection and then findOne based on application id
@@ -491,6 +595,13 @@ export const resolvers = {
         });
       }
 
+      // Filter out null comments
+      if (application.comments) {
+        application.comments = application.comments.filter(comment => {
+          return comment && comment._id && comment.commenter && comment.commenter._id;
+        });
+      }
+
       //Cache application indefinitely
       await redisClient.set(cacheKey, JSON.stringify(application));
       console.log(
@@ -504,6 +615,7 @@ export const resolvers = {
     //getCommentById(_id: String!): Comment
     //Purpose: Fetch a comment by ID from MongoDB; check Redis cache first
     //Cache: Cached by comment ID in Redis indefinitely
+    //INCLUDES same filters as fetch all comment
 
     getCommentById: async (_, args) => {
       // Check if required fields are present
@@ -534,12 +646,41 @@ export const resolvers = {
       //If the cachedUser is cached, return the parsed JSON (JSON string to object)
       if (cachedComment) {
         console.log("Returning comment from cache.");
-        return JSON.parse(cachedComment);
+        const parsedComment = JSON.parse(cachedComment);
+
+        // Check if the comment's destination is "UPDATE" and validate update ID
+        if (parsedComment.commentDestination === "UPDATE") {
+          const updates = await updateCollection();
+          const validUpdateIds = await updates.distinct("_id");
+
+          if (!validUpdateIds.some(id => id.equals(new ObjectId(parsedComment.destinationId)))) {
+            throw new GraphQLError("Comment is associated with a non-existent update.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+          } 
+
+        // Check if the comment's destination is "APPLICATION" and validate application ID
+        else if (parsedComment.commentDestination === "APPLICATION") {
+          
+          const applications = await applicationCollection();
+          const validApplicationIds = await applications.distinct("_id");
+          
+          if (!validApplicationIds.some(id => id.equals(new ObjectId(parsedComment.destinationId)))) {
+            throw new GraphQLError("Comment is associated with a non-existent application.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        }
+
+        return parsedComment;
+
       }
 
       //If not cached, pull comment collection and then findOne specific comment
       const comments = await commentCollection();
       const comment = await comments.findOne({ _id: new ObjectId(args._id) });
+
 
       //If no comment, throw GraphQLError
       if (!comment) {
@@ -547,6 +688,32 @@ export const resolvers = {
           //Optional object: extra information. NOT_FOUND = status code 404
           extensions: { code: "BAD_USER_INPUT" },
         });
+      }
+
+      // Check if the comment's destination is "UPDATE" and validate update ID
+      if (comment.commentDestination === "UPDATE") {
+        
+        const updates = await updateCollection();
+        const validUpdateIds = await updates.distinct("_id");
+
+        if (!validUpdateIds.some(id => id.equals(new ObjectId(comment.destinationId)))) {
+          throw new GraphQLError("Comment is associated with a non-existent update.", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+
+      } 
+      // Check if the comment's destination is "APPLICATION" and validate application ID
+      else if (comment.commentDestination === "APPLICATION") {
+        
+        const applications = await applicationCollection();
+        const validApplicationIds = await applications.distinct("_id");
+
+        if (!validApplicationIds.some(id => id.equals(new ObjectId(comment.destinationId)))) {
+          throw new GraphQLError("Comment is associated with a non-existent application.", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
       }
 
       //Set comment into redis Cache; set to cacheKey
@@ -602,11 +769,18 @@ export const resolvers = {
         _id: new ObjectId(args.projectId),
       });
 
+      // Check if project exists
+      if (!project) {
+        throw new GraphQLError("Project not found in the database.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       // Extract professors field
       const professors = project.professors || [];
 
       // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(professors));
+      await redisClient.set(cacheKey, JSON.stringify(professors), { EX: 3600 });
 
       // Return the list of professors
       return professors;
@@ -654,11 +828,18 @@ export const resolvers = {
         _id: new ObjectId(args.projectId),
       });
 
+      // Check if project exists
+      if (!project) {
+        throw new GraphQLError("Project not found in the database.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       // Extract students field
       const students = project.students || [];
 
       // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(students));
+      await redisClient.set(cacheKey, JSON.stringify(students), { EX: 3600 });
 
       // Return the list of students
       return students;
@@ -685,14 +866,24 @@ export const resolvers = {
       //Check objectID
       helpers.checkArg(args._id, "string", "id");
 
+      //Turn args._id into an object id 
+      const userId = new ObjectId(args._id);
+
+
       //If not cached, pull entire project collction
       const projects = await projectCollection();
 
       //Pull all projects associated with the provided userId using find.
       //Change the string userId argument into an objectId
+      // $elemMatch: finds projects where the userId matches within the professors or students arrays.
       const userProjects = await projects
-        .find({ professors: { $elemMatch: { _id: args._id } } })
-        .toArray();
+      .find({
+        $or: [
+          { professors: { $elemMatch: { _id: userId } } },
+          { students: { $elemMatch: { _id: userId } } },
+        ],
+      })
+      .toArray();
 
       // Return the list of projects
       return userProjects;
@@ -726,9 +917,17 @@ export const resolvers = {
       const cacheKey = `comments:${args.updateId}`;
       const cachedComments = await redisClient.get(cacheKey);
 
+      // Filter comments logic (PREVIOUSLY: this is the same filtering done in get all updates and get all applications, but it's nicer to break it into a helper function. Before it was just repeated)
+      const filterComments = (comments) => {
+        return comments.filter(comment => {
+          return comment && comment._id && comment.commenter && comment.commenter._id;
+        });
+      };
+
       //If comments are cached, then return
       if (cachedComments) {
-        return JSON.parse(cachedComments);
+        const parsedComments = JSON.parse(cachedComments);
+        return filterComments(parsedComments);
       }
 
       //If not cached, pull entire update collction
@@ -740,11 +939,18 @@ export const resolvers = {
         _id: new ObjectId(args.updateId),
       });
 
-      // Extract comments field
-      const comments = update.comments || [];
+      //Handle missing update
+      if (!update) {
+        throw new GraphQLError("Update not found in the database.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+       // Filter comments from the database
+      const comments = filterComments(update.comments || []);
 
       // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(comments));
+      await redisClient.set(cacheKey, JSON.stringify(comments), { EX: 3600 });
 
       // Return the list of comments
       return comments;
@@ -778,9 +984,17 @@ export const resolvers = {
       const cacheKey = `comments:${args.applicationId}`;
       const cachedComments = await redisClient.get(cacheKey);
 
+      // Filter comments logic
+      const filterComments = (comments) => {
+        return comments.filter(comment => {
+          return comment && comment._id && comment.commenter && comment.commenter._id;
+        });
+      };
+
       //If comments are cached, then return
       if (cachedComments) {
-        return JSON.parse(cachedComments);
+        const parsedComments = JSON.parse(cachedComments);
+        return filterComments(parsedComments);
       }
 
       //If not cached, pull entire application collction
@@ -792,11 +1006,18 @@ export const resolvers = {
         _id: new ObjectId(args.applicationId),
       });
 
+      //Handle missing application
+      if (!application) {
+        throw new GraphQLError("Application not found in the database.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       // Extract comments field
-      const comments = application.comments || [];
+      const comments = filterComments(application.comments || []);
 
       // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(comments));
+      await redisClient.set(cacheKey, JSON.stringify(comments), { EX: 3600 });
 
       // Return the list of comments
       return comments;
@@ -868,6 +1089,7 @@ export const resolvers = {
     //updatesBySubject(subject: UpdateSubject!): [Update]
     //Purpose: Fetch all updates that match the specified subject
     //Cache: Cached by subject in Redis for one hour
+    //FILTERS out null comments, the same logic implemented in fetch all updates
 
     updatesBySubject: async (_, args) => {
       // Check if required fields are present
@@ -899,7 +1121,20 @@ export const resolvers = {
       //If the subject is cached, return the parsed JSON (JSON string to object)
       if (cachedSubject) {
         console.log("Returning updates from stated subject from cache.");
-        return JSON.parse(cachedSubject);
+        
+        const parsedUpdates = JSON.parse(cachedSubject);
+
+        // Filter out null comments for each update
+        parsedUpdates.forEach(update => {
+          if (update.comments) {
+            update.comments = update.comments.filter(comment => {
+              return comment && comment._id && comment.commenter && comment.commenter._id;
+            });
+          }
+        });
+
+        return parsedUpdates;
+
       }
 
       //If subject not cached, pull the update collection then all update with the specific subject
@@ -915,6 +1150,15 @@ export const resolvers = {
         //Why empty array and not throw error? Allowing the possibility that updates of this subjects simply not added yet.
         return [];
       }
+
+      // Filter out null comments for each update
+      updatesBySubject.forEach(update => {
+        if (update.comments) {
+          update.comments = update.comments.filter(comment => {
+            return comment && comment._id && comment.commenter && comment.commenter._id;
+          });
+        }
+      });
 
       //Cache the subject for one hour.
       //Expiration: 1 hour (60 x 60 = 3600 seconds)
@@ -965,23 +1209,21 @@ export const resolvers = {
       //If no projects cached by year established, then pull all projects
       const projects = await projectCollection();
 
-      // Use the '.find' function to query projects within the specified year range.
-      // MongoDB's '$expr' allows for dynamic queries using expressions, which is needed to extract the year from the 'createdDate' field.
-      // '$year' extracts the year from the 'createdDate' ISO date field stored in the database.
-      // '$gte' (greater than or equal to) and '$lte' (less than or equal to) are MongoDB operators used to ensure the year falls inclusively within the 'min' and 'max' range.
-      // '$and' to combine conditions
-      const projectsByCreatedRange = await projects
-        .find({
-          $expr: {
-            $and: [
-              { $gte: [{ $year: "$createdDate" }, min] },
-              { $lte: [{ $year: "$createdDate" }, max] },
-            ],
-          },
-        })
-        .toArray();
+      // Turn projects into an array to allow for filtering.
+      const allProjects = await projects.find({}).toArray();
 
-      //If no projects in stated range found, return an empty array
+      // Filter projects based on year range by converting string dates to Date objects
+      const projectsByCreatedRange = allProjects.filter((project) => {
+        
+        if (!project.createdDate) return false;
+
+        const projectYear = new Date(project.createdDate).getFullYear();
+
+        //Return the boolean based on if the year is within the provided range
+        return projectYear >= min && projectYear <= max;
+
+      });
+
       if (projectsByCreatedRange.length === 0) {
         console.log("For the specified year range, no projects found.");
         return [];
@@ -1244,6 +1486,18 @@ export const resolvers = {
   },
 
   Project: {
+
+    applications: async (parentValue) => {
+      // Pull the applications collection
+      const applications = await applicationCollection();
+      // Query all applications where project._id matches this project’s _id
+      const projectApplications = await applications
+        .find({ "project._id": new ObjectId(parentValue._id) })
+        .toArray();
+        
+      return projectApplications;
+    },
+
     // numOfApplications
     // Purpose: Compute the number of applications there are for a specific project
     // parentValue = Project object; numOfApplicants will appear in the Project object
@@ -1357,6 +1611,19 @@ export const resolvers = {
         helpers.checkArg(args.bio, "string", "bio");
       }
 
+
+      //Pull user collection
+      const users = await userCollection();
+
+      //Extra email check for duplicates
+      const existingUser = await users.findOne({ email: args.email.trim() });
+  
+      if (existingUser) {
+        throw new GraphQLError("Email already exists.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       // Creates a new user in Firebase Authentication with email, password, and display name.
       // Managed by Firebase for authentication purposes.
       const userRecord = await admin.auth().createUser({
@@ -1364,9 +1631,6 @@ export const resolvers = {
         password: args.password,
         displayName: `${args.firstName} ${args.lastName}`,
       });
-
-      //Pull the user collection
-      const users = await userCollection();
 
       // Create a User object, toAddUser, using the arguments, set objectId
       const toAddUser = {
@@ -1478,6 +1742,12 @@ export const resolvers = {
       //Use find one to have a local object to add updates to.
       let userToUpdate = await users.findOne({ _id: userId });
 
+      if (!userToUpdate) {
+        throw new GraphQLError("The user ID provided is invalid.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       //Object to hold fields to update
       const updateFields = {};
 
@@ -1530,25 +1800,46 @@ export const resolvers = {
 
         //Project Removal Id
         if (args.projectRemovalId) {
+         
           helpers.checkArg(args.projectRemovalId, "string", "id");
+          
           const newProjectArray = (userToUpdate.projects || []).filter(
             (project) =>
               !project._id.equals(new ObjectId(args.projectRemovalId))
           );
+
           updateFields.projects = newProjectArray;
         }
 
         //Project Edit Id
         if (args.projectEditId) {
+          
           helpers.checkArg(args.projectEditId, "string", "id");
-          const newProjectArray = (userToUpdate.projects || []).filter(
-            (project) => !project._id.equals(new ObjectId(args.projectEditId))
-          );
-          const projectToAdd = getProjectById(args.projectEditId);
-          if (projectToAdd) {
-            newProjectArray.push(projectToAdd);
+
+          const updatedProjectId = new ObjectId(args.projectEditId);
+          
+          //Pull the updated project
+          const updatedProject = await getProjectById(args.projectEditId);
+
+          if (!updatedProject) {
+            throw new GraphQLError("Project with the given ID does not exist.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
           }
-          updateFields.projects = newProjectArray;
+          
+          // Replace the old project with the updated version
+          const updatedProjectArray = (userToUpdate.projects || []).map((project) => {
+            // Check if the current project matches the projectEditId
+            if (project._id.equals(updatedProjectId)) {
+              // Replace with the updated project if the project id matches
+              return updatedProject; 
+            }
+            // Retrun the project as-is if its id doesn't match
+            return project; 
+          });
+
+          updateFields.projects = updatedProjectArray;
+
         }
 
         //Application Removal Id
@@ -1562,17 +1853,28 @@ export const resolvers = {
         }
 
         //Applications Edit Id
+        //Line by line comments available in projects edit id. This mirrors that code.
         if (args.applicationEditId) {
           helpers.checkArg(args.applicationEditId, "string", "id");
-          const newApplicationArray = (userToUpdate.applications || []).filter(
-            (application) =>
-              !application._id.equals(new ObjectId(args.applicationEditId))
-          );
-          const applicationToAdd = getApplicationById(args.applicationEditId);
-          if (applicationToAdd) {
-            newApplicationArray.push(applicationToAdd);
+        
+          const updatedApplicationId = new ObjectId(args.applicationEditId);
+        
+          const updatedApplication = await getApplicationById(args.applicationEditId);
+        
+          if (!updatedApplication) {
+            throw new GraphQLError("Application with the given ID does not exist.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
           }
-          updateFields.applications = newApplicationArray;
+        
+          const updatedApplicationArray = (userToUpdate.applications || []).map((application) => {
+            if (application._id.equals(updatedApplicationId)) {
+              return updatedApplication;
+            }
+            return application;
+          });
+        
+          updateFields.applications = updatedApplicationArray;
         }
 
         //Use updateOne, matching the _id to the args._id. Note: the ID cannot be updated
@@ -1665,13 +1967,12 @@ export const resolvers = {
 
       //Pull the user and application collections
       const users = await userCollection();
-      const applications = await applicationCollection();
 
       //Use findOneAndDelete to remove user from the user collection
       const deletedUser = await users.findOneAndDelete({ _id: userId });
 
       //If user could not be deleted, throw GraphQLError.
-      if (!deletedUser.value) {
+      if (!deletedUser) {
         throw new GraphQLError(
           `Failed to delete user with this ID (${args._id}). Failed to either find or delete.`,
           {
@@ -1689,6 +1990,7 @@ export const resolvers = {
         await redisClient.del("users");
         await redisClient.del("applications");
         await redisClient.del(`user:${args._id}`);
+        console.log("Redis cache updated for user deletion.");
       } catch (error) {
         console.error("Failed to update Redis cache:", error);
         throw new GraphQLError(
@@ -1703,7 +2005,7 @@ export const resolvers = {
       }
 
       //Return the value of the deleted user
-      return deletedUser.value;
+      return deletedUser;
     },
 
     // addProject
@@ -1712,9 +2014,9 @@ export const resolvers = {
 
     addProject: async (_, args) => {
       // Check if required fields are present
-      if (!args.title || !args.department || !args.professorIds) {
+      if (!args.title || !args.department) {
         throw new GraphQLError(
-          "The title, department, and profossor Ids are required to create a project.",
+          "The title and department are required to create a project.",
           {
             //Similar status code: 404
             extensions: { code: "BAD_USER_INPUT" },
@@ -1742,17 +2044,21 @@ export const resolvers = {
       //Checks
       helpers.checkArg(args.title, "string", "title");
       helpers.checkArg(args.department, "string", "department");
-      helpers.checkArg(args.professorIds, "array", "professorIds");
+      if (args.professorIds) {
+        helpers.checkArg(args.professorIds, "array", "professorIds");
+      }
       if (args.studentIds) {
         helpers.checkArg(args.studentIds, "array", "studentIds");
       }
 
       let toAddProfessorIds = [];
       let toAddStudentIds = [];
-
-      for (const id of args.professorIds) {
-        helpers.checkArg(id, "string", "id");
-        toAddProfessorIds.push(id.trim());
+      
+      if (args.professorIds) {
+        for (const id of args.professorIds) {
+          helpers.checkArg(id, "string", "id");
+          toAddProfessorIds.push(id.trim());
+        }
       }
 
       if (args.studentIds) {
@@ -1783,24 +2089,26 @@ export const resolvers = {
         channel: new ObjectId(),
       };
 
-      // Fetch professors individually and place in the newProject
-      for (const professorId of toAddProfessorIds) {
-        // const professor = await getUserById({ _id: professorId });
-        const professor = await users.findOne({
-          _id:
-            typeof professorId === "string"
-              ? new ObjectId(professorId)
-              : professorId,
-        });
-        newProject.professors.push(professor);
-        await users.updateOne(
-          {
-            _id: professor._id,
-          },
-          {
-            $set: { projects: { $push: newProject._id } },
-          }
-        );
+      if (toAddProfessorIds.length > 0) {
+        // Fetch professors individually and place in the newProject
+        for (const professorId of toAddProfessorIds) {
+          // const professor = await getUserById({ _id: professorId });
+          const professor = await users.findOne({
+            _id:
+              typeof professorId === "string"
+                ? new ObjectId(professorId)
+                : professorId,
+          });
+          newProject.professors.push(professor);
+          await users.updateOne(
+            {
+              _id: professor._id,
+            },
+            {
+              $set: { projects: { $push: newProject._id } },
+            }
+          );
+        }
       }
 
       // Fetch students individually if there are any
@@ -1967,18 +2275,30 @@ export const resolvers = {
 
         //Applications Edit Id
         if (args.applicationEditId) {
+
           helpers.checkArg(args.applicationEditId, "string", "id");
-          const newApplicationArray = (
-            projectToUpdate.applications || []
-          ).filter(
-            (application) =>
-              !application._id.equals(new ObjectId(args.applicationEditId))
-          );
-          const applicationToAdd = getApplicationById(args.applicationEditId);
-          if (applicationToAdd) {
-            newApplicationArray.push(applicationToAdd);
+
+          const updatedApplicationId = new ObjectId(args.applicationEditId);
+
+          const updatedApplication = await getApplicationById(args.applicationEditId);
+
+          if (!updatedApplication) {
+            throw new GraphQLError("Application with the given ID does not exist.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
           }
-          updateFields.applications = newApplicationArray;
+
+          const updatedApplicationArray = (projectToUpdate.applications || []).map(
+            (application) => {
+              if (application._id.equals(updatedApplicationId)) {
+                return updatedApplication;
+              }
+              return application;
+            }
+          );
+
+          updateFields.applications = updatedApplicationArray;
+          
         }
 
         //Use updateOne, matching the _id to the args._id. Note: the ID cannot be updated
@@ -2071,13 +2391,22 @@ export const resolvers = {
 
       //Pull the projects, updates, and application collecitons
       const projects = await projectCollection();
-      const updates = await updateCollection();
-      const applications = await applicationCollection();
+
+      //DEBUG ADDITION
+      const project = await projects.findOne({ _id: new ObjectId(args._id) });
+      console.log("Project to delete:", project);
+      if (!project) {
+          throw new GraphQLError(`The project with ID of ${args._id} does not exist.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+          });
+      }
 
       //Use findOneandDelete to delete the project. Match based on the args._id (made to an object id)
+      console.log("Attempting to delete project:", args._id);
       const deletedProject = await projects.findOneAndDelete({
         _id: new ObjectId(args._id),
       });
+      console.log("Deleted project:", deletedProject);
 
       //If the project wasn't deleted, throw a GraphQLError
       if (!deletedProject) {
@@ -2090,12 +2419,10 @@ export const resolvers = {
         );
       }
 
-      // Remove all updates and applications associated with the project
-      await updates.deleteMany({ project: new ObjectId(args._id) });
-      await applications.deleteMany({ project: new ObjectId(args._id) });
-
       //Propagate this removal across all objects with project objects
+      console.log("Propogating project removal");
       await propagators.propagateProjectRemovalChanges(args._id);
+      console.log("completed propogating project removal");
 
       //Try/catch for redis
       try {
@@ -2341,14 +2668,27 @@ export const resolvers = {
         //Comments Edit Id
         if (args.commentEditId) {
           helpers.checkArg(args.commentEditId, "string", "id");
-          const newCommentArray = (updateToUpdate.comments || []).filter(
-            (comment) => !comment._id.equals(new ObjectId(args.commentEditId))
-          );
-          const commentToAdd = getCommentById(args.commentEditId);
-          if (commentToAdd) {
-            newCommentArray.push(commentToAdd);
+        
+          const updatedCommentId = new ObjectId(args.commentEditId);
+        
+          const updatedComment = await getCommentById(args.commentEditId);
+        
+          if (!updatedComment) {
+            throw new GraphQLError("Comment with the given ID does not exist.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
           }
-          updateToUpdate.comments = newCommentArray;
+        
+          const updatedCommentArray = (updateToUpdate.comments || []).map(
+            (comment) => {
+              if (comment._id.equals(updatedCommentId)) {
+                return updatedComment;
+              }
+              return comment;
+            }
+          );
+        
+          updateToUpdate.comments = updatedCommentArray;
         }
 
         //NOW, update the update in the mongodb. Use $set, which will not affect unupdated values
@@ -2556,6 +2896,12 @@ export const resolvers = {
         );
       }
 
+      // Propagate changes
+      await propagators.propagateApplicationAdditionChanges(
+        applicationToAdd._id.toString(),
+        applicationToAdd
+      );
+
       try {
         //Add the individual application cache
         const cacheKey = `application:${applicationToAdd._id}`;
@@ -2698,14 +3044,27 @@ export const resolvers = {
       //Comments Edit Id
       if (args.commentEditId) {
         helpers.checkArg(args.commentEditId, "string", "id");
-        const newCommentArray = (applicationToUpdate.comments || []).filter(
-          (comment) => !comment._id.equals(new ObjectId(args.commentEditId))
-        );
-        const commentToAdd = getCommentById(args.commentEditId);
-        if (commentToAdd) {
-          newCommentArray.push(commentToAdd);
+      
+        const updatedCommentId = new ObjectId(args.commentEditId);
+      
+        const updatedComment = await getCommentById(args.commentEditId);
+      
+        if (!updatedComment) {
+          throw new GraphQLError("Comment with the given ID does not exist.", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
         }
-        applicationToUpdate.comments = newCommentArray;
+      
+        const updatedCommentArray = (applicationToUpdate.comments || []).map(
+          (comment) => {
+            if (comment._id.equals(updatedCommentId)) {
+              return updatedComment;
+            }
+            return comment;
+          }
+        );
+      
+        applicationToUpdate.comments = updatedCommentArray;
       }
 
       //Automatically update lastUpdatedDate
@@ -2729,7 +3088,7 @@ export const resolvers = {
       //Propagate this removal across all objects with application objects
       await propagators.propagateApplicationEditChanges(
         applicationToUpdate._id,
-        { ...applicationToUpdate, ...updateFields }
+        { ...applicationToUpdate }
       );
 
       // Update Redis cache
@@ -2811,158 +3170,113 @@ export const resolvers = {
     },
 
     //addComment
-
     addComment: async (_, args) => {
+      
+      console.log("addComment resolver called with args:", args);
+    
       // Check if required fields are present
-      if (
-        !args.commenterId ||
-        !args.commentDestination ||
-        !args.destinationId ||
-        !args.content
-      ) {
+      if (!args.commenterId || !args.commentDestination || !args.destinationId || !args.content) {
         throw new GraphQLError(
-          "The commenterId, commentDestination, destinationId, and content fields are required.",
+          "All fields (commenterId, commentDestination, destinationId, content) are required.",
           {
-            //404
             extensions: { code: "BAD_USER_INPUT" },
           }
         );
       }
-
-      // Check for extra fields
-      const fieldsAllowed = [
-        "commenterId",
-        "commentDestination",
-        "destinationId",
-        "content",
-      ];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            //404
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
+    
+      // Validate arguments
+      try {
+        helpers.checkArg(args.commenterId, "string", "id");
+        helpers.checkArg(args.commentDestination, "string", "commentDestination");
+        helpers.checkArg(args.destinationId, "string", "id");
+        helpers.checkArg(args.content, "string", "content");
+      } catch (validationError) {
+        throw validationError;
       }
-
-      //Checks
-      helpers.checkArg(args.commenterId, "string", "id");
-      helpers.checkArg(args.commentDestination, "string", "commentDestination");
-      helpers.checkArg(args.destinationId, "string", "id");
-      helpers.checkArg(args.content, "string", "content");
-
-      // Determine the correct collection based on the destination
-      //Use the name 'collection' so that the code that follows can be used on either
-      let collection;
-      if (args.commentDestination.trim().toUpperCase() === "UPDATE") {
-        collection = await updateCollection();
-      } else if (
-        args.commentDestination.trim().toUpperCase() === "APPLICATION"
-      ) {
-        collection = await applicationCollection();
-      } else {
-        throw new GraphQLError("Invalid commentDestination provided.", {
-          extensions: { code: "BAD_USER_INPUT" },
+        
+      // Pull commenter details
+      let commenter;
+      try {
+        const users = await userCollection();
+        commenter = await users.findOne({
+          _id: new ObjectId(args.commenterId),
         });
+      } catch (dbError) {
+        console.error("Error querying user collection:", dbError);
+        throw dbError;
       }
-
-      //Use findOne to pull the destination (the update or application) in question, using the args.destinationId as the _id to match
-      const matchedDestination = await collection.findOne({
-        _id: new ObjectId(args.destinationId),
-      });
-
-      //If a destination cannot be pulled from the collection, throw an GraphQLError
-      if (!matchedDestination) {
+    
+      if (!commenter) {
+        console.error(`No user found with commenterId: ${args.commenterId}`);
         throw new GraphQLError(
-          `The ${args.commentDestination.toLowerCase()} ID provided was not valid.`,
+          `The commenter with ID ${args.commenterId} does not exist.`,
           {
-            //Similar status code: 404
             extensions: { code: "BAD_USER_INPUT" },
           }
         );
       }
-
-      //Fetch commenter object (user)
-      const users = await userCollection();
-      const commenter = await users.findOne({
-        _id: new ObjectId(args.commenterId),
-      });
-
-      //Create a local object to hold the args values, and set the id to a new objectID
-      const commentToAdd = {
+        
+      // Create the comment object
+      const newComment = {
         _id: new ObjectId(),
         commenter: commenter,
         content: args.content.trim(),
         postedDate: new Date().toISOString(),
         commentDestination: args.commentDestination.trim().toUpperCase(),
-        destinationId: new ObjectId(args.destinationId.trim()),
+        destinationId: args.destinationId.trim(),
       };
-
-      //Pull comments collection
-      const comments = await commentCollection();
-
-      //Use insertOne to add the local comment object to the comments collection
-      let addedComment = await comments.insertOne(commentToAdd);
-
-      //If adding the comment was not successful, then throw a GraphQLError
-      if (!addedComment.acknowledged || !addedComment.insertedId) {
-        throw new GraphQLError(
-          "The comment provided by the user could not be added.",
-          {
-            //Similar status code: 500
-            extensions: { code: "INTERNAL_SERVER_ERROR" },
-          }
-        );
-      }
-
-      //If adding the comment was succesful, then add it's id to the destination
-      const updateResult = await collection.updateOne(
-        { _id: new ObjectId(args.destinationId) },
-        { $push: { comments: commentToAdd._id } }
-      );
-
-      if (updateResult.modifiedCount === 0) {
-        throw new GraphQLError(
-          "The comment ID could not be added to the destination's comment array.",
-          {
-            //Similar status code: 500
-            extensions: { code: "INTERNAL_SERVER_ERROR" },
-          }
-        );
-      }
-
+    
+      console.log("New comment object created:", newComment);
+    
+      // Insert the comment into the comments collection
+      let insertedComment;
       try {
-        //Add the individual comment cache
-        const cacheKey = `comment:${commentToAdd._id}`;
-        await redisClient.set(cacheKey, JSON.stringify(commentToAdd));
+        const comments = await commentCollection();
+        insertedComment = await comments.insertOne(newComment);
 
-        //Delete the applications cache, as this is now out of date.'
-        await redisClient.del("comments");
-
-        //Delete associated caches for the destinations
-        let destinationCacheKey;
-        if (args.commentDestination === "UPDATE") {
-          destinationCacheKey = `update:${args.destinationId}`;
-          await redisClient.del(destinationCacheKey);
-          await redisClient.del("updates");
-        } else {
-          destinationCacheKey = `application:${args.destinationId}`;
-          await redisClient.del(destinationCacheKey);
-          await redisClient.del("applications");
+        if (!insertedComment) {
+          throw new GraphQLError("Failed to add the comment.", {
+            extensions: { code: "INTERNAL_SERVER_ERROR" },
+          });
         }
       } catch (error) {
-        console.error("Failed to update Redis cache:", error);
-        throw new GraphQLError(
-          "Failed to update Redis cache after adding the application.",
-          {
-            extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
-          }
-        );
+        console.error("Error inserting comment into the comments collection:", error);
+        throw new GraphQLError("Failed to add the comment.", {
+          extensions: { code: "INTERNAL_SERVER_ERROR" },
+        });
       }
-
-      //Return the local commentToAdd object, which will be without the meta data
-      return commentToAdd;
+      console.log("Comment successfully inserted into database:", insertedComment);
+    
+      // Propagate the comment addition to related entities
+      try {
+        await propagators.propagateCommentAdditionChanges(
+          newComment._id.toString(),
+          newComment
+        );
+        console.log("Propagation of comment addition successful.");
+      } catch (propagationError) {
+        console.error("Error during propagation of comment addition:", propagationError);
+        throw propagationError;
+      }
+    
+      // Update Redis cache
+      try {
+        console.log("Updating Redis cache for comment...");
+        const cacheKey = `comment:${newComment._id}`;
+        await redisClient.set(cacheKey, JSON.stringify(newComment));
+        await redisClient.del("comments");
+        console.log("Redis cache updated successfully.");
+      } catch (redisError) {
+        console.error("Failed to update Redis cache:", redisError);
+        throw new GraphQLError("Failed to update Redis cache after adding the comment.", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", cause: redisError.message },
+        });
+      }
+    
+      // Return the added comment
+      return newComment;
     },
+  
 
     editComment: async (_, args) => {
       // Check if required fields are present
@@ -3079,6 +3393,7 @@ export const resolvers = {
       return updatedComment;
     },
 
+    //Remove Comment
     removeComment: async (_, args) => {
       // Check if required fields are present
       if (!args._id) {
@@ -3111,7 +3426,7 @@ export const resolvers = {
       });
 
       //Confirm deletedComment the deletedComment has a value. If not, throw a GraphQLError
-      if (!deletedComment.value) {
+      if (!deletedComment) {
         throw new GraphQLError(
           "Could not find or delete comment with the provided ID.",
           {
@@ -3125,24 +3440,8 @@ export const resolvers = {
       await propagators.propagateCommentRemovalChanges(args._id);
 
       try {
-        //Update the individual comment cache
-        const cacheKey = `comment:${deletedComment.value._id}`;
-        await redisClient.del(cacheKey);
-
-        //Delete the comments cache, as this is now out of date.'
+        await redisClient.del(`comment:${args._id}`);
         await redisClient.del("comments");
-
-        //Delete associated caches for the destinations
-        let destinationCacheKey;
-        if (deletedComment.value.commentDestination === "UPDATE") {
-          destinationCacheKey = `update:${deletedComment.value.destinationId}`;
-          await redisClient.del(destinationCacheKey);
-          await redisClient.del("updates");
-        } else {
-          destinationCacheKey = `application:${deletedComment.value.destinationId}`;
-          await redisClient.del(destinationCacheKey);
-          await redisClient.del("applications");
-        }
       } catch (error) {
         console.error("Failed to update Redis cache:", error);
         throw new GraphQLError(
@@ -3154,7 +3453,7 @@ export const resolvers = {
       }
 
       //Return the value of deletedComment
-      return deletedComment.value;
+      return deletedComment;
     },
 
     login: async (_, { token }) => {

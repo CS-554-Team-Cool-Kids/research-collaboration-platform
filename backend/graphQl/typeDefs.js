@@ -134,7 +134,8 @@ export const typeDefs = `#graphql
             
                 searchUserByName(searchTerm: String!): [User]
 
-
+            # Purpose: Returns an array of projects that had the usersIds stored in the professor or student arrays
+            # Caching: One-hour expiration; completed in resolvers.js.
                 getProjectsByUserId (_id: String!): [Project]
 
     }
@@ -166,7 +167,7 @@ export const typeDefs = `#graphql
             description: String             # not required
             createdDate: String!            # ISO format, required
             department: Department!         # required (enum)
-            professors: [User!]             # array of user objects where Role = professor, required
+            professors: [User]             # array of user objects where Role = professor, required
             students: [User]                # array of user objects where Role = student, not required
             applications: [Application]     # array of Applicaiton objects
             numOfApplications: Int!         # Computed value, number of applications for this project
@@ -321,7 +322,7 @@ export const typeDefs = `#graphql
             role: Role                       
             department: Department           
             bio: String        
-            projectRemovalId: String
+            ed: String
             projectEditId: String
             applicationRemovalId: String
             applicationEditId: String
@@ -335,7 +336,7 @@ export const typeDefs = `#graphql
             title: String!
             department: Department!
             description: String
-            professorIds: [String!]!    # Array of IDs for professors to associate with the project, required, will be resolved to user objects
+            professorIds: [String]    # Array of IDs for professors to associate with the project, not required, will be resolved to user objects
             studentIds: [String]        # Array of IDs for students to associate with the project, not required, will be resolved to user objects
         ): Project
     

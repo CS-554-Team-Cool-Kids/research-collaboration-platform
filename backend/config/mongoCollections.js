@@ -24,3 +24,4 @@ export const projects = getCollectionFn("projects");
 export const updates = getCollectionFn("updates");
 export const applications = getCollectionFn("applications");
 export const comments = getCollectionFn("comments");
+export const messages = getCollectionFn("messages");
