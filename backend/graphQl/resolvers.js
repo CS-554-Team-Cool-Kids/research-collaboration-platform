@@ -1759,13 +1759,12 @@ export const resolvers = {
 
       //Pull the user and application collections
       const users = await userCollection();
-      const applications = await applicationCollection();
 
       //Use findOneAndDelete to remove user from the user collection
       const deletedUser = await users.findOneAndDelete({ _id: userId });
 
       //If user could not be deleted, throw GraphQLError.
-      if (!deletedUser.value) {
+      if (!deletedUser) {
         throw new GraphQLError(
           `Failed to delete user with this ID (${args._id}). Failed to either find or delete.`,
           {
@@ -1783,6 +1782,7 @@ export const resolvers = {
         await redisClient.del("users");
         await redisClient.del("applications");
         await redisClient.del(`user:${args._id}`);
+        console.log("Redis cache updated for user deletion.");
       } catch (error) {
         console.error("Failed to update Redis cache:", error);
         throw new GraphQLError(
@@ -2195,10 +2195,6 @@ export const resolvers = {
           }
         );
       }
-
-      // Remove all updates and applications associated with the project
-      await updates.deleteMany({ project: new ObjectId(args._id) });
-      await applications.deleteMany({ project: new ObjectId(args._id) });
 
       //Propagate this removal across all objects with project objects
       await propagators.propagateProjectRemovalChanges(args._id);
@@ -2675,6 +2671,12 @@ export const resolvers = {
         );
       }
 
+      // Propagate changes
+      await propagators.propagateApplicationAdditionChanges(
+        applicationToAdd._id.toString(),
+        applicationToAdd
+      );
+
       try {
         //Add the individual application cache
         const cacheKey = `application:${applicationToAdd._id}`;
@@ -2943,158 +2945,113 @@ export const resolvers = {
     },
 
     //addComment
-
     addComment: async (_, args) => {
+      
+      console.log("addComment resolver called with args:", args);
+    
       // Check if required fields are present
-      if (
-        !args.commenterId ||
-        !args.commentDestination ||
-        !args.destinationId ||
-        !args.content
-      ) {
+      if (!args.commenterId || !args.commentDestination || !args.destinationId || !args.content) {
         throw new GraphQLError(
-          "The commenterId, commentDestination, destinationId, and content fields are required.",
+          "All fields (commenterId, commentDestination, destinationId, content) are required.",
           {
-            //404
             extensions: { code: "BAD_USER_INPUT" },
           }
         );
       }
-
-      // Check for extra fields
-      const fieldsAllowed = [
-        "commenterId",
-        "commentDestination",
-        "destinationId",
-        "content",
-      ];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            //404
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
+    
+      // Validate arguments
+      try {
+        helpers.checkArg(args.commenterId, "string", "id");
+        helpers.checkArg(args.commentDestination, "string", "commentDestination");
+        helpers.checkArg(args.destinationId, "string", "id");
+        helpers.checkArg(args.content, "string", "content");
+      } catch (validationError) {
+        throw validationError;
       }
-
-      //Checks
-      helpers.checkArg(args.commenterId, "string", "id");
-      helpers.checkArg(args.commentDestination, "string", "commentDestination");
-      helpers.checkArg(args.destinationId, "string", "id");
-      helpers.checkArg(args.content, "string", "content");
-
-      // Determine the correct collection based on the destination
-      //Use the name 'collection' so that the code that follows can be used on either
-      let collection;
-      if (args.commentDestination.trim().toUpperCase() === "UPDATE") {
-        collection = await updateCollection();
-      } else if (
-        args.commentDestination.trim().toUpperCase() === "APPLICATION"
-      ) {
-        collection = await applicationCollection();
-      } else {
-        throw new GraphQLError("Invalid commentDestination provided.", {
-          extensions: { code: "BAD_USER_INPUT" },
+        
+      // Pull commenter details
+      let commenter;
+      try {
+        const users = await userCollection();
+        commenter = await users.findOne({
+          _id: new ObjectId(args.commenterId),
         });
+      } catch (dbError) {
+        console.error("Error querying user collection:", dbError);
+        throw dbError;
       }
-
-      //Use findOne to pull the destination (the update or application) in question, using the args.destinationId as the _id to match
-      const matchedDestination = await collection.findOne({
-        _id: new ObjectId(args.destinationId),
-      });
-
-      //If a destination cannot be pulled from the collection, throw an GraphQLError
-      if (!matchedDestination) {
+    
+      if (!commenter) {
+        console.error(`No user found with commenterId: ${args.commenterId}`);
         throw new GraphQLError(
-          `The ${args.commentDestination.toLowerCase()} ID provided was not valid.`,
+          `The commenter with ID ${args.commenterId} does not exist.`,
           {
-            //Similar status code: 404
             extensions: { code: "BAD_USER_INPUT" },
           }
         );
       }
-
-      //Fetch commenter object (user)
-      const users = await userCollection();
-      const commenter = await users.findOne({
-        _id: new ObjectId(args.commenterId),
-      });
-
-      //Create a local object to hold the args values, and set the id to a new objectID
-      const commentToAdd = {
+        
+      // Create the comment object
+      const newComment = {
         _id: new ObjectId(),
         commenter: commenter,
         content: args.content.trim(),
         postedDate: new Date().toISOString(),
         commentDestination: args.commentDestination.trim().toUpperCase(),
-        destinationId: new ObjectId(args.destinationId.trim()),
+        destinationId: args.destinationId.trim(),
       };
-
-      //Pull comments collection
-      const comments = await commentCollection();
-
-      //Use insertOne to add the local comment object to the comments collection
-      let addedComment = await comments.insertOne(commentToAdd);
-
-      //If adding the comment was not successful, then throw a GraphQLError
-      if (!addedComment.acknowledged || !addedComment.insertedId) {
-        throw new GraphQLError(
-          "The comment provided by the user could not be added.",
-          {
-            //Similar status code: 500
-            extensions: { code: "INTERNAL_SERVER_ERROR" },
-          }
-        );
-      }
-
-      //If adding the comment was succesful, then add it's id to the destination
-      const updateResult = await collection.updateOne(
-        { _id: new ObjectId(args.destinationId) },
-        { $push: { comments: commentToAdd._id } }
-      );
-
-      if (updateResult.modifiedCount === 0) {
-        throw new GraphQLError(
-          "The comment ID could not be added to the destination's comment array.",
-          {
-            //Similar status code: 500
-            extensions: { code: "INTERNAL_SERVER_ERROR" },
-          }
-        );
-      }
-
+    
+      console.log("New comment object created:", newComment);
+    
+      // Insert the comment into the comments collection
+      let insertedComment;
       try {
-        //Add the individual comment cache
-        const cacheKey = `comment:${commentToAdd._id}`;
-        await redisClient.set(cacheKey, JSON.stringify(commentToAdd));
+        const comments = await commentCollection();
+        insertedComment = await comments.insertOne(newComment);
 
-        //Delete the applications cache, as this is now out of date.'
-        await redisClient.del("comments");
-
-        //Delete associated caches for the destinations
-        let destinationCacheKey;
-        if (args.commentDestination === "UPDATE") {
-          destinationCacheKey = `update:${args.destinationId}`;
-          await redisClient.del(destinationCacheKey);
-          await redisClient.del("updates");
-        } else {
-          destinationCacheKey = `application:${args.destinationId}`;
-          await redisClient.del(destinationCacheKey);
-          await redisClient.del("applications");
+        if (!insertedComment) {
+          throw new GraphQLError("Failed to add the comment.", {
+            extensions: { code: "INTERNAL_SERVER_ERROR" },
+          });
         }
       } catch (error) {
-        console.error("Failed to update Redis cache:", error);
-        throw new GraphQLError(
-          "Failed to update Redis cache after adding the application.",
-          {
-            extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
-          }
-        );
+        console.error("Error inserting comment into the comments collection:", error);
+        throw new GraphQLError("Failed to add the comment.", {
+          extensions: { code: "INTERNAL_SERVER_ERROR" },
+        });
       }
-
-      //Return the local commentToAdd object, which will be without the meta data
-      return commentToAdd;
+      console.log("Comment successfully inserted into database:", insertedComment);
+    
+      // Propagate the comment addition to related entities
+      try {
+        await propagators.propagateCommentAdditionChanges(
+          newComment._id.toString(),
+          newComment
+        );
+        console.log("Propagation of comment addition successful.");
+      } catch (propagationError) {
+        console.error("Error during propagation of comment addition:", propagationError);
+        throw propagationError;
+      }
+    
+      // Update Redis cache
+      try {
+        console.log("Updating Redis cache for comment...");
+        const cacheKey = `comment:${newComment._id}`;
+        await redisClient.set(cacheKey, JSON.stringify(newComment));
+        await redisClient.del("comments");
+        console.log("Redis cache updated successfully.");
+      } catch (redisError) {
+        console.error("Failed to update Redis cache:", redisError);
+        throw new GraphQLError("Failed to update Redis cache after adding the comment.", {
+          extensions: { code: "INTERNAL_SERVER_ERROR", cause: redisError.message },
+        });
+      }
+    
+      // Return the added comment
+      return newComment;
     },
+  
 
     editComment: async (_, args) => {
       // Check if required fields are present
@@ -3243,7 +3200,7 @@ export const resolvers = {
       });
 
       //Confirm deletedComment the deletedComment has a value. If not, throw a GraphQLError
-      if (!deletedComment.value) {
+      if (!deletedComment) {
         throw new GraphQLError(
           "Could not find or delete comment with the provided ID.",
           {
@@ -3257,24 +3214,8 @@ export const resolvers = {
       await propagators.propagateCommentRemovalChanges(args._id);
 
       try {
-        //Update the individual comment cache
-        const cacheKey = `comment:${deletedComment.value._id}`;
-        await redisClient.del(cacheKey);
-
-        //Delete the comments cache, as this is now out of date.'
+        await redisClient.del(`comment:${args._id}`);
         await redisClient.del("comments");
-
-        //Delete associated caches for the destinations
-        let destinationCacheKey;
-        if (deletedComment.value.commentDestination === "UPDATE") {
-          destinationCacheKey = `update:${deletedComment.value.destinationId}`;
-          await redisClient.del(destinationCacheKey);
-          await redisClient.del("updates");
-        } else {
-          destinationCacheKey = `application:${deletedComment.value.destinationId}`;
-          await redisClient.del(destinationCacheKey);
-          await redisClient.del("applications");
-        }
       } catch (error) {
         console.error("Failed to update Redis cache:", error);
         throw new GraphQLError(

@@ -52,7 +52,6 @@ export async function propagateUserRemovalChanges(userId) {
 
   //HANDLE PROJECTS 
   try {
-    
     //Pull project collection, place any projects where the user's id is in a professor or student object
     const projects = await projectCollection();
 
@@ -67,18 +66,17 @@ export async function propagateUserRemovalChanges(userId) {
       })
       .toArray();
 
-
     //If there are related projects, proceed in updating embedded user objects
     if (relatedProjects.length > 0) {
       
       for (const project of relatedProjects) {
-        
+
         const updatedProjectFields = {};
 
         //Checks if the user is listed as a professor in the pulled project.
         //`some`: method that determines if there is any professor that has an `_id` that matches the given `userId`
         if (project.professors.some((prof) => prof._id.equals(userObjectId))) {
-          
+
           //If the removed professor is in this project, use filter to remove the reference, and then map a new array of professor ids
           //The array of ID strings if what is needed by the edit project resolver
           updatedProjectFields.professorIds = project.professors
@@ -116,7 +114,7 @@ export async function propagateUserRemovalChanges(userId) {
 
   //HANDLE APPLICATIONS
   try {
-    
+
     //Pull applications collection, place any application where the user's id matches the id of the embeddeded user object (applicant)
 
     const applications = await applicationCollection();
@@ -153,7 +151,7 @@ export async function propagateUserRemovalChanges(userId) {
 
     //Pull comments collection, place any comment where the comments's id matches removed user's id
 
-    const comments = commentCollection();
+    const comments = await commentCollection();
 
     if (!comments || typeof comments.find !== "function") {
       throw new Error("Invalid comment collection. Check your database connection.");
@@ -352,7 +350,6 @@ export async function propagateUserEditChanges(userId, updatedUserData) {
     throw error;
   }
 }
-
 
 
 //HELPER FUNCTION: propagateProjectRemovalChanges
@@ -740,6 +737,43 @@ export async function propagateApplicationEditChanges(
   }
 }
 
+export async function propagateApplicationAdditionChanges(applicationId, newApplication) {
+
+  // Validate applicationId
+  if (!ObjectId.isValid(applicationId)) {
+    throw new Error("Invalid applicationId. Must be a valid ObjectId.");
+  }
+
+  const applicationObjectId = new ObjectId(applicationId);
+
+  // Validate newApplication fields
+  const requiredFields = ["_id", "applicant", "project", "applicationDate", "lastUpdatedDate", "status"];
+  for (const field of requiredFields) {
+    if (!newApplication[field]) {
+      throw new Error(`Missing required field '${field}' in newApplication.`);
+    }
+  }
+
+  try {
+    // Add application to user
+    await noPropResolvers.editUser(null, {
+      _id: newApplication.applicant._id.toString(),
+      applicationAddition: applicationId,
+    });
+
+    // Add application to project
+    await noPropResolvers.editProject(null, {
+      _id: newApplication.project._id.toString(),
+      applicationAddition: applicationId,
+    });
+
+    console.log(`Successfully propagated application addition for application ID: ${applicationId}`);
+
+  } catch (error) {
+    console.error(`Error during propagation of application addition: ${error.message}`);
+    throw error;
+  }
+}
 
 
 //HELPER FUNCTION: propagateCommentRemovalChanges
@@ -894,4 +928,83 @@ export async function propagateCommentEditChanges(commentId) {
     );
     throw error;
   }
+}
+
+// HELPER FUNCTION: propagateCommentAdditionChanges
+// Propagate comment addition across related entities: applications, updates
+export async function propagateCommentAdditionChanges(commentId, newComment) {
+
+  // Ensure commentId is a valid ObjectId
+  if (!ObjectId.isValid(commentId)) {
+    throw new Error("Invalid commentId. Must be a valid ObjectId.");
+  }
+  const commentObjectId = new ObjectId(commentId);
+
+  // Validate newComment
+  const requiredFields = ["_id", "commenter", "content", "postedDate", "commentDestination", "destinationId"];
+  for (const field of requiredFields) {
+    if (!newComment[field]) {
+      throw new Error(`Missing required field '${field}' in newComment.`);
+    }
+  }
+
+  // HANDLE APPLICATIONS - Add comment to the appropriate application
+  if (newComment.commentDestination === "APPLICATION") {
+    console.log("Comment destination is APPLICATION");
+
+    try {
+      const applications = await applicationCollection();
+
+      if (!applications || typeof applications.find !== "function") {
+        throw new Error("Invalid application collection. Check your database connection.");
+      }
+
+      const application = await applications.findOne({
+        _id: new ObjectId(newComment.destinationId),
+      });
+
+      if (application) {
+
+        await noPropResolvers.editApplication(null, {
+          _id: application._id.toString(),
+          commentAddition: newComment,
+        });
+
+        console.log(`Added comment with id ${commentId} to application with id ${newComment.destinationId}.`);
+      } else {
+        console.warn(`No application found with id ${newComment.destinationId} for comment with id ${commentId}.`);
+      }
+    } catch (error) {
+      console.error(`Failed to add comment to application for comment with id ${commentId}: ${error.message}`);
+      throw error;
+    }
+  }
+  // HANDLE UPDATES - Add comment to the appropriate update
+  if (newComment.commentDestination === "UPDATE") {
+    console.log("Comment destination is UPDATE");
+
+    try {
+      const updates = await updateCollection();
+
+      if (!updates || typeof updates.find !== "function") {
+        throw new Error("Invalid update collection. Check your database connection.");
+      }
+
+      const update = await updates.findOne({ _id: new ObjectId(newComment.destinationId) });
+
+      if (update) {
+        await noPropResolvers.editUpdate(null, {
+          _id: update._id.toString(),
+          commentAddition: newComment,
+        });
+
+        console.log(`Added comment with id ${commentId} to update with id ${newComment.destinationId}.`);
+      } else {
+        console.warn(`No update found with id ${newComment.destinationId} for comment with id ${commentId}.`);
+      }
+    } catch (error) {
+      console.error(`Failed to add comment to update for comment with id ${commentId}: ${error.message}`);
+      throw error;
+    }
+}
 }
