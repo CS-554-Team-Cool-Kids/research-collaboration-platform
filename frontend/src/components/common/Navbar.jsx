@@ -50,8 +50,18 @@ const Navbar = () => {
             ) : (
               <>
                 <li className="nav-item">
+                  <Link className="nav-link" to="/dashboard">
+                    Dashboard
+                  </Link>
+                </li>
+                <li className="nav-item">
                   <Link className="nav-link" to="/project">
                     Project
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/application">
+                    Application
                   </Link>
                 </li>
                 <li className="nav-item">

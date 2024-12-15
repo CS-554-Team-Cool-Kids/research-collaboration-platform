@@ -13,10 +13,9 @@ const AddApplication = () => {
     const projectsData = useQuery(queries.GET_PROJECTS, {
         fetchPolicy: 'network-only'
     });
+    console.log("projectsData: ", projectsData);
 
-    const [addApplicationMutation] = useMutation(queries.ADD_APPLICATION, {
-        fetchPolicy: 'network-only'
-    });
+    const [addApplicationMutation] = useMutation(queries.ADD_APPLICATION);
     const navigate = useNavigate();
 
     
@@ -27,8 +26,8 @@ const AddApplication = () => {
         try {
             const {data} = await addApplicationMutation({
                 variables: {
-                    applicantId,
-                    projectId
+                    applicantId: applicantId,
+                    projectId: projectId
                 },
             });
             console.log("Application added: ", data.addApplication);
