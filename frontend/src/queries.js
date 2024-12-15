@@ -79,6 +79,7 @@ const GET_USER_BY_ID = gql`
         applicationDate
         lastUpdatedDate
         status
+        numOfComments
       }
       projects {
         _id

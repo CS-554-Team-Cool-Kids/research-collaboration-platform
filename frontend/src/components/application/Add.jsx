@@ -21,8 +21,6 @@ const AddApplication = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("applicant id: ", applicantId);
-    console.log("project id: ", projectId);
     try {
       const { data } = await addApplicationMutation({
         variables: {

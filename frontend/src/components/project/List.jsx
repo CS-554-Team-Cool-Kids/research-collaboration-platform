@@ -12,6 +12,7 @@ const ProjectList = () => {
     variables: { id: userId },
     fetchPolicy: "network-only",
   });
+  console.log("projects data: ", data);
 
   const [selectedProject, setSelectedProject] = useState(null);
 

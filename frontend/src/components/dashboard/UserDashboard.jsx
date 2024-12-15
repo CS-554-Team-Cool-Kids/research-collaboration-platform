@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {useQuery} from '@apollo/client'; 
 import queries from '../../queries';
 import ActionBar from '../common/ActionBar';
@@ -8,24 +8,34 @@ import { useAuth } from "../../context/AuthContext.jsx";
 
 const UserDashboard = () => {
     const { authState } = useAuth();
-    const id = authState.user.id;
-
+    const userId = authState.user.id;
+    
+    // User Data
     const userData = useQuery(queries.GET_USER_BY_ID, {
-        variables: { id: id },
-        fetchPolicy: 'network-only'
-    });
+        variables: { id: userId },
+        fetchPolicy: "network-only",
+      });
     console.log("userData: ", userData);
-    const user = userData.data.getuserById;
-    const loading = userData.loading;
-    const error = userData.error;
+    const userLoading = userData.loading;
+    const userError = userData.error;
 
-    const updateData = useQuery(queries.GET_UPDATES, {
+    // NewsFeed Data
+    const updatesData = useQuery(queries.GET_UPDATES, {
         fetchPolicy: 'network-only'
     });
-    const updates = updateData.data.updates;
+    console.log("updates data: ", updatesData);
+    const updateLoading = updatesData.loading;
+    const updateError = updatesData.error;
 
-    if(loading){ return <p>Loading...</p>}
-    if(error){ return <p>Error loading user information: {error.message}</p>}
+    // If loading
+    if(userLoading || updateLoading){ return <p>Loading...</p>}
+
+    // If error
+    if(userError || updateError){ return <p>Error loading: {userError? userError.message : updateError.message}</p>}
+
+    // Return data
+    const user = userData.data.getuserById;
+    const updates = updatesData.data.updates;
     return(
         <main className="dashboard">
             <ActionBar role={user.role}/>
