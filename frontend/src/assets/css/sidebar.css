@@ -123,3 +123,14 @@ body {
 .sidebar nav ul li svg {
   overflow: visible;
 }
+/* Sidebar-specific Newsfeed styles */
+
+/* Adjust sidebar spacing for Newsfeed alignment */
+.sidebar .newsfeed-container {
+  margin-left: 20px;
+}
+
+/* Add spacing if used in conjunction with a sidebar */
+.sidebar .updates-list {
+  padding-left: 10px;
+}

@@ -15,6 +15,7 @@ import ProjectDetails from "./components/project/[id]/Details";
 import ProjectAdd from "./components/project/Add";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Chat from "./components/Chat";
+import Newsfeed from "./components/Newsfeed";
 
 const App = () => {
   //Theming
@@ -128,6 +129,7 @@ const App = () => {
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/register" element={<Register />} />
         <Route path="/user/:id" element={<UserDashboard />} />
+        <Route path="/newsfeed" element={<Newsfeed />} />
 
         {/* Protected routes */}
         <Route
