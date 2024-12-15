@@ -38,11 +38,12 @@ import admin from "firebase-admin";
 
 //MongoDB: collections for users, projects, updates, and applications
 import {
-  users as userCollection,
-  projects as projectCollection,
-  updates as updateCollection,
-  applications as applicationCollection,
-} from "../config/mongoCollections.js";
+    users as userCollection,
+    projects as projectCollection,
+    updates as updateCollection,
+    applications as applicationCollection,
+    comments as commentCollection
+  } from "../config/mongoCollections.js";
 
 //ObjectId: MongoDB's unique IDs
 import { ObjectId } from "mongodb";
