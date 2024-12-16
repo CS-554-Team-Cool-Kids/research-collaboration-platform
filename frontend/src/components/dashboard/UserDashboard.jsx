@@ -7,15 +7,25 @@ import EditUser from '../modals/EditUser';
 import { useAuth } from "../../context/AuthContext.jsx";
 
 const UserDashboard = () => {
+    const [showEditUser, setShowEditUser] = useState(false);
+
     const { authState } = useAuth();
     const userId = authState.user.id;
+
+    // Edit User Modal
+    const handleOpenEditModal = () => {
+        setShowEditUser(true)
+    }
+    // Close Edit User Modal
+    const handleCloseModal = () => {
+        setShowEditUser(false);
+    }
     
     // User Data
     const userData = useQuery(queries.GET_USER_BY_ID, {
         variables: { id: userId },
         fetchPolicy: "network-only",
       });
-    console.log("userData: ", userData);
     const userLoading = userData.loading;
     const userError = userData.error;
 
@@ -23,9 +33,19 @@ const UserDashboard = () => {
     const updatesData = useQuery(queries.GET_UPDATES, {
         fetchPolicy: 'network-only'
     });
-    console.log("updates data: ", updatesData);
     const updateLoading = updatesData.loading;
     const updateError = updatesData.error;
+    
+    // Format Date
+    const formatDate = (date) => {
+        let newDate = new Date(date);
+        const formattedDate = newDate.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        });
+        return (formattedDate);
+    }
 
     // If loading
     if(userLoading || updateLoading){ return <p>Loading...</p>}
@@ -34,7 +54,7 @@ const UserDashboard = () => {
     if(userError || updateError){ return <p>Error loading: {userError? userError.message : updateError.message}</p>}
 
     // Return data
-    const user = userData.data.getuserById;
+    const user = userData.data.getUserById;
     const updates = updatesData.data.updates;
     return(
         <main className="dashboard">
@@ -49,6 +69,9 @@ const UserDashboard = () => {
                         <div className="d-card">
                             <div className="d-card-header">
                                 <h2>Project List</h2>
+                                <Link className="card-header-link" to="/project">
+                                    View All
+                                </Link>
                             </div>
                             <div className="d-card-body">
                                 <table className="d-table">
@@ -67,7 +90,7 @@ const UserDashboard = () => {
                                                     <td>{project.title}</td>
                                                     <td>{project.professors.length}</td>
                                                     <td>{project.students.length}</td>
-                                                    <td>{project.createdDate}</td>
+                                                    <td>{formatDate(project.createdDate)}</td>
                                                 </tr>
                                             );
                                         })}
@@ -80,6 +103,9 @@ const UserDashboard = () => {
                         <div className="d-card">
                             <div className="d-card-header">
                                 <h2>Applications List</h2>
+                                <Link className="card-header-link" to="/application">
+                                    View All
+                                </Link>
                             </div>
                             <div className="d-card-body">
                                 <table className="d-table">
@@ -96,8 +122,8 @@ const UserDashboard = () => {
                                             return (
                                                 <tr key={application._id}>
                                                     <td>{application.project.title}</td>
-                                                    <td>{application.applicationDate}</td>
-                                                    <td>{application.lastUpdatedDate}</td>
+                                                    <td>{formatDate(application.applicationDate)}</td>
+                                                    <td>{formatDate(application.lastUpdatedDate)}</td>
                                                     <td>{application.status}</td>
                                                 </tr>
                                             );
@@ -115,9 +141,11 @@ const UserDashboard = () => {
                         <div className="d-card">
                             <div className="d-card-header">
                                 <h2>User Information</h2>
-                                <Link className="card-header-link" to="/edituser/">
-                                    Edit
-                                </Link>
+                                <button 
+                                    type="button" 
+                                    className="card-header-link"
+                                    onClick={() => {handleOpenEditModal()}}
+                                >Edit</button>
                             </div>
                             <div className="d-card-body">
                                 <dl className="desc-list">
@@ -164,7 +192,7 @@ const UserDashboard = () => {
                                                     <p className="news-list-header">{update.subject}</p>
                                                     <p>{update.content}</p>
                                                 </div>
-                                                <p>{update.postedDate}</p>
+                                                <p>{formatDate(update.postedDate)}</p>
                                             </li>
                                         );
                                     })}
@@ -172,50 +200,16 @@ const UserDashboard = () => {
                             </div>
                         </div>
 
-                        {/* CHAT CARD 
-                        <div className="d-card">
-                            <div className="d-card-header">
-                                <h2>Chat (pending...)</h2>
-                                <Link className="card-header-link" to="/chat/">View All</Link>
-                            </div>
-                            <div className="d-card-body">
-                                <ul className="chat-list">
-                                    <li>
-                                        <p className="chat-list-header">Chat Poster Name</p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                    </li>
-                                    <li>
-                                        <p className="chat-list-header">Chat Poster Name</p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                    </li>
-                                    <li>
-                                        <p className="chat-list-header">Chat Poster Name</p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                    </li>
-                                    <li>
-                                        <p className="chat-list-header">Chat Poster Name</p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                    </li>
-                                    <li>
-                                        <p className="chat-list-header">Chat Poster Name</p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                    </li>
-                                    <li>
-                                        <p className="chat-list-header">Chat Poster Name</p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                    </li>
-                                    <li>
-                                        <p className="chat-list-header">Chat Poster Name</p>
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        */}
-
                     </div>
                 </div>
             </div>
+            {showEditUser && (
+                <EditUser
+                    isOpen={showEditUser}
+                    handleClose={handleCloseModal}
+                    user={user}
+                />
+            )}
         </main>
     );
 }

@@ -34,6 +34,16 @@ function ApplicationList(props) {
     // Mutation to remove an application
     const [removeApplication] = useMutation(queries.REMOVE_APPLICATION);
 
+    const addButton = () => {
+        if(userRole === "STUDENT"){
+            return(
+                <Link className="nav-link" to="/application/add">
+                    <button className="btn btn-success ms-2">Add</button>
+                </Link>
+            );
+        }
+    }
+
     const handleDelete = async () => {
         if(!selectedApplication?._id) return;
         const confirmDeletion = window.confirm(
@@ -79,7 +89,7 @@ function ApplicationList(props) {
                                         <div className="d-flex">
                                             <Link
                                                 className="nav-link"
-                                                to={"/application/details/" + selectedApplication?._id}
+                                                to={"/application/" + selectedApplication?._id}
                                             >
                                                 <button className="btn btn-info ms-2">Details</button>
                                             </Link>
@@ -100,9 +110,7 @@ function ApplicationList(props) {
                                             </button>
                                         </div>
                                     )}
-                                    <Link className="nav-link" to="/application/add">
-                                        <button className="btn btn-success ms-2">Add</button>
-                                    </Link>
+                                    {addButton}
                                 </div>
                             </div>
                         </div>
