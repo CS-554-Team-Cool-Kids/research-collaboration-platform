@@ -120,7 +120,7 @@ export const resolvers = {
       const allProjects = await projects.find({}).toArray();
 
       //If no projects, throw GraphQLError
-      if (allProjects.length === 0) {
+      if (!allProjects || !Array) {
         throw new GraphQLError("Internal Server Error", {
           //INTERNAL_SERVER_ERROR = status code 500
           extensions: { code: "INTERNAL_SERVER_ERROR" },
@@ -1775,9 +1775,47 @@ export const resolvers = {
 
         //TO DO: Update how passwords are reset
         //password update
-        if (args.password) {
+        /*if (args.password) {
           helpers.checkArg(args.password, "string", "password");
           updateFields.password = await bcrypt.hash(args.password.trim(), 10);
+        }*/
+
+       // Password update
+        if (args.password) {
+          
+          try {
+            
+            // First: make sure the user is defined in the firebase
+            const firebaseUser = await admin.auth().getUserByEmail(userToUpdate.email);
+
+            // Update the password in Firebase if the user exists
+            await admin.auth().updateUser(firebaseUser.uid, {
+              password: args.password.trim(),
+            });
+          
+          } catch (error) {
+            
+            // First, specify if the firebase is not showing the user. This is happening more often, so I'm seperating it from the other errors that are possible.
+            if (error.code === 'auth/user-not-found') {
+              throw new GraphQLError(
+                "The user does not exist in Firebase Authentication. Password update failed.",
+                {
+                  extensions: { code: "BAD_USER_INPUT", cause: error.message },
+                }
+              );
+            }
+
+            // Second, throw for other errors.
+            throw new GraphQLError(
+              "Failed to update the user's password in Firebase Authentication.",
+              {
+                extensions: {
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: error.message,
+                },
+              }
+            );
+          }
         }
 
         //role update
@@ -1817,7 +1855,7 @@ export const resolvers = {
           helpers.checkArg(args.projectEditId, "string", "id");
 
           const updatedProjectId = new ObjectId(args.projectEditId);
-          
+          /*
           //Pull the updated project
           const updatedProject = await getProjectById(args.projectEditId);
 
@@ -1825,8 +1863,16 @@ export const resolvers = {
             throw new GraphQLError("Project with the given ID does not exist.", {
               extensions: { code: "BAD_USER_INPUT" },
             });
-          }
+          }*/
+          const projects = await projectCollection();
+          const updatedProject = await projects.findOne({ _id: updatedProjectId });
           
+          if (!updatedProject) {
+            throw new GraphQLError("Project with the given ID does not exist.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+
           // Replace the old project with the updated version
           const updatedProjectArray = (userToUpdate.projects || []).map((project) => {
             // Check if the current project matches the projectEditId
@@ -1859,8 +1905,11 @@ export const resolvers = {
         
           const updatedApplicationId = new ObjectId(args.applicationEditId);
         
-          const updatedApplication = await getApplicationById(args.applicationEditId);
+          /*const updatedApplication = await getApplicationById(args.applicationEditId);*/
         
+          const applications = await applicationCollection();
+        const updatedApplication = await applications.findOne({ _id: updatedApplicationId });
+
           if (!updatedApplication) {
             throw new GraphQLError("Application with the given ID does not exist.", {
               extensions: { code: "BAD_USER_INPUT" },
@@ -2182,8 +2231,7 @@ export const resolvers = {
         "professorIds",
         "studentIds",
         "createdYear",
-        "applicationRemovalId",
-        "applicationEditId",
+        "applicationIds",
       ];
 
       for (let key in args) {
@@ -2240,66 +2288,68 @@ export const resolvers = {
         if (args.professorIds) {
           helpers.checkArg(args.professorIds, "array", "professorIds");
           updateFields.professors = [];
+          const users = await userCollection();
+
           for (const id of args.professorIds) {
+
             helpers.checkArg(id, "string", "id");
-            let newProfessor = getUserById(id);
+
+            //let newProfessor = await getUserById(id);
+            let newProfessor = await users.findOne({ _id: new ObjectId(id)});
+
             if (newProfessor) {
               updateFields.professors.push(newProfessor);
             }
+
           }
         }
 
         if (args.studentIds) {
           helpers.checkArg(args.studentIds, "array", "studentIds");
           updateFields.students = [];
+          const users = await userCollection();
+
           for (const id of args.studentIds) {
             helpers.checkArg(id, "string", "id");
-            let newStudent = getUserById(id);
+            //let newStudent = getUserById(id);
+            let newStudent = await users.findOne({ _id: new ObjectId(id)});
+
             if (newStudent) {
               updateFields.students.push(newStudent);
             }
           }
         }
 
-        //Application Removal Id
-        if (args.applicationRemovalId) {
-          helpers.checkArg(args.applicationRemovalId, "string", "id");
-          const newApplicationArray = (
-            projectToUpdate.applications || []
-          ).filter(
-            (application) =>
-              !application._id.equals(new ObjectId(args.applicationRemovalId))
-          );
-          updateFields.applications = newApplicationArray;
-        }
-
-        //Applications Edit Id
-        if (args.applicationEditId) {
-
-          helpers.checkArg(args.applicationEditId, "string", "id");
-
-          const updatedApplicationId = new ObjectId(args.applicationEditId);
-
-          const updatedApplication = await getApplicationById(args.applicationEditId);
-
-          if (!updatedApplication) {
-            throw new GraphQLError("Application with the given ID does not exist.", {
-              extensions: { code: "BAD_USER_INPUT" },
-            });
+        //Applications
+        //Now modeled after how professors and students arrays are edited.
+        if (args.applicationIds) {
+          
+          helpers.checkArg(args.applicationIds, "array", "applicationIds");
+          
+          updateFields.applications = [];
+          
+          const applications = await applicationCollection();
+        
+          for (const id of args.applicationIds) {
+            
+            helpers.checkArg(id, "string", "id");
+        
+            const application = await applications.findOne({ _id: new ObjectId(id) });
+        
+            if (!application) {
+              console.warn(`Application with ID ${id} does not exist. Skipping.`);
+              continue; // Skip this invalid application ID
+            }
+        
+            // Add the valid application to the updated applications array
+            updateFields.applications.push(application);
           }
 
-          const updatedApplicationArray = (projectToUpdate.applications || []).map(
-            (application) => {
-              if (application._id.equals(updatedApplicationId)) {
-                return updatedApplication;
-              }
-              return application;
-            }
-          );
-
-          updateFields.applications = updatedApplicationArray;
-          
         }
+
+        console.log("Update fields:", updateFields);
+        console.log("Updating project with ID:", projectToUpdate._id);
+        console.log("Project to update:", projectToUpdate);
 
         //Use updateOne, matching the _id to the args._id. Note: the ID cannot be updated
         // $set: updates specific fields of a document without overwriting the entire document
@@ -2324,7 +2374,13 @@ export const resolvers = {
         });
 
         // Fetch the updated project data after successful update
-        const updatedProject = { ...projectToUpdate, ...updateFields };
+        //const updatedProject = { ...projectToUpdate, ...updateFields };
+        const updatedProject = await projects.findOne({ _id: projectToUpdate._id });
+        if (!updatedProject) {
+          throw new GraphQLError("Failed to fetch updated project data after update.", {
+            extensions: { code: "INTERNAL_SERVER_ERROR" },
+          });
+        }
 
         //Try/catch for redis
         try {
@@ -2671,8 +2727,12 @@ export const resolvers = {
         
           const updatedCommentId = new ObjectId(args.commentEditId);
         
-          const updatedComment = await getCommentById(args.commentEditId);
-        
+         //const updatedComment = await getCommentById(args.commentEditId);
+
+          // Replace the call to getCommentById with a direct MongoDB query
+          const comments = await commentCollection();
+          const updatedComment = await comments.findOne({ _id: updatedCommentId });
+                
           if (!updatedComment) {
             throw new GraphQLError("Comment with the given ID does not exist.", {
               extensions: { code: "BAD_USER_INPUT" },
@@ -2924,6 +2984,11 @@ export const resolvers = {
     },
 
     editApplication: async (_, args) => {
+
+      console.log("editApplication called with args:", args); 
+
+      helpers.checkArg(args._id, "string", "id");
+
       // Check if required fields are present
       if (!args._id) {
         throw new GraphQLError("The _id field is required.", {
@@ -2931,6 +2996,8 @@ export const resolvers = {
           extensions: { code: "BAD_USER_INPUT" },
         });
       }
+
+      console.log("Validating allowed fields..."); // Log before field validation
 
       // Check for extra fields
       const fieldsAllowed = [
@@ -2952,16 +3019,19 @@ export const resolvers = {
       }
 
       //Pull applications collection
+      console.log("Fetching application collection...");
       const applications = await applicationCollection();
 
       //Use findOne to pull the application in question, using the args._id as the _id to match
       //Use applicationToUpdate as the local object to place the edited values to
+      console.log(`Looking for application with ID: ${args._id}`);
       let applicationToUpdate = await applications.findOne({
         _id: new ObjectId(args._id),
       });
 
       //If an applicaiton cannot be pulled from the collection, throw an GraphQLError
       if (!applicationToUpdate) {
+        console.error("Application not found:", args._id);
         throw new GraphQLError(
           "The application ID provided by the user was not valid.",
           {
@@ -2973,9 +3043,9 @@ export const resolvers = {
 
       //Checks and updates to appliciationToUpdate
 
-      helpers.checkArg(args._id, "string", "id");
-
       if (args.applicantId) {
+        console.log(`Updating applicant with ID: ${args.applicantId}`);
+        
         helpers.checkArg(args.applicantId, "string", "id");
 
         //Pull users collection
@@ -2988,6 +3058,7 @@ export const resolvers = {
 
         //If user not found, throw a GraphQLError
         if (!pulledUser) {
+          console.error("Applicant not found:", args.applicantId);
           throw new GraphQLError(
             "A user could not be found with the applicantId provided.",
             {
@@ -2996,6 +3067,8 @@ export const resolvers = {
             }
           );
         }
+
+        console.log("Applicant found:", pulledUser);
 
         //If the user exists, set the applicantId to the args.applicantId
         applicationToUpdate.applicant = pulledUser;
@@ -3028,7 +3101,7 @@ export const resolvers = {
       }
 
       if (args.status) {
-        helpers.checkArg(args.status, "string", "status");
+        helpers.checkArg(args.status, "string", "applicationStatus");
         applicationToUpdate.status = args.status;
       }
 
@@ -3047,8 +3120,11 @@ export const resolvers = {
       
         const updatedCommentId = new ObjectId(args.commentEditId);
       
-        const updatedComment = await getCommentById(args.commentEditId);
-      
+        //const updatedComment = await getCommentById(args.commentEditId);
+         // Replace the call to getCommentById with a direct MongoDB query
+        const comments = await commentCollection();
+        const updatedComment = await comments.findOne({ _id: updatedCommentId });
+            
         if (!updatedComment) {
           throw new GraphQLError("Comment with the given ID does not exist.", {
             extensions: { code: "BAD_USER_INPUT" },
@@ -3333,9 +3409,28 @@ export const resolvers = {
       if (args.content) {
         updateFields.content = args.content.trim();
       }
+
       if (args.commenterId) {
-        let commenter = await getUserById(args.commenterId);
+
+        const users = await userCollection();
+        const commenter = await users.findOne({ _id: new ObjectId(args.commenterId) });
+
+        if (!commenter) {
+          throw new GraphQLError(
+            `User with ID ${args.commenterId} does not exist.`,
+            {
+              extensions: { code: "BAD_USER_INPUT" },
+            }
+          );
+        }
+      
         updateFields.commenter = commenter;
+
+      }
+
+      if (Object.keys(updateFields).length === 0) {
+        console.log(`No changes detected for the comment with ID ${args._id}. Skipping update.`);
+        return commentToUpdate; // Return the original comment if nothing changes
       }
 
       //Update the comments in the mongodb. Use $set, which will not affect unupdated values
@@ -3344,25 +3439,19 @@ export const resolvers = {
         { $set: updateFields }
       );
 
-      if (result.modifiedCount === 0) {
-        throw new GraphQLError(
-          `Failed to update the update with ID ${args._id}.`,
-          {
-            extensions: { code: "INTERNAL_SERVER_ERROR" },
-          }
-        );
-      }
-
       //Propagate this removal across all objects with comment objects
       await propagators.propagateCommentEditChanges(args._id, {
         ...commentToUpdate,
         ...updateFields,
       });
 
+      const updatedComment = { ...commentToUpdate, ...updateFields };
+
+
       try {
+        
         //Update the individual comment cache
         const cacheKey = `comment:${commentToUpdate._id}`;
-        const updatedComment = { ...commentToUpdate, ...updateFields };
         await redisClient.set(cacheKey, JSON.stringify(updatedComment));
 
         //Delete the comments cache, as this is now out of date.'

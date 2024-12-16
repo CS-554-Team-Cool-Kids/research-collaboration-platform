@@ -667,7 +667,7 @@ export async function propagateApplicationRemovalChanges(applicationId) {
 
 
 //HELPER FUNCTION: propagateApplicationEditChanges
-//Propagate application removal updates across related entities: projects, users
+//Propagate application edit updates across related entities: projects, users
 export async function propagateApplicationEditChanges(
   applicationId,
   updatedApplicationData

@@ -489,6 +489,14 @@ footer {
 .d-card-body {
   padding: 1em;
 }
+.card-header-link{
+  text-decoration:underline;
+}
+.card-header-link:hover,
+.card-header-link:active,
+.card-header-link:focus{
+  text-decoration:none;
+}
 
 /* User Info Styles */
 .desc-list div {
@@ -497,6 +505,8 @@ footer {
 }
 .desc-list div dt {
   padding-right: 0.5em;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight:900;
 }
 
 /* Newsfeed Styles */
@@ -561,6 +571,24 @@ footer {
   text-overflow: ellipsis;
   margin-bottom: 0;
   font-weight: 300;
+}
+
+.dashboard .d-table{
+  border-collapse: collapse;
+  width:100%;
+}
+.dashboard .d-table th{
+  border-bottom:1px solid var(--purple1);
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight:900;
+}
+.dashboard .d-table th,
+.dashboard .d-table td{
+  text-align:left;
+  padding:4px;
+}
+.dashboard .d-table tr:nth-child(even){
+  background-color:rgba(128, 128, 128, 0.2);
 }
 
 @media (min-width: 768px) {
