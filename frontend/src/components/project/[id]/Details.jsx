@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import ActionBar from "../../common/ActionBar_2";
+import { useParams } from "react-router-dom";
+import ActionBar from "./ActionBar_2";
 import "../../../assets/css/sidebar.css";
 
-const ProjectList = (props) => {
+const ProjectDetails = () => {
+  const { id: projectId } = useParams(); // Extract projectId from the URL
   return (
     <main className="dashboard">
-      <ActionBar />
+      <ActionBar projectId={projectId} />
       <div className="container-fluid my-3">
         <div className="d-card glassEffect">
-          <div className="d-card-header">Head</div>
-          <div className="d-card-body">Body</div>
+          <div className="d-card-header">Home</div>
+          <div className="d-card-body"></div>
         </div>
       </div>
     </main>
   );
 };
 
-export default ProjectList;
+export default ProjectDetails;

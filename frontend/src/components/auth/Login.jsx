@@ -106,7 +106,7 @@ const Login = () => {
           </div>
         </form>
         <div className="mt-2">
-          <a href="#">Forgot Password?</a>
+          <a href="/auth/resetpasswordrequest">Forgot Password?</a>
         </div>
       </div>
     </div>
