@@ -1,1810 +1,1162 @@
-/* NOTES
-
-parentValue - References the type def that called it
-    so for example when we execute numOfEmployees we can reference
-    the parent's properties with the parentValue Paramater
-
-args - Used for passing any arguments in from the client
-    for example, when we call 
-    addEmployee(firstName: String!, lastName: String!, employerId: Int!): Employee
-		
-*/
-
 //IMPORT STATEMENTS
 
-//GraphQLError: Used for handling GraphQL-specific errors
-import { GraphQLError } from "graphql";
-import admin from "firebase-admin";
+  //GraphQLError: Used for handling GraphQL-specific errors
+  import { GraphQLError } from "graphql";
+  import admin from "firebase-admin";
 
-//MongoDB: collections for users, projects, updates, and applications
-import {
-  users as userCollection,
-  projects as projectCollection,
-  updates as updateCollection,
-  applications as applicationCollection,
-  comments as commentCollection
-} from "../config/mongoCollections.js";
+  //MongoDB: collections for users, projects, updates, and applications
+  import {
+    users as userCollection,
+    projects as projectCollection,
+    updates as updateCollection,
+    applications as applicationCollection,
+    comments as commentCollection
+  } from "../config/mongoCollections.js";
 
-//ObjectId: MongoDB's unique IDs
-import { ObjectId } from "mongodb";
+  //ObjectId: MongoDB's unique IDs
+  import { ObjectId } from "mongodb";
 
-//Redis: import and initialize to handle client
-import { createClient } from "redis";
-const redisClient = createClient();
+  //Redis: import and initialize to handle client
+  import { createClient } from "redis";
+  
+  //Helpers (Validators)
+  import * as helpers from "./helpers.js";
 
-//Catch any Redis client errors and log them for debugging
-redisClient.on("error", (err) => console.error("Redis Client Error", err));
+//REDIS CLIENT SET UP
 
-// Connect to Redis, and confirm if connection is good or something went wrong.
-(async () => {
-  try {
-    await redisClient.connect();
-    console.log("Connected to Redis");
-  } catch (error) {
-    console.error("Failed to connect to Redis:", error);
-  }
-})();
+  const redisClient = createClient();
 
-//Helpers
-import * as helpers from "./helpers.js";
-//import * as propagators from "./propagationHelpers.js";
+  //Catch any Redis client errors and log them for debugging
+  redisClient.on("error", (err) => console.error("Redis Client Error", err));
+
+  // Connect to Redis, and confirm if connection is good or something went wrong.
+  (async () => {
+    try {
+      await redisClient.connect();
+      console.log("Connected to Redis");
+    } catch (error) {
+      console.error("Failed to connect to Redis:", error);
+    }
+  })();
 
 //RESOLVERS
 export const resolvers = {
+
   //QUERIES
   Query: {
 
-    //FETCH ALL
-
-    //Query: users: [User]
+    //QUERY: users: [User]
     //Purpose: Fetch all users from MongoDB
     //Cache: Cached by list of users in Redis for one hour
-    //REQUIRES CHANGE: NO
 
-    users: async () => {
-      //Cache key constructor and check
-      const cacheKey = "users";
-      const cachedUsers = await redisClient.get(cacheKey);
+      users: async () => {
+        
+        //Cache key constructor and check
+        const cacheKey = "users";
+        const cachedUsers = await redisClient.get(cacheKey);
 
-      //If users are cached, return the parsed JSON (JSON string to object)
-      if (cachedUsers) {
-        console.log("Returning users from cache.");
-        return JSON.parse(cachedUsers);
-      }
+        //If users are cached, return the parsed JSON (JSON string to object)
+        if (cachedUsers) {
+          console.log("Returning users from cache.");
+          return JSON.parse(cachedUsers);
+        }
 
-      //If not cached, pull userCollection and the find all [find({})] users
-      const users = await userCollection();
-      const allUsers = await users.find({}).toArray();
+        //If not cached, pull userCollection and the find all [find({})] users
+        const users = await userCollection();
+        const allUsers = await users.find({}).toArray();
 
-      //If no users, throw GraphQLError
-      if (allUsers.length === 0) {
-        console.log("No users found in the database.");
-        return [];
-      }
+        //If no users, throw GraphQLError
+        if (allUsers.length === 0) {
+          console.log("No users found in the database.");
+          return [];
+        }
 
-      //Cache pulled users, set to cachekey
-      //Expiration: 1 hour (60 x 60 = 3600 seconds)
-      await redisClient.set(cacheKey, JSON.stringify(allUsers), { EX: 3600 });
-      console.log("Users have been fetched from database and are now cached.");
+        //Cache pulled users, set to cachekey
+        //Expiration: 1 hour (60 x 60 = 3600 seconds)
+        await redisClient.set(cacheKey, JSON.stringify(allUsers), { EX: 3600 });
+        console.log("Users have been fetched from database and are now cached.");
 
-      //Return allUsers
-      return allUsers;
-    },
+        //Return allUsers
+        return allUsers;
+      },
 
-    //projects: [Project]
+    //QUERY: projects: [Project]
     //Purpose: Fetch all projects from MongoDB
     //Cache: Cached by list of projects in Redis for one hour
 
-    projects: async () => {
-      //Cache key constructor and check
-      const cacheKey = "projects";
-      const cachedProjects = await redisClient.get(cacheKey);
+      projects: async () => {
+        //Cache key constructor and check
+        const cacheKey = "projects";
+        const cachedProjects = await redisClient.get(cacheKey);
 
-      //If projects are cached, return the parsed JSON (JSON string to object)
-      if (cachedProjects) {
-        console.log("Returning projects from cache.");
-        return JSON.parse(cachedProjects);
-      }
+        //If projects are cached, return the parsed JSON (JSON string to object)
+        if (cachedProjects) {
+          console.log("Returning projects from cache.");
+          return JSON.parse(cachedProjects);
+        }
 
-      //If not cached, pull projectCollection and the find all [find({})] projects
-      const projects = await projectCollection();
-      const allProjects = await projects.find({}).toArray();
+        //If not cached, pull projectCollection and the find all [find({})] projects
+        const projects = await projectCollection();
+        const allProjects = await projects.find({}).toArray();
 
-      //If no projects, throw GraphQLError
-      if (allProjects.length === 0) {
-        console.log("No projects found in the database.");
-        return [];
-      }
+        //If no projects, throw GraphQLError
+        if (allProjects.length === 0) {
+          console.log("No projects found in the database.");
+          return [];
+        }
 
-      //Cache pulled projects, set to cachekey
-      //Expiration: 1 hour (60 x 60 = 3600 seconds)
-      await redisClient.set(cacheKey, JSON.stringify(allProjects), {
-        EX: 3600,
-      });
-      console.log(
-        "Projects have been fetched from database and are now cached."
-      );
+        //Cache pulled projects, set to cachekey
+        //Expiration: 1 hour (60 x 60 = 3600 seconds)
+        await redisClient.set(cacheKey, JSON.stringify(allProjects), {
+          EX: 3600,
+        });
+        console.log(
+          "Projects have been fetched from database and are now cached."
+        );
 
-      //Return
-      return allProjects;
-    },
+        //Return
+        return allProjects;
+      },
 
-    //updates: [Update]
+    //QUERY: updates: [Update]
     //Purpose: Fetch all updates from MongoDB
     //Cache: Cached by list of updates in Redis for one hour
 
-    /*updates: async () => {
-      //Cache key constructor and check
-      const cacheKey = "updates";
-      const cachedUpdates = await redisClient.get(cacheKey);
+      updates: async () => {
 
-      //If projects are updates, return the parsed JSON (JSON string to object)
-      if (cachedUpdates) {
-        console.log("Returning updates from cache.");
-        const parsedUpdates = JSON.parse(cachedUpdates);
-
-        // Filter out invalid comments for each update
-        // A comment is valid if:
-        // 1. It exists (not null or undefined).
-        // 2. It has a unique '_id'.
-        // 3. It has a 'commenter' object with its own '_id'.
-        parsedUpdates.forEach(update => {
-          if (update.comments) {
-            update.comments = update.comments.filter(comment => {
-              return comment && comment._id && comment.commenter && comment.commenter._id;
-            });
-          }
-        });
-
-        return parsedUpdates;
-
-      const updates = await updateCollection();
-      const allUpdates = await updates.find({}).toArray();
-
-      //If no updates, throw GraphQLError
-      if (allUpdates.length === 0) {
-        throw new GraphQLError("Internal Server Error", {
-          //INTERNAL_SERVER_ERROR = status code 500
-          extensions: { code: "INTERNAL_SERVER_ERROR" },
-        });
-      }
-
-      // Filter out null comments for each update
-      allUpdates.forEach(update => {
-        if (update.comments) {
-          update.comments = update.comments.filter(comment => {
-            return comment && comment._id && comment.commenter && comment.commenter._id;
-          });
+        // Cache key constructor and check
+        const cacheKey = "updates";
+        const cachedUpdates = await redisClient.get(cacheKey);
+      
+        // If updates are cached, return the parsed JSON (JSON string to object)
+        if (cachedUpdates) {
+          console.log("Returning updates from cache.");
+          return JSON.parse(cachedUpdates);
         }
-      });
+      
+        // Pull updates collection from MongoDB
+        const updates = await updateCollection();
+      
+        // Find all updates from the database
+        const allUpdates = await updates.find({}).toArray();
+      
+        // If no updates are found, throw an error
+        if (allUpdates.length === 0) {
+          console.log("No updates found in the database.");
+          return [];
+        }
+      
+        // Cache updates for 1 hour
+        await redisClient.set(cacheKey, JSON.stringify(allUpdates), { EX: 3600 });
+        console.log("Updates have been fetched from the database and are now cached.");
+      
+        // Return all updates
+        return allUpdates;
 
-      //Cache pulled updates, set to cachekey
-      //Expiration: 1 hour (60 x 60 = 3600 seconds)
-      await redisClient.set(cacheKey, JSON.stringify(allUpdates), { EX: 3600 });
-      console.log(
-        "Updates have been fetched from database and are now cached."
-      );
+      },
 
-      //Return updates
-      return allUpdates;
-    },*/
-
-    updates: async () => {
-      // Cache key constructor and check
-      const cacheKey = "updates";
-      const cachedUpdates = await redisClient.get(cacheKey);
-    
-      // If updates are cached, return the parsed JSON (JSON string to object)
-      if (cachedUpdates) {
-        console.log("Returning updates from cache.");
-        return JSON.parse(cachedUpdates);
-      }
-    
-      // Pull updates collection from MongoDB
-      const updates = await updateCollection();
-    
-      // Find all updates from the database
-      const allUpdates = await updates.find({}).toArray();
-    
-      // If no updates are found, throw an error
-      if (allUpdates.length === 0) {
-        console.log("No updates found in the database.");
-        return [];
-      }
-    
-      // Cache updates for 1 hour
-      await redisClient.set(cacheKey, JSON.stringify(allUpdates), { EX: 3600 });
-      console.log("Updates have been fetched from the database and are now cached.");
-    
-      // Return all updates
-      return allUpdates;
-    },
-
-    //applications: [Application]
+    //QUERY: applications: [Application]
     //Purpose: Fetch all applications from MongoDB
     //Cache: Cached by list of applications in Redis for one hour
 
-    /*applications: async () => {
-      //Cache key constructor and check
-      const cacheKey = "applications";
-      const cachedApplications = await redisClient.get(cacheKey);
+      applications: async () => {
 
-      //If projects are applications, return the parsed JSON (JSON string to object)
-      if (cachedApplications) {
-        console.log("Returning applications from cache.");
-        return JSON.parse(cachedApplications);
-      }
-
-      const applications = await applicationCollection();
-      const allApplications = await applications.find({}).toArray();
-
-      //If no updates, throw GraphQLError
-      // if (allApplications.length === 0) {
-      //   throw new GraphQLError("Internal Server Error", {
-      //     //INTERNAL_SERVER_ERROR = status code 500
-      //     extensions: { code: "INTERNAL_SERVER_ERROR" },
-      //   });
-      // }
-
-      // Filter out null comments for each application
-      allApplications.forEach(application => {
-        if (application.comments) {
-          application.comments = application.comments.filter(comment => {
-            return comment && comment._id && comment.commenter && comment.commenter._id;
-          });
+        // Cache key constructor and check
+        const cacheKey = "applications";
+        const cachedApplications = await redisClient.get(cacheKey);
+      
+        // If applications are cached, return the parsed JSON (JSON string to object)
+        if (cachedApplications) {
+          console.log("Returning applications from cache.");
+          return JSON.parse(cachedApplications);
         }
-      });
-
-      //Cache pulled applications, set to cachekey
-      //Expiration: 1 hour (60 x 60 = 3600 seconds)
-      await redisClient.set(cacheKey, JSON.stringify(allApplications), {
-        EX: 3600,
-      });
-      console.log(
-        "Applications have been fetched from database and are now cached."
-      );
-
-      //Return applications
-      return allApplications || [];
-    },*/
-
-    applications: async () => {
-      // Cache key constructor and check
-      const cacheKey = "applications";
-      const cachedApplications = await redisClient.get(cacheKey);
-    
-      // If applications are cached, return the parsed JSON (JSON string to object)
-      if (cachedApplications) {
-        console.log("Returning applications from cache.");
-        return JSON.parse(cachedApplications);
-      }
-    
-      // Pull applications collection from MongoDB
-      const applications = await applicationCollection();
-    
-      // Fetch all applications from the database
-      const allApplications = await applications.find({}).toArray();
-    
-      // If no applications are found, throw an error
-      if (allApplications.length === 0) {
-        console.log("No applications found in the database.");
-        return [];
-      }
-    
-      // Cache applications for 1 hour
-      await redisClient.set(cacheKey, JSON.stringify(allApplications), {
-        EX: 3600,
-      });
-    
-      console.log("Applications have been fetched from the database and are now cached.");
-    
-      // Return all applications
-      return allApplications;
-    },
+      
+        // Pull applications collection from MongoDB
+        const applications = await applicationCollection();
+      
+        // Fetch all applications from the database
+        const allApplications = await applications.find({}).toArray();
+      
+        // If no applications are found, throw an error
+        if (allApplications.length === 0) {
+          console.log("No applications found in the database.");
+          return [];
+        }
+      
+        // Cache applications for 1 hour
+        await redisClient.set(cacheKey, JSON.stringify(allApplications), {
+          EX: 3600,
+        });
+      
+        console.log("Applications have been fetched from the database and are now cached.");
+      
+        // Return all applications
+        return allApplications;
+      },
     
 
-    //Query: comments: [Comment]
+    //QUERY: comments: [Comment]
     //Purpose: Fetch all comments from MongoDB
     //Cache: Cached by list of comments in Redis for one hour
 
-    /*comments: async () => {
-      //Cache key constructor and check
-      const cacheKey = "comments";
-      const cachedComments = await redisClient.get(cacheKey);
+      comments: async () => {
 
-      //If comments are cached, return the parsed JSON (JSON string to object)
-      if (cachedComments) {
-        console.log("Returning comments from cache.");
-        const parsedComments = JSON.parse(cachedComments);
-
-        // Filter out comments associated with non-existent updates
-        const updates = await updateCollection();
-        // Use distinct to create an array of all unique update IDs
-        const validUpdateIds = await updates.distinct("_id");
-
-        const applications = await applicationCollection();
-        const validApplicationIds = await applications.distinct("_id");
-
-        // Filter out invalid comments
-        const filteredComments = parsedComments.filter(comment => {
-          
-          if (comment.commentDestination === "UPDATE") {
-            // Verify that the update associated with this comment exists in the list of valid update IDs
-            //So if some of the valid update ids have the comment's destintation id, return true
-            return validUpdateIds.some(id => id.equals(new ObjectId(comment.destinationId)));
-          }
-
-          if (comment.commentDestination === "APPLICATION") {
-            return validApplicationIds.some(id => id.equals(new ObjectId(comment.destinationId)));
-          }
-
-          //Returning true within the filter means that we want to keep this comment
-          return true; 
-
-        });
-
-        return filteredComments;
-
-      }
-
-      //If not cached, pull commentCollection and the find all [find({})] users
-      const comments = await commentCollection();
-      const allComments = await comments.find({}).toArray();
-
-      //If no comments, throw GraphQLError
-      if (allComments.length === 0) {
-        throw new GraphQLError(
-          "Comments not able to be pulled from database.",
-          {
-            //INTERNAL_SERVER_ERROR = status code 500
-            extensions: { code: "INTERNAL_SERVER_ERROR" },
-          }
-        );
-      }
-
-      //Repeat the filtering of invalid updates related comments like in the cache
-      const updates = await updateCollection();
-      const validUpdateIds = await updates.distinct("_id");
-
-      const applications = await applicationCollection();
-      const validApplicationIds = await applications.distinct("_id");
-
-      // Filter out invalid comments
-      const filteredComments = allComments.filter(comment => {
-        if (comment.commentDestination === "UPDATE") {
-          return validUpdateIds.some(id => id.equals(new ObjectId(comment.destinationId)));
+        // Cache key constructor and check
+        const cacheKey = "comments";
+        const cachedComments = await redisClient.get(cacheKey);
+      
+        // If comments are cached, return the parsed JSON (JSON string to object)
+        if (cachedComments) {
+          console.log("Returning comments from cache.");
+          return JSON.parse(cachedComments);
         }
-        if (comment.commentDestination === "APPLICATION") {
-          return validApplicationIds.some(id => id.equals(new ObjectId(comment.destinationId)));
+      
+        // Pull the comments collection from MongoDB
+        const comments = await commentCollection();
+      
+        // Fetch all comments from the database
+        const allComments = await comments.find({}).toArray();
+      
+        // If no comments are found, throw an error
+        if (allComments.length === 0) {
+          console.log("No comments found in the database.");
+          return [];
         }
-        return true; 
-      });
+      
+        // Cache comments for 1 hour
+        await redisClient.set(cacheKey, JSON.stringify(allComments), { EX: 3600 });
+      
+        console.log("Comments have been fetched from the database and are now cached.");
+      
+        // Return all comments
+        return allComments;
 
-      //Cache pulled comments, set to cachekey
-      //Expiration: 1 hour (60 x 60 = 3600 seconds)
-      await redisClient.set(cacheKey, JSON.stringify(filteredComments), {
-        EX: 3600,
-      });
-      console.log(
-        "Comments have been fetched from database and are now cached."
-      );
+      },
 
-      //Return allComments
-      return filteredComments;
-    },*/
-
-    comments: async () => {
-      // Cache key constructor and check
-      const cacheKey = "comments";
-      const cachedComments = await redisClient.get(cacheKey);
-    
-      // If comments are cached, return the parsed JSON (JSON string to object)
-      if (cachedComments) {
-        console.log("Returning comments from cache.");
-        return JSON.parse(cachedComments);
-      }
-    
-      // Pull the comments collection from MongoDB
-      const comments = await commentCollection();
-    
-      // Fetch all comments from the database
-      const allComments = await comments.find({}).toArray();
-    
-      // If no comments are found, throw an error
-      if (allComments.length === 0) {
-        console.log("No comments found in the database.");
-        return [];
-      }
-    
-      // Cache comments for 1 hour
-      await redisClient.set(cacheKey, JSON.stringify(allComments), { EX: 3600 });
-    
-      console.log("Comments have been fetched from the database and are now cached.");
-    
-      // Return all comments
-      return allComments;
-    },
-    
-    //GET BY ID
-
-    //getUserById(_id: String!): User
+    //QUERY: getUserById(_id: String!): User
     //Purpose: Fetch an user by ID from MongoDB; check Redis cache first
     //Cache: Cached by user ID in Redis indefinitely
 
-    /*Notes
-            The two arguments in the resolver:
-                1. `_` (parent): Represents the parent object in the GraphQL resolver chain, ignored here as it is not used.
-                2. `args`: Contains the arguments passed to the resolver from the GraphQL query (e.g., args._id in this case).
-            */
+      getUserById: async (_, args) => {
 
-    getUserById: async (_, args) => {
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+        // Check if required fields are present
+        if (!args._id) {
+          throw new GraphQLError("The _id field is required.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
 
-      //Helpers: check objectId
-      helpers.checkArg(args._id, "string", "id");
+        // Check for extra fields
+        const fieldsAllowed = ["_id"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        }
 
-      //Cache key constructor and check
-      //Why use 'user:': ensures seperation between types with ids (users, projects, etc); clarity
-      const cacheKey = `user:${args._id}`;
-      const cachedUser = await redisClient.get(cacheKey);
+        //Helpers: check objectId
+        helpers.checkArg(args._id, "string", "id");
 
-      //If the cachedUser is cached, return the parsed JSON (JSON string to object)
-      if (cachedUser) {
-        console.log("Returning user from cache.");
-        return JSON.parse(cachedUser);
-      }
+        //Cache key constructor and check
+        //Why use 'user:': ensures seperation between types with ids (users, projects, etc); clarity
+        const cacheKey = `user:${args._id}`;
+        const cachedUser = await redisClient.get(cacheKey);
 
-      //If not cached, pull user collection and then findOne specific user
-      const users = await userCollection();
-      const user = await users.findOne({ _id: new ObjectId(args._id) });
+        //If the cachedUser is cached, return the parsed JSON (JSON string to object)
+        if (cachedUser) {
+          console.log("Returning user from cache.");
+          return JSON.parse(cachedUser);
+        }
 
-      //If no user, throw GraphQLError
-      if (!user) {
-        throw new GraphQLError("User not found in the database.", {
-          //Optional object: extra information. NOT_FOUND = status code 404
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
+        //If not cached, pull user collection and then findOne specific user
+        const users = await userCollection();
+        const user = await users.findOne({ _id: new ObjectId(args._id) });
 
-      //Set user into redis Cache; set to cacheKey
-      //No expiration on cache
-      await redisClient.set(cacheKey, JSON.stringify(user));
-      console.log("User has been fetched from database and is now cached.");
+        //If no user, throw GraphQLError
+        if (!user) {
+          throw new GraphQLError("User not found in the database.", {
+            //Optional object: extra information. NOT_FOUND = status code 404
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
 
-      //Return user
-      return user;
-    },
+        //Set user into redis Cache; set to cacheKey
+        //No expiration on cache
+        await redisClient.set(cacheKey, JSON.stringify(user));
+        console.log("User has been fetched from database and is now cached.");
 
-    //getProjectById(_id: String!): Project
+        //Return user
+        return user;
+      },
+
+    //QUERY: getProjectById(_id: String!): Project
     //Purpose: Fetch a project by ID from MongoDB; check Redis cache first
     //Cache: Cached by project ID in Redis indefinitely
 
-    getProjectById: async (_, args) => {
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+      getProjectById: async (_, args) => {
+        
+        // Check if required fields are present
+        if (!args._id) {
+          throw new GraphQLError("The _id field is required.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
 
-      //Helpers: check objectId
-      helpers.checkArg(args._id, "string", "id");
+        // Check for extra fields
+        const fieldsAllowed = ["_id"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        }
 
-      //Cache key constructor and check
-      //Why use 'project:': ensures seperation between types with ids; clarity
-      const cacheKey = `project:${args._id}`;
-      const cachedProject = await redisClient.get(cacheKey);
+        //Helpers: check objectId
+        helpers.checkArg(args._id, "string", "id");
 
-      //If the project is cached, return the parsed JSON (JSON string to object)
-      if (cachedProject) {
-        console.log("Returning project from cache.");
-        return JSON.parse(cachedProject);
-      }
+        //Cache key constructor and check
+        //Why use 'project:': ensures seperation between types with ids; clarity
+        const cacheKey = `project:${args._id}`;
+        const cachedProject = await redisClient.get(cacheKey);
 
-      //If not cached, pull project collection and then findOne specific project
-      const projects = await projectCollection();
-      const project = await projects.findOne({ _id: new ObjectId(args._id) });
+        //If the project is cached, return the parsed JSON (JSON string to object)
+        if (cachedProject) {
+          console.log("Returning project from cache.");
+          return JSON.parse(cachedProject);
+        }
 
-      //If no project, throw GraphQLError
+        //If not cached, pull project collection and then findOne specific project
+        const projects = await projectCollection();
+        const project = await projects.findOne({ _id: new ObjectId(args._id) });
 
-      if (!project) {
-        throw new GraphQLError("Project Not Found", {
-          //Optional object: extra information. NOT_FOUND = status code 404
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
+        //If no project, throw GraphQLError
 
-      //Set project into redis Cache; set to cacheKey
-      //No expiration on cache
-      await redisClient.set(cacheKey, JSON.stringify(project));
-      console.log("Project has been fetched from database and is now cached.");
+        if (!project) {
+          throw new GraphQLError("Project Not Found", {
+            //Optional object: extra information. NOT_FOUND = status code 404
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
 
-      //Return project
-      return project;
-    },
+        //Set project into redis Cache; set to cacheKey
+        //No expiration on cache
+        await redisClient.set(cacheKey, JSON.stringify(project));
+        console.log("Project has been fetched from database and is now cached.");
 
-    //getUpdateById(_id: String!): Update
+        //Return project
+        return project;
+
+      },
+
+    //QUERY: getUpdateById(_id: String!): Update
     //Purpose: Fetch a update by ID from MongoDB; check Redis cache first
     //Cache: Cached by update ID in Redis indefinitely
 
-    /*getUpdateById: async (_, args) => {
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          //404
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
+      getUpdateById: async (_, args) => {
 
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            //404
+        // Check if required fields are present
+        if (!args._id) {
+          throw new GraphQLError("The _id field is required.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
-
-      //Helpers: check objectId
-      helpers.checkArg(args._id, "string", "id");
-
-      //Cache key constructor and check
-      //Why use 'update:': ensures seperation between types with ids ; clarity
-      const cacheKey = `update:${args._id}`;
-      const cachedUpdate = await redisClient.get(cacheKey);
-
-      //If the update is cached, return the parsed JSON (JSON string to object)
-      if (cachedUpdate) {
-        const parsedUpdate = JSON.parse(cachedUpdate);
-        // Null check for comments to ensure no invalid data
-        if (parsedUpdate.comments) {
-          parsedUpdate.comments = parsedUpdate.comments.filter(comment => {
-            return comment && comment._id && comment.commenter && comment.commenter._id;
-          });
+      
+        // Check for extra fields
+        const fieldsAllowed = ["_id"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
         }
-        return parsedUpdate;
-      }
-
-      //If not cached, pull the update collection and then findOne based on update id
-      const updates = await updateCollection();
-      const update = await updates.findOne({ _id: new ObjectId(args._id) });
-
-      //If no update, throw GraphQLError
-      if (!update) {
-        throw new GraphQLError("Update Not Found", {
-          //Optional object: extra information. NOT_FOUND = status code 404
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Null check for comments to ensure no invalid data
-      if (update.comments) {
-        update.comments = update.comments.filter(comment => {
-          return comment && comment._id && comment.commenter && comment.commenter._id;
-        });
-      }
-
-      //Cache update indefinitely
-      await redisClient.set(cacheKey, JSON.stringify(update));
-      console.log("Update has been fetched from database and is now cached.");
-
-      //Return update
-      return update;
-    },*/
-
-    getUpdateById: async (_, args) => {
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-    
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+      
+        // Helpers: check ObjectId
+        helpers.checkArg(args._id, "string", "id");
+      
+        // Cache key constructor and check
+        const cacheKey = `update:${args._id}`;
+        const cachedUpdate = await redisClient.get(cacheKey);
+      
+        // If the update is cached, return the parsed JSON
+        if (cachedUpdate) {
+          console.log("Returning update from cache.");
+          return JSON.parse(cachedUpdate);
+        }
+      
+        // If not cached, pull the update collection and findOne based on update ID
+        const updates = await updateCollection();
+        const update = await updates.findOne({ _id: new ObjectId(args._id) });
+      
+        // If no update, throw GraphQLError
+        if (!update) {
+          throw new GraphQLError("Update Not Found", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
+      
+        // Cache update indefinitely
+        await redisClient.set(cacheKey, JSON.stringify(update));
+        console.log("Update has been fetched from database and is now cached.");
+      
+        // Return update
+        return update;
+      },
     
-      // Helpers: check ObjectId
-      helpers.checkArg(args._id, "string", "id");
-    
-      // Cache key constructor and check
-      const cacheKey = `update:${args._id}`;
-      const cachedUpdate = await redisClient.get(cacheKey);
-    
-      // If the update is cached, return the parsed JSON
-      if (cachedUpdate) {
-        console.log("Returning update from cache.");
-        return JSON.parse(cachedUpdate);
-      }
-    
-      // If not cached, pull the update collection and findOne based on update ID
-      const updates = await updateCollection();
-      const update = await updates.findOne({ _id: new ObjectId(args._id) });
-    
-      // If no update, throw GraphQLError
-      if (!update) {
-        throw new GraphQLError("Update Not Found", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-    
-      // Cache update indefinitely
-      await redisClient.set(cacheKey, JSON.stringify(update));
-      console.log("Update has been fetched from database and is now cached.");
-    
-      // Return update
-      return update;
-    },
-    
-    //getApplicationById(_id: String!): Application
+    //QUERY: getApplicationById(_id: String!): Application
     //Purpose: Fetch an application by ID from MongoDB; check Redis cache first
     //Cache: Cached by application ID in Redis indefinitely
 
-    /*getApplicationById: async (_, args) => {
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          //404
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
+      getApplicationById: async (_, args) => {
 
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            //404
+        // Check if required fields are present
+        if (!args._id) {
+          throw new GraphQLError("The _id field is required.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
-
-      //Helpers: check objectId
-      helpers.checkArg(args._id, "string", "id");
-
-      //Cache key constructor and check
-      //Why use 'application:': ensures seperation between types with ids ; clarity
-      const cacheKey = `application:${args._id}`;
-      const cachedApplication = await redisClient.get(cacheKey);
-
-      //If the application is cached, return the parsed JSON (JSON string to object)
-      if (cachedApplication) {
-        
-        const parsedApplication = JSON.parse(cachedApplication);
-
-        // Filter out null comments
-        if (parsedApplication.comments) {
-          parsedApplication.comments = parsedApplication.comments.filter(comment => {
-            return comment && comment._id && comment.commenter && comment.commenter._id;
-          });
+      
+        // Check for extra fields
+        const fieldsAllowed = ["_id"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
         }
-
-        console.log("Returning application from cache.");
-        return parsedApplication;
-      }
-
-      //If not cached, pull the application collection and then findOne based on application id
-      const applications = await applicationCollection();
-      const application = await applications.findOne({
-        _id: new ObjectId(args._id),
-      });
-
-      //If no application, throw GraphQLError
-      if (!application) {
-        throw new GraphQLError("Application Not Found", {
-          //Optional object: extra information. NOT_FOUND = status code 404
-          extensions: { code: "BAD_USER_INPUT" },
+      
+        // Helpers: check ObjectId
+        helpers.checkArg(args._id, "string", "id");
+      
+        // Cache key constructor and check
+        const cacheKey = `application:${args._id}`;
+        const cachedApplication = await redisClient.get(cacheKey);
+      
+        // If the application is cached, return the parsed JSON
+        if (cachedApplication) {
+          console.log("Returning application from cache.");
+          return JSON.parse(cachedApplication);
+        }
+      
+        // If not cached, pull the application collection and findOne based on application ID
+        const applications = await applicationCollection();
+        const application = await applications.findOne({
+          _id: new ObjectId(args._id),
         });
-      }
-
-      // Filter out null comments
-      if (application.comments) {
-        application.comments = application.comments.filter(comment => {
-          return comment && comment._id && comment.commenter && comment.commenter._id;
-        });
-      }
-
-      //Cache application indefinitely
-      await redisClient.set(cacheKey, JSON.stringify(application));
-      console.log(
-        "Application has been fetched from database and is now cached."
-      );
-
-      //Return application
-      return application;
-    },*/
-
-    getApplicationById: async (_, args) => {
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-    
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+      
+        // If no application, throw GraphQLError
+        if (!application) {
+          throw new GraphQLError("Application Not Found", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
-    
-      // Helpers: check ObjectId
-      helpers.checkArg(args._id, "string", "id");
-    
-      // Cache key constructor and check
-      const cacheKey = `application:${args._id}`;
-      const cachedApplication = await redisClient.get(cacheKey);
-    
-      // If the application is cached, return the parsed JSON
-      if (cachedApplication) {
-        console.log("Returning application from cache.");
-        return JSON.parse(cachedApplication);
-      }
-    
-      // If not cached, pull the application collection and findOne based on application ID
-      const applications = await applicationCollection();
-      const application = await applications.findOne({
-        _id: new ObjectId(args._id),
-      });
-    
-      // If no application, throw GraphQLError
-      if (!application) {
-        throw new GraphQLError("Application Not Found", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-    
-      // Cache application indefinitely
-      await redisClient.set(cacheKey, JSON.stringify(application));
-      console.log("Application has been fetched from database and is now cached.");
-    
-      // Return application
-      return application;
-    },
+      
+        // Cache application indefinitely
+        await redisClient.set(cacheKey, JSON.stringify(application));
+        console.log("Application has been fetched from database and is now cached.");
+      
+        // Return application
+        return application;
+      },
 
-    //getCommentById(_id: String!): Comment
+    //QUERY: getCommentById(_id: String!): Comment
     //Purpose: Fetch a comment by ID from MongoDB; check Redis cache first
     //Cache: Cached by comment ID in Redis indefinitely
-    //INCLUDES same filters as fetch all comment
 
-    /*getCommentById: async (_, args) => {
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
+      getCommentById: async (_, args) => {
 
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+        // Check if required fields are present
+        if (!args._id) {
+          throw new GraphQLError("The _id field is required.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
-
-      //Helpers: check objectId
-      helpers.checkArg(args._id, "string", "id");
-
-      //Cache key constructor and check
-      //Why use 'comment:': ensures seperation between types with ids (users, projects, etc); clarity
-      const cacheKey = `comment:${args._id}`;
-      const cachedComment = await redisClient.get(cacheKey);
-
-      //If the cachedUser is cached, return the parsed JSON (JSON string to object)
-      if (cachedComment) {
-        console.log("Returning comment from cache.");
-        const parsedComment = JSON.parse(cachedComment);
-
-        // Check if the comment's destination is "UPDATE" and validate update ID
-        if (parsedComment.commentDestination === "UPDATE") {
-          const updates = await updateCollection();
-          const validUpdateIds = await updates.distinct("_id");
-
-          if (!validUpdateIds.some(id => id.equals(new ObjectId(parsedComment.destinationId)))) {
-            throw new GraphQLError("Comment is associated with a non-existent update.", {
-              extensions: { code: "BAD_USER_INPUT" },
-            });
-          }
-          } 
-
-        // Check if the comment's destination is "APPLICATION" and validate application ID
-        else if (parsedComment.commentDestination === "APPLICATION") {
-          
-          const applications = await applicationCollection();
-          const validApplicationIds = await applications.distinct("_id");
-          
-          if (!validApplicationIds.some(id => id.equals(new ObjectId(parsedComment.destinationId)))) {
-            throw new GraphQLError("Comment is associated with a non-existent application.", {
+      
+        // Check for extra fields
+        const fieldsAllowed = ["_id"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
               extensions: { code: "BAD_USER_INPUT" },
             });
           }
         }
-
-        return parsedComment;
-
-      }
-
-      //If not cached, pull comment collection and then findOne specific comment
-      const comments = await commentCollection();
-      const comment = await comments.findOne({ _id: new ObjectId(args._id) });
-
-
-      //If no comment, throw GraphQLError
-      if (!comment) {
-        throw new GraphQLError("Comment not found in the database.", {
-          //Optional object: extra information. NOT_FOUND = status code 404
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check if the comment's destination is "UPDATE" and validate update ID
-      if (comment.commentDestination === "UPDATE") {
-        
-        const updates = await updateCollection();
-        const validUpdateIds = await updates.distinct("_id");
-
-        if (!validUpdateIds.some(id => id.equals(new ObjectId(comment.destinationId)))) {
-          throw new GraphQLError("Comment is associated with a non-existent update.", {
+      
+        // Helpers: check ObjectId
+        helpers.checkArg(args._id, "string", "id");
+      
+        // Cache key constructor and check
+        const cacheKey = `comment:${args._id}`;
+        const cachedComment = await redisClient.get(cacheKey);
+      
+        if (cachedComment) {
+          console.log("Returning comment from cache.");
+          return JSON.parse(cachedComment);
+        }
+      
+        // Fetch comment from the database
+        const comments = await commentCollection();
+        const comment = await comments.findOne({ _id: new ObjectId(args._id) });
+      
+        if (!comment) {
+          throw new GraphQLError("Comment not found in the database.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
+      
+        // Cache comment
+        await redisClient.set(cacheKey, JSON.stringify(comment));
+        console.log("Comment has been fetched from database and is now cached.");
+      
+        return comment;
 
-      } 
-      // Check if the comment's destination is "APPLICATION" and validate application ID
-      else if (comment.commentDestination === "APPLICATION") {
-        
-        const applications = await applicationCollection();
-        const validApplicationIds = await applications.distinct("_id");
+      },
 
-        if (!validApplicationIds.some(id => id.equals(new ObjectId(comment.destinationId)))) {
-          throw new GraphQLError("Comment is associated with a non-existent application.", {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-      }
-
-      //Set comment into redis Cache; set to cacheKey
-      //No expiration on cache
-      await redisClient.set(cacheKey, JSON.stringify(comment));
-      console.log("Comment has been fetched from database and is now cached.");
-
-      //Return comment
-      return comment;
-    },*/
-
-    getCommentById: async (_, args) => {
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-    
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-      }
-    
-      // Helpers: check ObjectId
-      helpers.checkArg(args._id, "string", "id");
-    
-      // Cache key constructor and check
-      const cacheKey = `comment:${args._id}`;
-      const cachedComment = await redisClient.get(cacheKey);
-    
-      if (cachedComment) {
-        console.log("Returning comment from cache.");
-        return JSON.parse(cachedComment);
-      }
-    
-      // Fetch comment from the database
-      const comments = await commentCollection();
-      const comment = await comments.findOne({ _id: new ObjectId(args._id) });
-    
-      if (!comment) {
-        throw new GraphQLError("Comment not found in the database.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-    
-      // Cache comment
-      await redisClient.set(cacheKey, JSON.stringify(comment));
-      console.log("Comment has been fetched from database and is now cached.");
-    
-      return comment;
-    },
-    
-
-    //ADDITIONAL SEARCH FUNCTIONALITIES
-
-    // getProfessorsByProjectId(projectId: String!): [User]
+    // QUERY: getProfessorsByProjectId(projectId: String!): [User]
     // Purpose: Fetch all professors of a project by the project ID
+    // Cache: for an hour
 
-    getProfessorsByProjectId: async (_, args) => {
-      // Check if required field 'projectId' is present
-      if (!args.projectId) {
-        throw new GraphQLError("The projectId field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["projectId"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+      getProfessorsByProjectId: async (_, args) => {
+        
+        // Check if required field 'projectId' is present
+        if (!args.projectId) {
+          throw new GraphQLError("The projectId field is required.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
 
-      //Check objectID
-      helpers.checkArg(args.projectId, "string", "id");
+        // Check for extra fields
+        const fieldsAllowed = ["projectId"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        }
 
-      // Cache key constructor and check
-      const cacheKey = `professors:${args.projectId}`;
-      const cachedProfessors = await redisClient.get(cacheKey);
+        //Check objectID
+        helpers.checkArg(args.projectId, "string", "id");
 
-      //If projects are cached, then return
-      if (cachedProfessors) {
-        return JSON.parse(cachedProfessors);
-      }
+        // Cache key constructor and check
+        const cacheKey = `professors:${args.projectId}`;
+        const cachedProfessors = await redisClient.get(cacheKey);
 
-      //If not cached, pull entire project collction
-      const projects = await projectCollection();
+        //If projects are cached, then return
+        if (cachedProfessors) {
+          return JSON.parse(cachedProfessors);
+        }
 
-      //Pull all projects associated with the provided projectId using find.
-      //Change the string projectId argument into an objectId
-      const project = await projects.findOne({
-        _id: new ObjectId(args.projectId),
-      });
+        //If not cached, pull entire project collction
+        const projects = await projectCollection();
 
-      // Check if project exists
-      if (!project) {
-        throw new GraphQLError("Project not found in the database.", {
-          extensions: { code: "BAD_USER_INPUT" },
+        //Pull all projects associated with the provided projectId using find.
+        //Change the string projectId argument into an objectId
+        const project = await projects.findOne({
+          _id: new ObjectId(args.projectId),
         });
-      }
 
-      /*
-      // Extract professors field
-      const professors = project.professors || [];
+        // Check if project exists
+        if (!project) {
+          throw new GraphQLError("Project not found in the database.", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
 
-      // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(professors), { EX: 3600 });
+        //Pull users
+        const users = await userCollection();
+        
+        //Pull array of professorIds from the project objects
+        const professorIds = project.professors || [];
 
-      // Return the list of professors
-      return professors;*/
-
-      //Pull users
-      const users = await userCollection();
+        //Match all professorIds against the user objects. Store in array
+        const professors = await users
+          .find({ _id: { $in: professorIds.map((id) => new ObjectId(id)) }, role: "PROFESSOR" })
+          .toArray();
       
-      //Pull array of professorIds from the project objects
-      const professorIds = project.professors || [];
-
-      //Match all professorIds against the user objects. Store in array
-      const professors = await users
-        .find({ _id: { $in: professorIds.map((id) => new ObjectId(id)) }, role: "PROFESSOR" })
-        .toArray();
-    
-      // Cach
-      await redisClient.set(cacheKey, JSON.stringify(professors), { EX: 3600 });
-    
-      // Return the array of professor User objects
-      return professors;
+        // Cach
+        await redisClient.set(cacheKey, JSON.stringify(professors), { EX: 3600 });
       
-    },
+        // Return the array of professor User objects
+        return professors;
+        
+      },
 
-    // getStudentsByProjectId(projectId: String!): [User]
+    // QUERY: getStudentsByProjectId(projectId: String!): [User]
     // Purpose: Fetch all students of a project by the project ID
+    // Cache: For one hour
 
-    getStudentsByProjectId: async (_, args) => {
-      // Check if required field 'projectId' is present
-      if (!args.projectId) {
-        throw new GraphQLError("The projectId field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["projectId"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+      getStudentsByProjectId: async (_, args) => {
+        // Check if required field 'projectId' is present
+        if (!args.projectId) {
+          throw new GraphQLError("The projectId field is required.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
 
-      //Check objectID
-      helpers.checkArg(args.projectId, "string", "id");
+        // Check for extra fields
+        const fieldsAllowed = ["projectId"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        }
 
-      // Cache key constructor and check
-      const cacheKey = `students:${args.projectId}`;
-      const cachedStudents = await redisClient.get(cacheKey);
+        //Check objectID
+        helpers.checkArg(args.projectId, "string", "id");
 
-      //If projects are cached, then return
-      if (cachedStudents) {
-        return JSON.parse(cachedStudents);
-      }
+        // Cache key constructor and check
+        const cacheKey = `students:${args.projectId}`;
+        const cachedStudents = await redisClient.get(cacheKey);
 
-      //If not cached, pull entire project collction
-      const projects = await projectCollection();
+        //If projects are cached, then return
+        if (cachedStudents) {
+          return JSON.parse(cachedStudents);
+        }
 
-      //Pull all projects associated with the provided projectId using find.
-      //Change the string projectId argument into an objectId
-      const project = await projects.findOne({
-        _id: new ObjectId(args.projectId),
-      });
+        //If not cached, pull entire project collction
+        const projects = await projectCollection();
 
-      // Check if project exists
-      if (!project) {
-        throw new GraphQLError("Project not found in the database.", {
-          extensions: { code: "BAD_USER_INPUT" },
+        //Pull all projects associated with the provided projectId using find.
+        //Change the string projectId argument into an objectId
+        const project = await projects.findOne({
+          _id: new ObjectId(args.projectId),
         });
-      }
-      /*
-      // Extract students field
-      const students = project.students || [];
 
-      // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(students), { EX: 3600 });
+        // Check if project exists
+        if (!project) {
+          throw new GraphQLError("Project not found in the database.", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
 
-      // Return the list of students
-      return students;*/
-      //Pull users
-      const users = await userCollection();
+        //Pull users
+        const users = await userCollection();
+        
+        //Pull array of professorIds from the project objects
+        const studentIds = project.students || [];
+
+        //Match all studentIds against the user objects. Store in array
+        //ADD the extra match element that their role needs to be STUDENT
+        const students = await users
+          .find({ _id: { $in: studentIds.map((id) => new ObjectId(id)) }, role: "STUDENT" })
+          .toArray();
       
-      //Pull array of professorIds from the project objects
-      const studentIds = project.students || [];
+        // Cache
+        await redisClient.set(cacheKey, JSON.stringify(students), { EX: 3600 });
+      
+        // Return the array of student User objects
+        return students;
 
-      //Match all studentIds against the user objects. Store in array
-      //ADD the extra match element that their role needs to be STUDENT
-      const students = await users
-        .find({ _id: { $in: studentIds.map((id) => new ObjectId(id)) }, role: "STUDENT" })
-        .toArray();
-    
-      // Cache
-      await redisClient.set(cacheKey, JSON.stringify(students), { EX: 3600 });
-    
-      // Return the array of student User objects
-      return students;
-    },
+      },
 
-    //GET PROJECT BY USER ID
+    // QUERY: getProjectsByUserId(userId: String!): [Project]
+    // Purpose: Fetch all projects associated with a user by the user's string ID
+    // Cache: For one hour
 
-    getProjectsByUserId: async (_, args) => {
-      // Check if required field 'userId' is present
-      if (!args._id) {
-        throw new GraphQLError("The userId field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+      getProjectsByUserId: async (_, args) => {
+        // Check if required field 'userId' is present
+        if (!args._id) {
+          throw new GraphQLError("The userId field is required.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
 
-      //Check objectID
-      helpers.checkArg(args._id, "string", "id");
+        // Check for extra fields
+        const fieldsAllowed = ["_id"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        }
 
-      //Turn args._id into an object id 
-      const userId = args._id;
+        //Check objectID
+        helpers.checkArg(args._id, "string", "id");
 
-      //If not cached, pull entire project collction
-      const projects = await projectCollection();
+         // Cache key construction
+        const cacheKey = `projects:${args._id}`;
+        const cachedProjects = await redisClient.get(cacheKey);
 
-      // Fetch all projects where the user is listed in professors or students
-      const userProjects = await projects
-        .find({
-          $or: [
-            { professors: userId }, 
-            { students: userId },   
-          ],
-        })
-        .toArray();
+        // If projects are cached, return the cached data
+        if (cachedProjects) {
+          return JSON.parse(cachedProjects);
+        }
 
-      // Return the list of projects
-      return userProjects;
-    },
+        //Turn args._id into an object id 
+        const userId = args._id;
 
-    // getCommentsByUpdateId(updateId: String!): [Comment]
+        //If not cached, pull entire project collction
+        const projects = await projectCollection();
+
+        // Fetch all projects where the user is listed in professors or students
+        const userProjects = await projects
+          .find({
+            $or: [
+              { professors: userId }, 
+              { students: userId },   
+            ],
+          })
+          .toArray();
+
+        // Cache the results for one hour
+        await redisClient.set(cacheKey, JSON.stringify(userProjects), { EX: 3600 });
+
+        // Return the list of projects
+        return userProjects;
+
+      },
+
+    // QUERY: getCommentsByUpdateId(updateId: String!): [Comment]
     // Purpose: Fetch all comments of an update by the update ID
+    // Cache: For one hour
 
-    /*getCommentsByUpdateId: async (_, args) => {
-      // Check if required field 'projectId' is present
-      if (!args.updateId) {
-        throw new GraphQLError("The updateId field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
+      getCommentsByUpdateId: async (_, args) => {
 
-      // Check for extra fields
-      const fieldsAllowed = ["updateId"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+        // Check if required field '_id' (updateId) is present
+        if (!args.updateId) {
+          throw new GraphQLError("The updateId field (_id) is required.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
-
-      //Check objectID
-      helpers.checkArg(args.updateId, "string", "id");
-
-      // Cache key constructor and check
-      const cacheKey = `comments:${args.updateId}`;
-      const cachedComments = await redisClient.get(cacheKey);
-
-      // Filter comments logic (PREVIOUSLY: this is the same filtering done in get all updates and get all applications, but it's nicer to break it into a helper function. Before it was just repeated)
-      const filterComments = (comments) => {
-        return comments.filter(comment => {
-          return comment && comment._id && comment.commenter && comment.commenter._id;
-        });
-      };
-
-      //If comments are cached, then return
-      if (cachedComments) {
-        const parsedComments = JSON.parse(cachedComments);
-        return filterComments(parsedComments);
-      }
-
-      //If not cached, pull entire update collction
-      const updates = await updateCollection();
-
-      //Pull all updates associated with the provided updateId using find.
-      //Change the string update argument into an objectId
-      const update = await updates.findOne({
-        _id: new ObjectId(args.updateId),
-      });
-
-      //Handle missing update
-      if (!update) {
-        throw new GraphQLError("Update not found in the database.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-       // Filter comments from the database
-      const comments = filterComments(update.comments || []);
-
-      // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(comments), { EX: 3600 });
-
-      // Return the list of comments
-      return comments;
-    },*/
-
-    getCommentsByUpdateId: async (_, args) => {
-     /* // Check if required field 'updateId' (updateId) is present
-      if (!updateId) {
-        throw new GraphQLError("The updateId field (_id) is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-    
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
+      
+        // Check for extra fields
+        const fieldsAllowed = ["updateId"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
         }
-      }*/
-
-      // Validate the 'updateId' argument
-      helpers.checkArg(args.updateId, "string", "updateId");
     
-      // Cache key constructor and check
-      const cacheKey = `comments:${args.updateId}`;
-      const cachedComments = await redisClient.get(cacheKey);
+        // Validate the 'updateId' argument
+        helpers.checkArg(args.updateId, "string", "updateId");
+      
+        // Cache key constructor and check
+        const cacheKey = `comments:${args.updateId}`;
+        const cachedComments = await redisClient.get(cacheKey);
+      
+        // If comments are cached, return them
+        if (cachedComments) {
+          console.log("Returning comments from cache.");
+          return JSON.parse(cachedComments);
+        }
+      
+        // Fetch comments from the database based on destinationId
+        const comments = await commentCollection();
+        const fetchedComments = await comments
+          .find({ destinationId: args.updateId }) 
+          .toArray();
+      
+        // Cache the result
+        await redisClient.set(cacheKey, JSON.stringify(fetchedComments), { EX: 3600 });
+      
+        // Return the list of comments
+        return fetchedComments;
+        
+      },
     
-      // If comments are cached, return them
-      if (cachedComments) {
-        console.log("Returning comments from cache.");
-        return JSON.parse(cachedComments);
-      }
-    
-      // Fetch comments from the database based on destinationId
-      const comments = await commentCollection();
-      const fetchedComments = await comments
-        .find({ destinationId: args.updateId }) 
-        .toArray();
-    
-      // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(fetchedComments), { EX: 3600 });
-    
-      // Return the list of comments
-      return fetchedComments;
-    },
-
-    
-    // getCommentsByApplicationId(updateId: String!): [Comment]
+    // QUERY: getCommentsByApplicationId(updateId: String!): [Comment]
     // Purpose: Fetch all comments of an application by the application ID
+    // Cache: For one hour
 
-    /*getCommentsByApplicationId: async (_, args) => {
-      // Check if required field 'applicationId' is present
-      if (!args.applicationId) {
-        throw new GraphQLError("The applicationId field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["applicationId"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+      getCommentsByApplicationId: async (_, args) => {
+        
+        // Check if required field '_id' (applicationId) is present
+        if (!args.applicationId) {
+          throw new GraphQLError("The applicationId field (_id) is required.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
-
-      //Check objectID
-      helpers.checkArg(args.applicationId, "string", "id");
-
-      // Cache key constructor and check
-      const cacheKey = `comments:${args.applicationId}`;
-      const cachedComments = await redisClient.get(cacheKey);
-
-      // Filter comments logic
-      const filterComments = (comments) => {
-        return comments.filter(comment => {
-          return comment && comment._id && comment.commenter && comment.commenter._id;
-        });
-      };
-
-      //If comments are cached, then return
-      if (cachedComments) {
-        const parsedComments = JSON.parse(cachedComments);
-        return filterComments(parsedComments);
-      }
-
-      //If not cached, pull entire application collction
-      const applications = await applicationCollection();
-
-      //Pull the application associated with the provided applicationId using find.
-      //Change the string update argument into an objectId
-      const application = await applications.findOne({
-        _id: new ObjectId(args.applicationId),
-      });
-
-      //Handle missing application
-      if (!application) {
-        throw new GraphQLError("Application not found in the database.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Extract comments field
-      const comments = filterComments(application.comments || []);
-
-      // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(comments), { EX: 3600 });
-
-      // Return the list of comments
-      return comments;
-    },*/
-
-    getCommentsByApplicationId: async (_, args) => {
-      // Check if required field '_id' (applicationId) is present
-      if (!args.applicationId) {
-        throw new GraphQLError("The applicationId field (_id) is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-    
-      // Check for extra fields
-      const fieldsAllowed = ["applicationId"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
+      
+        // Check for extra fields
+        const fieldsAllowed = ["applicationId"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
         }
-      }
-    
-      // Validate _id as a string
-      helpers.checkArg(args.applicationId, "string", "id");
-    
-      // Cache key constructor and check
-      const cacheKey = `comments:${args.applicationId}`;
-      const cachedComments = await redisClient.get(cacheKey);
-    
-      // If comments are cached, return them
-      if (cachedComments) {
-        console.log("Returning comments from cache.");
-        return JSON.parse(cachedComments);
-      }
-    
-      // Fetch comments from the database based on destinationId
-      const comments = await commentCollection();
-      const fetchedComments = await comments
-        .find({ destinationId: args._id }) 
-        .toArray();
-    
-      // Cache the result
-      await redisClient.set(cacheKey, JSON.stringify(fetchedComments), { EX: 3600 });
-    
-      // Return the list of comments
-      return fetchedComments;
-    },
+      
+        // Validate _id as a string
+        helpers.checkArg(args.applicationId, "string", "id");
+      
+        // Cache key constructor and check
+        const cacheKey = `comments:${args.applicationId}`;
+        const cachedComments = await redisClient.get(cacheKey);
+      
+        // If comments are cached, return them
+        if (cachedComments) {
+          console.log("Returning comments from cache.");
+          return JSON.parse(cachedComments);
+        }
+      
+        // Fetch comments from the database based on destinationId
+        const comments = await commentCollection();
+        const fetchedComments = await comments
+          .find({ destinationId: args._id }) 
+          .toArray();
+      
+        // Cache the result
+        await redisClient.set(cacheKey, JSON.stringify(fetchedComments), { EX: 3600 });
+      
+        // Return the list of comments
+        return fetchedComments;
+        
+      },
 
-    //projectsByDepartment(department: Department!): [Project]
+    //QUERY: projectsByDepartment(department: Department!): [Project]
     //Purpose: Fetch all projects that match the specified department
     //Cache: Cached by department in Redis for one hour
 
-    projectsByDepartment: async (_, args) => {
-      // Check if required fields are present
-      if (!args.department) {
-        throw new GraphQLError("The department field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["department"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-      }
-
-      //Helpers, checks
-      helpers.checkArg(args.department, "string", "department");
-
-      //Cache key constructor and check
-      //Cache key: note as department, and then use the provided argument's department as we're pulling based on this
-      const cacheKey = `department:${args.department.trim()}`;
-      const cachedDepartment = await redisClient.get(cacheKey);
-
-      //If the department is cached, return the parsed JSON (JSON string to object)
-      if (cachedDepartment) {
-        console.log("Returning projects from stated department from cache.");
-        return JSON.parse(cachedDepartment);
-      }
-
-      //If department not cached, pull the project collection then all project with the specific department
-      //Use the '.find' function again, but this time, use match the department (as oppposed to the id as usual)
-      const projects = await projectCollection();
-      const projectsByDepartmnet = await projects
-        .find({ department: args.department.trim() })
-        .toArray();
-
-      //If no projects by department found, retrun an empty array
-      if (projectsByDepartmnet.length === 0) {
-        console.log("No projects found for the department.");
-        //Why empty array and not throw error? Allowing the possibility that projects of this department simply not added yet.
-        return [];
-      }
-
-      //Cache the departmnet for one hour.
-      //Expiration: 1 hour (60 x 60 = 3600 seconds)
-      await redisClient.set(cacheKey, JSON.stringify(projectsByDepartmnet), {
-        EX: 3600,
-      });
-      console.log(
-        "Projects by department have been fetched from database and are now cached."
-      );
-
-      //Return the projectsByDepartment
-      return projectsByDepartmnet;
-    },
-
-    //updatesBySubject(subject: UpdateSubject!): [Update]
-    //Purpose: Fetch all updates that match the specified subject
-    //Cache: Cached by subject in Redis for one hour
-    //FILTERS out null comments, the same logic implemented in fetch all updates
-
-    /*updatesBySubject: async (_, args) => {
-      // Check if required fields are present
-      if (!args.subject) {
-        throw new GraphQLError("The subject field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["subject"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-      }
-
-      //Helpers,checks
-      helpers.checkArg(args.subject, "string", "subject");
-      helpers.checkSubject(args.subject);
-
-      //Cache key constructor and check
-      //Cache key: note as subject, and then use the provided argument's subject as we're pulling based on this
-      const cacheKey = `subject:${args.subject.trim()}`;
-      const cachedSubject = await redisClient.get(cacheKey);
-
-      //If the subject is cached, return the parsed JSON (JSON string to object)
-      if (cachedSubject) {
-        console.log("Returning updates from stated subject from cache.");
+      projectsByDepartment: async (_, args) => {
         
-        const parsedUpdates = JSON.parse(cachedSubject);
+        // Check if required fields are present
+        if (!args.department) {
+          throw new GraphQLError("The department field is required.", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
 
-        // Filter out null comments for each update
-        parsedUpdates.forEach(update => {
-          if (update.comments) {
-            update.comments = update.comments.filter(comment => {
-              return comment && comment._id && comment.commenter && comment.commenter._id;
+        // Check for extra fields
+        const fieldsAllowed = ["department"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
             });
           }
-        });
-
-        return parsedUpdates;
-
-      }
-
-      //If subject not cached, pull the update collection then all update with the specific subject
-      //Use the '.find' function again, but this time, use match the subject (as oppposed to the id as usual)
-      const updates = await updateCollection();
-      const updatesBySubject = await updates
-        .find({ subject: args.subject.trim() })
-        .toArray();
-
-      //If no projects by subject found, retrun an empty array
-      if (updatesBySubject.length === 0) {
-        console.log("No updates found for the subject.");
-        //Why empty array and not throw error? Allowing the possibility that updates of this subjects simply not added yet.
-        return [];
-      }
-
-      // Filter out null comments for each update
-      updatesBySubject.forEach(update => {
-        if (update.comments) {
-          update.comments = update.comments.filter(comment => {
-            return comment && comment._id && comment.commenter && comment.commenter._id;
-          });
         }
-      });
 
-      //Cache the subject for one hour.
-      //Expiration: 1 hour (60 x 60 = 3600 seconds)
-      await redisClient.set(cacheKey, JSON.stringify(updatesBySubject), {
-        EX: 3600,
-      });
-      console.log(
-        "Updates by subject have been fetched from database and are now cached."
-      );
+        //Helpers, checks
+        helpers.checkArg(args.department, "string", "department");
 
-      //Return the updatesBySubject
-      return updatesBySubject;
-    },*/
+        //Cache key constructor and check
+        //Cache key: note as department, and then use the provided argument's department as we're pulling based on this
+        const cacheKey = `department:${args.department.trim()}`;
+        const cachedDepartment = await redisClient.get(cacheKey);
 
-    // updatesBySubject(subject: UpdateSubject!): [Update]
-    // Purpose: Fetch all updates that match the specified subject
-    // Cache: Cached by subject in Redis for one hour
+        //If the department is cached, return the parsed JSON (JSON string to object)
+        if (cachedDepartment) {
+          console.log("Returning projects from stated department from cache.");
+          return JSON.parse(cachedDepartment);
+        }
 
-    updatesBySubject: async (_, args) => {
-      // Check if required fields are present
-      if (!args.subject) {
-        throw new GraphQLError("The subject field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
+        //If department not cached, pull the project collection then all project with the specific department
+        //Use the '.find' function again, but this time, use match the department (as oppposed to the id as usual)
+        const projects = await projectCollection();
+        const projectsByDepartmnet = await projects
+          .find({ department: args.department.trim() })
+          .toArray();
+
+        //If no projects by department found, retrun an empty array
+        if (projectsByDepartmnet.length === 0) {
+          console.log("No projects found for the department.");
+          //Why empty array and not throw error? Allowing the possibility that projects of this department simply not added yet.
+          return [];
+        }
+
+        //Cache the departmnet for one hour.
+        //Expiration: 1 hour (60 x 60 = 3600 seconds)
+        await redisClient.set(cacheKey, JSON.stringify(projectsByDepartmnet), {
+          EX: 3600,
         });
-      }
+        console.log(
+          "Projects by department have been fetched from database and are now cached."
+        );
 
-      // Check for extra fields
-      const fieldsAllowed = ["subject"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+        //Return the projectsByDepartment
+        return projectsByDepartmnet;
+
+      },
+
+    //QUERY: updatesBySubject(subject: UpdateSubject!): [Update]
+    //Purpose: Fetch all updates that match the specified subject
+    //Cache: Cached by subject in Redis for one hour
+
+      updatesBySubject: async (_, args) => {
+
+        // Check if required fields are present
+        if (!args.subject) {
+          throw new GraphQLError("The subject field is required.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
 
-      // Helpers, checks
-      // Validate subject as a string
-      helpers.checkArg(args.subject, "string", "subject");
+        // Check for extra fields
+        const fieldsAllowed = ["subject"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        }
 
-      // Ensure subject matches the enum of UpdateSubject
-      helpers.checkSubject(args.subject);
+        // Helpers, checks
+        // Validate subject as a string
+        helpers.checkArg(args.subject, "string", "subject");
 
-      // Cache key constructor and check
-      // Cache key: note as subject, and then use the provided argument's subject as we're pulling based on this
-      const cacheKey = `subject:${args.subject.trim()}`;
-      const cachedSubject = await redisClient.get(cacheKey);
+        // Ensure subject matches the enum of UpdateSubject
+        helpers.checkSubject(args.subject);
 
-      // If the subject is cached, return the parsed JSON (JSON string to object)
-      if (cachedSubject) {
-        console.log("Returning updates from stated subject from cache.");
-        return JSON.parse(cachedSubject);
-      }
+        // Cache key constructor and check
+        // Cache key: note as subject, and then use the provided argument's subject as we're pulling based on this
+        const cacheKey = `subject:${args.subject.trim()}`;
+        const cachedSubject = await redisClient.get(cacheKey);
 
-      // If subject not cached, pull the update collection then all updates with the specific subject
-      // Use the '.find' function to match the subject (instead of the ID as usual)
-      const updates = await updateCollection();
-      const updatesBySubject = await updates
-        .find({ subject: args.subject.trim() })
-        .toArray();
+        // If the subject is cached, return the parsed JSON (JSON string to object)
+        if (cachedSubject) {
+          console.log("Returning updates from stated subject from cache.");
+          return JSON.parse(cachedSubject);
+        }
 
-      // If no updates by subject found, return an empty array
-      if (updatesBySubject.length === 0) {
-        console.log("No updates found for the subject.");
-        // Why empty array and not throw error? Allowing the possibility that updates of this subject have simply not been added yet.
-        return [];
-      }
+        // If subject not cached, pull the update collection then all updates with the specific subject
+        // Use the '.find' function to match the subject (instead of the ID as usual)
+        const updates = await updateCollection();
+        const updatesBySubject = await updates
+          .find({ subject: args.subject.trim() })
+          .toArray();
 
-      // Cache the subject for one hour.
-      // Expiration: 1 hour (60 x 60 = 3600 seconds)
-      await redisClient.set(cacheKey, JSON.stringify(updatesBySubject), {
-        EX: 3600,
-      });
-      console.log(
-        "Updates by subject have been fetched from database and are now cached."
-      );
+        // If no updates by subject found, return an empty array
+        if (updatesBySubject.length === 0) {
+          console.log("No updates found for the subject.");
+          // Why empty array and not throw error? Allowing the possibility that updates of this subject have simply not been added yet.
+          return [];
+        }
 
-      // Return the updatesBySubject
-      return updatesBySubject;
-    },
+        // Cache the subject for one hour.
+        // Expiration: 1 hour (60 x 60 = 3600 seconds)
+        await redisClient.set(cacheKey, JSON.stringify(updatesBySubject), {
+          EX: 3600,
+        });
+        console.log(
+          "Updates by subject have been fetched from database and are now cached."
+        );
 
+        // Return the updatesBySubject
+        return updatesBySubject;
 
-    //projectsByCreatedYear(min: Int!, max: Int!): [Project]
+      },
+
+    //QUERY: projectsByCreatedYear(min: Int!, max: Int!): [Project]
     //Purpose: Fetch all projects established within a min/max year range
     //Cache: Cached by year range in Redis for one hour
 
-    projectsByCreatedYear: async (_, args) => {
-      const { min, max } = args;
-      const currentYear = new Date().getFullYear();
-
-      // Check for extra fields
-      const fieldsAllowed = ["min", "max"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-      }
-      //Checks
-      //CheckArg will be enough this time for the checking of required fields.
-      helpers.checkYearRange(min, max);
-      helpers.checkArg(min, "number", "min");
-      helpers.checkArg(max, "number", "max");
-
-      //Cache key constructor and check
-      //Cache key: note as createYear, and then use the provided argument's createYear as we're pulling based on this
-      const cacheKey = `createdYear:${min}:${max}`;
-      const cachedProjectsByYear = await redisClient.get(cacheKey);
-
-      if (cachedProjectsByYear) {
-        console.log("Returning projects by stated years from cache.");
-        return JSON.parse(cachedProjectsByYear);
-      }
-
-      //If no projects cached by year established, then pull all projects
-      const projects = await projectCollection();
-
-      // Turn projects into an array to allow for filtering.
-      const allProjects = await projects.find({}).toArray();
-
-      // Filter projects based on year range by converting string dates to Date objects
-      const projectsByCreatedRange = allProjects.filter((project) => {
+      projectsByCreatedYear: async (_, args) => {
         
-        if (!project.createdDate) return false;
+        const { min, max } = args;
+        const currentYear = new Date().getFullYear();
 
-        const projectYear = new Date(project.createdDate).getFullYear();
+        // Check for extra fields
+        const fieldsAllowed = ["min", "max"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        }
+        //Checks
+        //CheckArg will be enough this time for the checking of required fields.
+        helpers.checkYearRange(min, max);
+        helpers.checkArg(min, "number", "min");
+        helpers.checkArg(max, "number", "max");
 
-        //Return the boolean based on if the year is within the provided range
-        return projectYear >= min && projectYear <= max;
+        //Cache key constructor and check
+        //Cache key: note as createYear, and then use the provided argument's createYear as we're pulling based on this
+        const cacheKey = `createdYear:${min}:${max}`;
+        const cachedProjectsByYear = await redisClient.get(cacheKey);
 
-      });
+        if (cachedProjectsByYear) {
+          console.log("Returning projects by stated years from cache.");
+          return JSON.parse(cachedProjectsByYear);
+        }
 
-      if (projectsByCreatedRange.length === 0) {
-        console.log("For the specified year range, no projects found.");
-        return [];
-      }
+        //If no projects cached by year established, then pull all projects
+        const projects = await projectCollection();
 
-      //Cache the projectsByCreatedRange for one hour.
-      //Expiration: 1 hour (60 x 60 = 3600 seconds)
-      await redisClient.set(cacheKey, JSON.stringify(projectsByCreatedRange), {
-        EX: 3600,
-      });
-      console.log(
-        "Projects for this year range have been fetched from database and are now cached."
-      );
+        // Turn projects into an array to allow for filtering.
+        const allProjects = await projects.find({}).toArray();
 
-      //Return the projects from within the range
-      return projectsByCreatedRange;
-    },
+        // Filter projects based on year range by converting string dates to Date objects
+        const projectsByCreatedRange = allProjects.filter((project) => {
+          
+          if (!project.createdDate) return false;
 
-    //searchProjectByTitle(searchTerm: String!): [Project]
+          const projectYear = new Date(project.createdDate).getFullYear();
+
+          //Return the boolean based on if the year is within the provided range
+          return projectYear >= min && projectYear <= max;
+
+        });
+
+        if (projectsByCreatedRange.length === 0) {
+          console.log("For the specified year range, no projects found.");
+          return [];
+        }
+
+        //Cache the projectsByCreatedRange for one hour.
+        //Expiration: 1 hour (60 x 60 = 3600 seconds)
+        await redisClient.set(cacheKey, JSON.stringify(projectsByCreatedRange), {
+          EX: 3600,
+        });
+        console.log(
+          "Projects for this year range have been fetched from database and are now cached."
+        );
+
+        //Return the projects from within the range
+        return projectsByCreatedRange;
+      },
+
+    //QUERY: searchProjectByTitle(searchTerm: String!): [Project]
     //Purpose: Search projects by title, case-insensitive
     //Cache: Cached by search term in Redis for one hour
 
-    searchProjectByTitle: async (_, args) => {
-      // Check if required field 'searchTerm' is present
-      if (!args.searchTerm) {
-        throw new GraphQLError("The searchTerm field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["searchTerm"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+      searchProjectByTitle: async (_, args) => {
+        
+        // Check if required field 'searchTerm' is present
+        if (!args.searchTerm) {
+          throw new GraphQLError("The searchTerm field is required.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
 
-      //Checks
-      helpers.checkArg(args.searchTerm, "string", "searchTerm");
+        // Check for extra fields
+        const fieldsAllowed = ["searchTerm"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        }
 
-      // Ensure case-insensitive caching by making the search term lowercase
-      const lowercaseSearchTerm = args.searchTerm.toLowerCase().trim();
+        //Checks
+        helpers.checkArg(args.searchTerm, "string", "searchTerm");
 
-      // Cache key constructor and check
-      // Cache key: note as search term for project
-      const cacheKey = `search:project:${lowercaseSearchTerm}`;
-      const cachedProjectsByTitle = await redisClient.get(cacheKey);
+        // Ensure case-insensitive caching by making the search term lowercase
+        const lowercaseSearchTerm = args.searchTerm.toLowerCase().trim();
 
-      //If projects cached based on search term, return
-      if (cachedProjectsByTitle) {
-        console.log("Returning projects found by search term from cache.");
-        return JSON.parse(cachedProjectsByTitle);
-      }
+        // Cache key constructor and check
+        // Cache key: note as search term for project
+        const cacheKey = `search:project:${lowercaseSearchTerm}`;
+        const cachedProjectsByTitle = await redisClient.get(cacheKey);
 
-      //If projects not cached based on search term, pull the project collection
-      const projects = await projectCollection();
+        //If projects cached based on search term, return
+        if (cachedProjectsByTitle) {
+          console.log("Returning projects found by search term from cache.");
+          return JSON.parse(cachedProjectsByTitle);
+        }
 
-      //Use the '.find' function again
-      //$regex: regular expression for pattern matching, $options: 'i' for case-insensitive search
-      const projectsByTitle = await projects
-        .find({ title: { $regex: args.searchTerm.trim(), $options: "i" } })
-        .toArray();
+        //If projects not cached based on search term, pull the project collection
+        const projects = await projectCollection();
 
-      // If no projects are found, return an empty array
-      if (projectsByTitle.length === 0) {
-        console.log("No projects found matching the given search term.");
-        return [];
-      }
+        //Use the '.find' function again
+        //$regex: regular expression for pattern matching, $options: 'i' for case-insensitive search
+        const projectsByTitle = await projects
+          .find({ title: { $regex: args.searchTerm.trim(), $options: "i" } })
+          .toArray();
 
-      //Set projectsByTitle to cache based on cacheKey
-      await redisClient.set(cacheKey, JSON.stringify(projectsByTitle), {
-        EX: 3600,
-      });
+        // If no projects are found, return an empty array
+        if (projectsByTitle.length === 0) {
+          console.log("No projects found matching the given search term.");
+          return [];
+        }
 
-      //Return the projects found by search term (for title)
-      return projectsByTitle;
-    },
+        //Set projectsByTitle to cache based on cacheKey
+        await redisClient.set(cacheKey, JSON.stringify(projectsByTitle), {
+          EX: 3600,
+        });
 
-    //searchUserByName(searchTerm: String!): [User]
+        //Return the projects found by search term (for title)
+        return projectsByTitle;
+      },
+
+    //QUERY: searchUserByName(searchTerm: String!): [User]
     //Purpose: Search users by name, case-insensitive
     //Cache: Cached by search term in Redis for one hour
 
-    searchUserByName: async (_, args) => {
-      // Check if required field 'searchTerm' is present
-      if (!args.searchTerm) {
-        throw new GraphQLError("The searchTerm field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
+      searchUserByName: async (_, args) => {
 
-      // Check for extra fields
-      const fieldsAllowed = ["searchTerm"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+        // Check if required field 'searchTerm' is present
+        if (!args.searchTerm) {
+          throw new GraphQLError("The searchTerm field is required.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
 
-      // Checks
-      helpers.checkArg(args.searchTerm, "string", "searchTerm");
+        // Check for extra fields
+        const fieldsAllowed = ["searchTerm"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        }
 
-      // Ensure case-insensitive caching by mamkaing the search term lowercase
-      const lowercaseSearchTerm = args.searchTerm.toLowerCase().trim();
+        // Checks
+        helpers.checkArg(args.searchTerm, "string", "searchTerm");
 
-      // Cache key constructor and check
-      // Cache key: note as search term for user
-      const cacheKey = `search:user:${lowercaseSearchTerm}`;
-      const cachedUsersBySearch = await redisClient.get(cacheKey);
+        // Ensure case-insensitive caching by mamkaing the search term lowercase
+        const lowercaseSearchTerm = args.searchTerm.toLowerCase().trim();
 
-      //If users cachedUsersBySearch by searchTerm, return
-      if (cachedUsersBySearch) {
-        console.log("Returning searched users from cache.");
-        return JSON.parse(cachedUsersBySearch);
-      }
+        // Cache key constructor and check
+        // Cache key: note as search term for user
+        const cacheKey = `search:user:${lowercaseSearchTerm}`;
+        const cachedUsersBySearch = await redisClient.get(cacheKey);
 
-      //If users not cached by search term, then pull user collection
-      const users = await userCollection();
+        //If users cachedUsersBySearch by searchTerm, return
+        if (cachedUsersBySearch) {
+          console.log("Returning searched users from cache.");
+          return JSON.parse(cachedUsersBySearch);
+        }
 
-      //Use the '.find' function again
-      // $regex: regular expression for pattern matching, $options: 'i' for case-insensitive search
-      const usersBySearch = await users
-        .find({
-          $or: [
-            { firstName: { $regex: args.searchTerm.trim(), $options: "i" } },
-            { lastName: { $regex: args.searchTerm.trim(), $options: "i" } },
-          ],
-        })
-        .toArray();
+        //If users not cached by search term, then pull user collection
+        const users = await userCollection();
 
-      //If no user for search term, return an empty array
-      if (usersBySearch.length === 0) {
-        console.log("A user was not found matching the search criteria.");
-        return [];
-      }
+        //Use the '.find' function again
+        // $regex: regular expression for pattern matching, $options: 'i' for case-insensitive search
+        const usersBySearch = await users
+          .find({
+            $or: [
+              { firstName: { $regex: args.searchTerm.trim(), $options: "i" } },
+              { lastName: { $regex: args.searchTerm.trim(), $options: "i" } },
+            ],
+          })
+          .toArray();
 
-      //Cache the usersBySearch for one hour.
-      //Expiration: 1 hour (60 x 60 = 3600 seconds)
-      await redisClient.set(cacheKey, JSON.stringify(usersBySearch), {
-        EX: 3600,
-      });
-      console.log(
-        "Searched users were fetched from database and are now cached."
-      );
+        //If no user for search term, return an empty array
+        if (usersBySearch.length === 0) {
+          console.log("A user was not found matching the search criteria.");
+          return [];
+        }
 
-      //Return the users pulled based on search term (name)
-      return usersBySearch;
+        //Cache the usersBySearch for one hour.
+        //Expiration: 1 hour (60 x 60 = 3600 seconds)
+        await redisClient.set(cacheKey, JSON.stringify(usersBySearch), {
+          EX: 3600,
+        });
+        console.log(
+          "Searched users were fetched from database and are now cached."
+        );
+
+        //Return the users pulled based on search term (name)
+        return usersBySearch;
+
+      },
+
     },
-  },
 
   //COMPUTED VALUES
   //For user, project, update
