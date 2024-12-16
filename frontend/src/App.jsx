@@ -5,7 +5,7 @@ import Navbar from "./components/common/Navbar";
 import Footer from "./components/common/Footer";
 import NotFound from "./components/common/NotFound";
 import Home from "./components/common/Home";
-import UserDashboard from "./components/common/UserDashboard";
+import UserDashboard from "./components/dashboard/UserDashboard";
 
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
@@ -16,6 +16,10 @@ import ProjectAdd from "./components/project/Add";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Chat from "./components/Chat";
 import Newsfeed from "./components/Newsfeed";
+
+import ApplicationList from "./components/application/List";
+import ApplicationDetails from "./components/application/[id]/Details";
+import ApplicationAdd from "./components/application/Add";
 
 const App = () => {
   //Theming
@@ -128,10 +132,19 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/register" element={<Register />} />
+
         <Route path="/user/:id" element={<UserDashboard />} />
         <Route path="/newsfeed" element={<Newsfeed />} />
 
         {/* Protected routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/project"
           element={
@@ -161,6 +174,30 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={["STUDENT", "PROFESSOR", "ADMIN"]}>
               <Chat />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/application"
+          element={
+            <ProtectedRoute allowedroles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <ApplicationList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/application/:id"
+          element={
+            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <ApplicationDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/application/add"
+          element={
+            <ProtectedRoute allowedRoles={["STUDENT"]}>
+              <ApplicationAdd />
             </ProtectedRoute>
           }
         />

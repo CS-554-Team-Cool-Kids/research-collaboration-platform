@@ -8,6 +8,7 @@ const GET_PROJECTS = gql`
     projects {
       _id
       title
+      description
       createdDate
       department
       professors {
@@ -19,12 +20,6 @@ const GET_PROJECTS = gql`
         _id
         firstName
         lastName
-      }
-      applications {
-        _id
-        applicant
-        project
-        status
       }
       numOfApplications
       numOfUpdates
@@ -70,10 +65,24 @@ const GET_USER_BY_ID = gql`
       role
       department
       bio
+      applications {
+        _id
+        applicant {
+          _id
+          firstName
+          lastName
+        }
+        project {
+          _id
+          title
+        }
+        applicationDate
+        lastUpdatedDate
+        status
+      }
       projects {
         _id
         title
-        department
       }
       numOfApplications
       numOfProjects
