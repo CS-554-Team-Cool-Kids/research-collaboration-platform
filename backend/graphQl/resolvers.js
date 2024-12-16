@@ -39,11 +39,13 @@
     }
   })();
 
+
 //RESOLVERS
 export const resolvers = {
 
   //QUERIES
   Query: {
+
 
     //QUERY: users: [User]
     //Purpose: Fetch all users from MongoDB
@@ -79,6 +81,7 @@ export const resolvers = {
         //Return allUsers
         return allUsers;
       },
+
 
     //QUERY: projects: [Project]
     //Purpose: Fetch all projects from MongoDB
@@ -118,6 +121,7 @@ export const resolvers = {
         return allProjects;
       },
 
+
     //QUERY: updates: [Update]
     //Purpose: Fetch all updates from MongoDB
     //Cache: Cached by list of updates in Redis for one hour
@@ -154,6 +158,7 @@ export const resolvers = {
         return allUpdates;
 
       },
+
 
     //QUERY: applications: [Application]
     //Purpose: Fetch all applications from MongoDB
@@ -233,6 +238,7 @@ export const resolvers = {
 
       },
 
+
     //QUERY: getUserById(_id: String!): User
     //Purpose: Fetch an user by ID from MongoDB; check Redis cache first
     //Cache: Cached by user ID in Redis indefinitely
@@ -290,6 +296,7 @@ export const resolvers = {
         //Return user
         return user;
       },
+
 
     //QUERY: getProjectById(_id: String!): Project
     //Purpose: Fetch a project by ID from MongoDB; check Redis cache first
@@ -351,6 +358,7 @@ export const resolvers = {
 
       },
 
+
     //QUERY: getUpdateById(_id: String!): Update
     //Purpose: Fetch a update by ID from MongoDB; check Redis cache first
     //Cache: Cached by update ID in Redis indefinitely
@@ -406,6 +414,7 @@ export const resolvers = {
         return update;
       },
     
+
     //QUERY: getApplicationById(_id: String!): Application
     //Purpose: Fetch an application by ID from MongoDB; check Redis cache first
     //Cache: Cached by application ID in Redis indefinitely
@@ -463,6 +472,7 @@ export const resolvers = {
         return application;
       },
 
+
     //QUERY: getCommentById(_id: String!): Comment
     //Purpose: Fetch a comment by ID from MongoDB; check Redis cache first
     //Cache: Cached by comment ID in Redis indefinitely
@@ -515,6 +525,7 @@ export const resolvers = {
         return comment;
 
       },
+
 
     // QUERY: getProfessorsByProjectId(projectId: String!): [User]
     // Purpose: Fetch all professors of a project by the project ID
@@ -586,6 +597,7 @@ export const resolvers = {
         
       },
 
+
     // QUERY: getStudentsByProjectId(projectId: String!): [User]
     // Purpose: Fetch all students of a project by the project ID
     // Cache: For one hour
@@ -656,6 +668,7 @@ export const resolvers = {
 
       },
 
+
     // QUERY: getProjectsByUserId(userId: String!): [Project]
     // Purpose: Fetch all projects associated with a user by the user's string ID
     // Cache: For one hour
@@ -714,6 +727,7 @@ export const resolvers = {
 
       },
 
+
     // QUERY: getCommentsByUpdateId(updateId: String!): [Comment]
     // Purpose: Fetch all comments of an update by the update ID
     // Cache: For one hour
@@ -764,6 +778,7 @@ export const resolvers = {
         
       },
     
+
     // QUERY: getCommentsByApplicationId(updateId: String!): [Comment]
     // Purpose: Fetch all comments of an application by the application ID
     // Cache: For one hour
@@ -811,8 +826,9 @@ export const resolvers = {
       
         // Return the list of comments
         return fetchedComments;
-        
+
       },
+
 
     //QUERY: projectsByDepartment(department: Department!): [Project]
     //Purpose: Fetch all projects that match the specified department
@@ -878,6 +894,7 @@ export const resolvers = {
         return projectsByDepartmnet;
 
       },
+
 
     //QUERY: updatesBySubject(subject: UpdateSubject!): [Update]
     //Purpose: Fetch all updates that match the specified subject
@@ -947,6 +964,7 @@ export const resolvers = {
         return updatesBySubject;
 
       },
+
 
     //QUERY: projectsByCreatedYear(min: Int!, max: Int!): [Project]
     //Purpose: Fetch all projects established within a min/max year range
@@ -1018,6 +1036,7 @@ export const resolvers = {
         return projectsByCreatedRange;
       },
 
+
     //QUERY: searchProjectByTitle(searchTerm: String!): [Project]
     //Purpose: Search projects by title, case-insensitive
     //Cache: Cached by search term in Redis for one hour
@@ -1081,6 +1100,7 @@ export const resolvers = {
         //Return the projects found by search term (for title)
         return projectsByTitle;
       },
+
 
     //QUERY: searchUserByName(searchTerm: String!): [User]
     //Purpose: Search users by name, case-insensitive
@@ -1158,71 +1178,85 @@ export const resolvers = {
 
     },
 
-  //COMPUTED VALUES
-  //For user, project, update
-
+    //COMPUTED VALUES: USER
     User: {
 
-      numOfApplications: async (parentValue) => {
-        const applications = await applicationCollection();
-        const numOfApplications = await applications.countDocuments({
-          applicantId: parentValue._id.toString(),
-        });
-        return numOfApplications || 0;
-      },
-  
-      applications: async (parentValue) => {
-        const applications = await applicationCollection();
-        const userApplications = await applications
-          .find({
+      // COMPUTED VALUE: user: numOfApplications
+
+        numOfApplications: async (parentValue) => {
+          const applications = await applicationCollection();
+          const numOfApplications = await applications.countDocuments({
             applicantId: parentValue._id.toString(),
-          })
-          .toArray();
-        return userApplications || [];
-      },
-  
-      numOfProjects: async (parentValue) => {
-        const projects = await projectCollection();
-        const numOfProjects = await projects.countDocuments({
-          $or: [
-            { professors: parentValue._id.toString() },
-            { students: parentValue._id.toString() },
-          ],
-        });
-        return numOfProjects || 0;
-      },
-  
-      projects: async (parentValue) => {
-        const projects = await projectCollection();
-        const userProjects = await projects
-          .find({
+          });
+          return numOfApplications || 0;
+        },
+
+      // COMPUTED VALUE: user: applications
+
+        applications: async (parentValue) => {
+          const applications = await applicationCollection();
+          const userApplications = await applications
+            .find({
+              applicantId: parentValue._id.toString(),
+            })
+            .toArray();
+          return userApplications || [];
+        },
+
+      // COMPUTED VALUE: user: applications 
+
+        numOfProjects: async (parentValue) => {
+          const projects = await projectCollection();
+          const numOfProjects = await projects.countDocuments({
             $or: [
               { professors: parentValue._id.toString() },
               { students: parentValue._id.toString() },
             ],
-          })
-          .toArray();
-        return userProjects || [];
-      },
-    },
-  
-    Project: {
+          });
+          return numOfProjects || 0;
+        },
+      
+      // COMPUTED VALUE: user: applications
 
-      numOfApplications: async (parentValue) => {
-        const applications = await applicationCollection();
-        const numOfApplications = await applications.countDocuments({
-          projectId: parentValue._id.toString(),
-        });
-        return numOfApplications || 0;
+        projects: async (parentValue) => {
+          const projects = await projectCollection();
+          const userProjects = await projects
+            .find({
+              $or: [
+                { professors: parentValue._id.toString() },
+                { students: parentValue._id.toString() },
+              ],
+            })
+            .toArray();
+          return userProjects || [];
+        },
       },
   
-      applications: async (parentValue) => {
-        const applications = await applicationCollection();
-        const projectApplications = await applications
-          .find({ projectId: parentValue._id.toString() })
-          .toArray();
-        return projectApplications || [];
-      },
+
+    //COMPUTED VALUES: PROJECT
+    Project: {
+      
+      // COMPUTED VALUE: project: numOfApplications
+
+        numOfApplications: async (parentValue) => {
+          const applications = await applicationCollection();
+          const numOfApplications = await applications.countDocuments({
+            projectId: parentValue._id.toString(),
+          });
+          return numOfApplications || 0;
+        },
+      
+      // COMPUTED VALUE: project: applications
+
+        applications: async (parentValue) => {
+          const applications = await applicationCollection();
+          const projectApplications = await applications
+            .find({ projectId: parentValue._id.toString() })
+            .toArray();
+          return projectApplications || [];
+        },
+
+      // COMPUTED VALUE: project: numOfUpdates
   
       numOfUpdates: async (parentValue) => {
         const updates = await updateCollection();
@@ -1232,176 +1266,211 @@ export const resolvers = {
         return numOfUpdates || 0;
       },
   
-      updates: async (parentValue) => {
-        const updates = await updateCollection();
-        const projectUpdates = await updates
-          .find({ projectId: parentValue._id.toString() })
-          .toArray();
-        return projectUpdates || [];
+      // COMPUTED VALUE: project: updates
+
+        updates: async (parentValue) => {
+          const updates = await updateCollection();
+          const projectUpdates = await updates
+            .find({ projectId: parentValue._id.toString() })
+            .toArray();
+          return projectUpdates || [];
+        },
+
+       // COMPUTED VALUE: project: professors 
+
+        professors: async (parentValue) => {
+          const users = await userCollection();
+          if (!parentValue.professors || !Array.isArray(parentValue.professors)) {
+            return [];
+          }
+          const projectProfessors = await users
+            .find({
+              _id: { $in: parentValue.professors.map((id) => new ObjectId(id)) },
+              role: "PROFESSOR",
+            })
+            .toArray();
+          return projectProfessors || [];
+        },
+
+      // COMPUTED VALUE: project: students 
+
+        students: async (parentValue) => {
+          const users = await userCollection();
+          if (!parentValue.students || !Array.isArray(parentValue.students)) {
+            return [];
+          }
+          const projectStudents = await users
+            .find({
+              _id: { $in: parentValue.students.map((id) => new ObjectId(id)) },
+              role: "STUDENT",
+            })
+            .toArray();
+          return projectStudents || [];
+        },
       },
   
-      professors: async (parentValue) => {
-        const users = await userCollection();
-        if (!parentValue.professors || !Array.isArray(parentValue.professors)) {
-          return [];
-        }
-        const projectProfessors = await users
-          .find({
-            _id: { $in: parentValue.professors.map((id) => new ObjectId(id)) },
-            role: "PROFESSOR",
-          })
-          .toArray();
-        return projectProfessors || [];
-      },
-  
-      students: async (parentValue) => {
-        const users = await userCollection();
-        if (!parentValue.students || !Array.isArray(parentValue.students)) {
-          return [];
-        }
-        const projectStudents = await users
-          .find({
-            _id: { $in: parentValue.students.map((id) => new ObjectId(id)) },
-            role: "STUDENT",
-          })
-          .toArray();
-        return projectStudents || [];
-      },
-    },
-  
+    //COMPUTED VALUE: UPDATES
     Update: {
 
-      posterUser: async (parentValue) => {
-        const users = await userCollection();
-        const posterUser = await users.findOne({ _id: new ObjectId(parentValue.posterUserId) });
-        
-        //Provide a fallback object for poster if not found (probably from being deleted)
-        if (!posterUser) {
-          console.warn(`User not found for posterUserId: ${parentValue.posterUserId}`);
-          return {
-            _id: "unknown",
-            firstName: "Unknown",
-            lastName: "User",
-            email: "unknown@example.com",
-            role: "STUDENT",
-            department: "COMPUTER_SCIENCE",
-            bio: "User not found.",
-          };
-        }
-        return posterUser;
-      },
-  
-      project: async (parentValue) => {
-        const projects = await projectCollection();
-        const project = await projects.findOne({ _id: new ObjectId(parentValue.projectId) });
+      //COMPUTED VALUE: updates: posterUser (User who posted update)
       
-        //Provide a fallback object for project if not found (probably from being deleted)
-        if (!project) {
-          console.warn(`Project not found for projectId: ${parentValue.projectId}`);
-          return {
-            _id: "unknown",
-            title: "Unknown Project",
-            description: "Project not found.",
-            createdDate: new Date().toISOString(),
-            department: "COMPUTER_SCIENCE",
-          };
-        }
-        return project;
+        posterUser: async (parentValue) => {
+
+          const users = await userCollection();
+          const posterUser = await users.findOne({ _id: new ObjectId(parentValue.posterUserId) });
+          
+          //Provide a fallback object for poster if not found (probably from being deleted)
+          if (!posterUser) {
+            console.warn(`User not found for posterUserId: ${parentValue.posterUserId}`);
+            return {
+              _id: "unknown",
+              firstName: "Unknown",
+              lastName: "User",
+              email: "unknown@example.com",
+              role: "STUDENT",
+              department: "COMPUTER_SCIENCE",
+              bio: "User not found.",
+            };
+          }
+          return posterUser;
+        },
+  
+      //COMPUTED VALUE: updates: project
+
+        project: async (parentValue) => {
+
+          const projects = await projectCollection();
+          const project = await projects.findOne({ _id: new ObjectId(parentValue.projectId) });
+        
+          //Provide a fallback object for project if not found (probably from being deleted)
+          if (!project) {
+            console.warn(`Project not found for projectId: ${parentValue.projectId}`);
+            return {
+              _id: "unknown",
+              title: "Unknown Project",
+              description: "Project not found.",
+              createdDate: new Date().toISOString(),
+              department: "COMPUTER_SCIENCE",
+            };
+          }
+          return project;
+          
+        },
+  
+      //COMPUTED VALUE: updates: comments
+
+        comments: async (parentValue) => {
+          const comments = await commentCollection();
+          const updateComments = await comments
+            .find({ destinationId: parentValue._id.toString() })
+            .toArray();
+          return updateComments || [];
+        },
+  
+      //COMPUTED VALUE: updates: numOfComments 
+
+        numOfComments: async (parentValue) => {
+          const comments = await commentCollection();
+          const numOfComments = await comments.countDocuments({
+            destinationId: parentValue._id.toString(),
+          });
+          return numOfComments || 0;
+        },
       },
   
-      comments: async (parentValue) => {
-        const comments = await commentCollection();
-        const updateComments = await comments
-          .find({ destinationId: parentValue._id.toString() })
-          .toArray();
-        return updateComments || [];
-      },
-  
-      numOfComments: async (parentValue) => {
-        const comments = await commentCollection();
-        const numOfComments = await comments.countDocuments({
-          destinationId: parentValue._id.toString(),
-        });
-        return numOfComments || 0;
-      },
-    },
-  
+    //COMPUTED VALUES: APPLICATION
     Application: {
-      applicant: async (parentValue) => {
-        const users = await userCollection();
-        const applicant = await users.findOne({ _id: new ObjectId(parentValue.applicantId) });
-        
-      //Provide a fallback object for applicant if not found (probably from being deleted)
-        if (!applicant) {
-          console.warn(`Applicant not found for applicantId: ${parentValue.applicantId}`);
-          return {
-            _id: "unknown",
-            firstName: "Unknown",
-            lastName: "User",
-            email: "unknown@example.com",
-            role: "STUDENT",
-            department: "COMPUTER_SCIENCE",
-            bio: "User not found.",
-          };
-        }
-        return applicant;
-      },
+
+      //COMPUTED VALUE: application: applicant
+      
+        applicant: async (parentValue) => {
+          const users = await userCollection();
+          const applicant = await users.findOne({ _id: new ObjectId(parentValue.applicantId) });
+          
+        //Provide a fallback object for applicant if not found (probably from being deleted)
+          if (!applicant) {
+            console.warn(`Applicant not found for applicantId: ${parentValue.applicantId}`);
+            return {
+              _id: "unknown",
+              firstName: "Unknown",
+              lastName: "User",
+              email: "unknown@example.com",
+              role: "STUDENT",
+              department: "COMPUTER_SCIENCE",
+              bio: "User not found.",
+            };
+          }
+          return applicant;
+        },
   
-      project: async (parentValue) => {
-        const projects = await projectCollection();
-        const project = await projects.findOne({ _id: new ObjectId(parentValue.projectId) });
-        
-        //Provide a fallback object for project if not found (probably from being deleted)
-        if (!project) {
-          console.warn(`Project not found for projectId: ${parentValue.projectId}`);
-          return {
-            _id: "unknown",
-            title: "Unknown Project",
-            description: "Project not found.",
-            createdDate: new Date().toISOString(),
-            department: "COMPUTER_SCIENCE",
-          };
-        }
-        return project;
-      },
+      //COMPUTED VALUE: application: project
+      
+        project: async (parentValue) => {
+          const projects = await projectCollection();
+          const project = await projects.findOne({ _id: new ObjectId(parentValue.projectId) });
+          
+          //Provide a fallback object for project if not found (probably from being deleted)
+          if (!project) {
+            console.warn(`Project not found for projectId: ${parentValue.projectId}`);
+            return {
+              _id: "unknown",
+              title: "Unknown Project",
+              description: "Project not found.",
+              createdDate: new Date().toISOString(),
+              department: "COMPUTER_SCIENCE",
+            };
+          }
+          return project;
+        },
   
-      comments: async (parentValue) => {
-        const comments = await commentCollection();
-        const applicationComments = await comments
-          .find({ destinationId: parentValue._id.toString() })
-          .toArray();
-        return applicationComments || [];
-      },
+      //COMPUTED VALUE: application: comments
+
+        comments: async (parentValue) => {
+          const comments = await commentCollection();
+          const applicationComments = await comments
+            .find({ destinationId: parentValue._id.toString() })
+            .toArray();
+          return applicationComments || [];
+        },
   
-      numOfComments: async (parentValue) => {
-        const comments = await commentCollection();
-        const numOfComments = await comments.countDocuments({
-          destinationId: parentValue._id.toString(),
-        });
-        return numOfComments || 0;
-      },
+      //COMPUTED VALUE: application: numOfComments
+
+        numOfComments: async (parentValue) => {
+          const comments = await commentCollection();
+          const numOfComments = await comments.countDocuments({
+            destinationId: parentValue._id.toString(),
+          });
+          return numOfComments || 0;
+        },
+
     },
   
+    //COMPUTED VALUES: COMMENT:
     Comment: {
-      commenter: async (parentValue) => {
-        const users = await userCollection();
-        const commenter = await users.findOne({ _id: new ObjectId(parentValue.commenterId) });
-        
-        //Provide a fallback object for commenter if not found (probably from being deleted)
-        if (!commenter) {
-          console.warn(`Commenter not found for commenterId: ${parentValue.commenterId}`);
-          return {
-            _id: "unknown",
-            firstName: "Unknown",
-            lastName: "User",
-            email: "unknown@example.com",
-            role: "STUDENT",
-            department: "COMPUTER_SCIENCE",
-            bio: "User not found.",
-          };
-        }
-        return commenter;
-      },
+      
+      //COMPUTED VALUE: comment: commenter
+      
+        commenter: async (parentValue) => {
+          
+          const users = await userCollection();
+          const commenter = await users.findOne({ _id: new ObjectId(parentValue.commenterId) });
+          
+          //Provide a fallback object for commenter if not found (probably from being deleted)
+          if (!commenter) {
+            console.warn(`Commenter not found for commenterId: ${parentValue.commenterId}`);
+            return {
+              _id: "unknown",
+              firstName: "Unknown",
+              lastName: "User",
+              email: "unknown@example.com",
+              role: "STUDENT",
+              department: "COMPUTER_SCIENCE",
+              bio: "User not found.",
+            };
+          }
+          return commenter;
+        },
+
     },
 
 Mutation: {
