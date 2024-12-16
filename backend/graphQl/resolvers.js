@@ -1354,7 +1354,7 @@ export const resolvers = {
             };
           }
           return project;
-          
+
         },
   
       //COMPUTED VALUE: updates: comments
@@ -1473,190 +1473,191 @@ export const resolvers = {
 
     },
 
-Mutation: {
-
-  addUser: async (_, args) => {
-    //Have to go before traditional checks. Why? confirm they exist before you use them.
-    //Check if required fields there
-    if (
-      !args.firstName ||
-      !args.lastName ||
-      !args.email ||
-      !args.password ||
-      !args.role ||
-      !args.department
-    ) {
-      throw new GraphQLError(
-        "To create a user, their first name, last name, email, password, role and department must be provided.",
-        {
-          extensions: { code: "BAD_USER_INPUT" },
-        }
-      );
-    }
-
-    //Check that no extra fields provided
-    const fieldsAllowed = [
-      "firstName",
-      "lastName",
-      "email",
-      "password",
-      "role",
-      "department",
-      "bio",
-    ];
-    for (let key in args) {
-      if (!fieldsAllowed.includes(key)) {
-        throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-          //Similar status code: 404
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-    }
-
-    //Checks
-    helpers.checkArg(args.firstName, "string", "name");
-    helpers.checkArg(args.lastName, "string", "name");
-    helpers.checkArg(args.email, "string", "email");
-    helpers.checkArg(args.password, "string", "password");
-    helpers.checkArg(args.role, "string", "role");
-    helpers.checkArg(args.department, "string", "department");
-    if (args.bio) {
-      helpers.checkArg(args.bio, "string", "bio");
-    }
+  Mutation: {
 
 
-    //Pull user collection
-    const users = await userCollection();
-
-    //Extra email check for duplicates
-    const existingUser = await users.findOne({ email: args.email.trim() });
-
-    if (existingUser) {
-      throw new GraphQLError("Email already exists.", {
-        extensions: { code: "BAD_USER_INPUT" },
-      });
-    }
-
-    // Creates a new user in Firebase Authentication with email, password, and display name.
-    // Managed by Firebase for authentication purposes.
-    const userRecord = await admin.auth().createUser({
-      email: args.email,
-      password: args.password,
-      displayName: `${args.firstName} ${args.lastName}`,
-    });
-
-    // Create a User object, toAddUser, using the arguments, set objectId
-    const toAddUser = {
-      _id: new ObjectId(),
-      firstName: args.firstName.trim(),
-      lastName: args.lastName.trim(),
-      email: args.email.trim(),
-      // //TO DO: Confirm we're happy with this hashing approach
-      // password: await bcrypt.hash(args.password.trim(), 10),
-      role: args.role.trim().toUpperCase(),
-      department: args.department.trim().toUpperCase(),
-      bio: args.bio ? args.bio.trim() : null, //If bio exists, trim, else, null
-      //applications: [],
-      //projects: [],
-      //numOfApplications: 0,
-      //numOfProjects: 0,
-      //channels: [],
-    };
-
-    //Use insertOne to add the user to the users' collection
-    let addedUser = await users.insertOne(toAddUser);
-
-    //If user not added scuccessfully, throw a GraphQLError
-    if (!addedUser.acknowledged || !addedUser.insertedId) {
-      throw new GraphQLError(
-        `The user could not be added to the collection.`,
-        {
-          //Similar to status code 500
-          extensions: { code: "INTERNAL_SERVER_ERROR" },
-        }
-      );
-    }
-
-    //REDIS operations
-
-    try {
-      //Add user to the redis cache
-      const cacheKey = `user:${toAddUser._id}`;
-      await redisClient.set(cacheKey, JSON.stringify(toAddUser));
-
-      // Clear the 'users' in the cache bc this is no longer accurate
-      await redisClient.del("users");
-    } catch (error) {
-      console.error("Redis operation failed:", error);
-
-      throw new GraphQLError(
-        "Failed to update Redis cache after adding the user.",
-        {
-          extensions: {
-            code: "INTERNAL_SERVER_ERROR",
-            cause: error.message,
-          },
-        }
-      );
-    }
-
-    //Return user without exposing password
-    const { password, ...safeUser } = toAddUser; //Destructure: extract password, gather the rest of properties into safeuser
-    return safeUser;
-  },
-
-  // editUser
-    // Purpose: Edit an existing user by ID
-    // Cache: Update the Redis cache accordingly
-
-    editUser: async (_, args) => {
-      // Check if required field '_id' is present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
+    //MUTATION: addUser
+    //Purpose: Add new user object to user database
+    //Cache: Add cache for individual user; delete cache for all users
     
-      // Check that no extra fields are provided
-      const fieldsAllowed = [
-        "_id",
-        "firstName",
-        "lastName",
-        "email",
-        "password",
-        "role",
-        "department",
-        "bio",
-      ];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+      addUser: async (_, args) => {
+
+        //Have to go before traditional checks. Why? confirm they exist before you use them.
+        //Check if required fields there
+        if (
+          !args.firstName ||
+          !args.lastName ||
+          !args.email ||
+          !args.password ||
+          !args.role ||
+          !args.department
+        ) {
+          throw new GraphQLError(
+            "To create a user, their first name, last name, email, password, role and department must be provided.",
+            {
+              extensions: { code: "BAD_USER_INPUT" },
+            }
+          );
+        }
+
+        //Check that no extra fields provided
+        const fieldsAllowed = [
+          "firstName",
+          "lastName",
+          "email",
+          "password",
+          "role",
+          "department",
+          "bio",
+        ];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              //Similar status code: 404
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        }
+
+        //Checks
+        helpers.checkArg(args.firstName, "string", "name");
+        helpers.checkArg(args.lastName, "string", "name");
+        helpers.checkArg(args.email, "string", "email");
+        helpers.checkArg(args.password, "string", "password");
+        helpers.checkArg(args.role, "string", "role");
+        helpers.checkArg(args.department, "string", "department");
+        if (args.bio) {
+          helpers.checkArg(args.bio, "string", "bio");
+        }
+
+        //Pull user collection
+        const users = await userCollection();
+
+        //Extra email check for duplicates
+        const existingUser = await users.findOne({ email: args.email.trim() });
+
+        if (existingUser) {
+          throw new GraphQLError("Email already exists.", {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
-    
-      // Checks
-      helpers.checkArg(args._id, "string", "id");
-    
-      // Convert _id string to ObjectId
-      const userId = new ObjectId(args._id);
-    
-      // Pull the user collection and find the user to update
-      const users = await userCollection();
-      let userToUpdate = await users.findOne({ _id: userId });
-    
-      if (!userToUpdate) {
-        throw new GraphQLError("The user ID provided is invalid.", {
-          extensions: { code: "BAD_USER_INPUT" },
+
+        // Creates a new user in Firebase Authentication with email, password, and display name.
+        // Managed by Firebase for authentication purposes.
+        const userRecord = await admin.auth().createUser({
+          email: args.email,
+          password: args.password,
+          displayName: `${args.firstName} ${args.lastName}`,
         });
+
+        // Create a User object, toAddUser, using the arguments, set objectId
+        const toAddUser = {
+          _id: new ObjectId(),
+          firstName: args.firstName.trim(),
+          lastName: args.lastName.trim(),
+          email: args.email.trim(),
+          // password: await bcrypt.hash(args.password.trim(), 10),
+          role: args.role.trim().toUpperCase(),
+          department: args.department.trim().toUpperCase(),
+          bio: args.bio ? args.bio.trim() : null, //If bio exists, trim, else, null
+        };
+
+        //Use insertOne to add the user to the users' collection
+        let addedUser = await users.insertOne(toAddUser);
+
+        //If user not added scuccessfully, throw a GraphQLError
+        if (!addedUser.acknowledged || !addedUser.insertedId) {
+          throw new GraphQLError(
+            `The user could not be added to the collection.`,
+            {
+              //Similar to status code 500
+              extensions: { code: "INTERNAL_SERVER_ERROR" },
+            }
+          );
+        }
+
+      //Redis operations
+      try {
+        //Add user to the redis cache
+        const cacheKey = `user:${toAddUser._id}`;
+        await redisClient.set(cacheKey, JSON.stringify(toAddUser));
+
+        // Clear the 'users' in the cache bc this is no longer accurate
+        await redisClient.del("users");
+
+      } catch (error) {
+
+        console.error("Redis operation failed:", error);
+
+        throw new GraphQLError(
+          "Failed to update Redis cache after adding the user.",
+          {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              cause: error.message,
+            },
+          }
+        );
       }
-    
-      // Object to hold fields to update
-      const updateFields = {};
-    
-      // If pulling the user was successful
-      if (userToUpdate) {
+
+      //Return user without exposing password
+      const { password, ...safeUser } = toAddUser; //Destructure: extract password, gather the rest of properties into safeuser
+      return safeUser;
+
+    },
+
+
+    // MUTATION: editUser
+    // Purpose: Edit an existing user by ID
+    // Cache: Delete individual and all user caches; these will update on next fetches
+
+      editUser: async (_, args) => {
+
+        // Check if required field '_id' is present
+        if (!args._id) {
+          throw new GraphQLError("The _id field is required.", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+      
+        // Check that no extra fields are provided
+        const fieldsAllowed = [
+          "_id",
+          "firstName",
+          "lastName",
+          "email",
+          "password",
+          "role",
+          "department",
+          "bio",
+        ];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        }
+      
+        // Checks
+        helpers.checkArg(args._id, "string", "id");
+      
+        // Convert _id string to ObjectId
+        const userId = new ObjectId(args._id);
+      
+        // Pull the user collection and find the user to update
+        const users = await userCollection();
+        let userToUpdate = await users.findOne({ _id: userId });
+      
+        if (!userToUpdate) {
+          throw new GraphQLError("The user ID provided is invalid.", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+      
+        // Object to hold fields to update
+        const updateFields = {};
+      
         // First Name update
         if (args.firstName) {
           helpers.checkArg(args.firstName, "string", "name");
@@ -1723,6 +1724,7 @@ Mutation: {
           );
         }
     
+        //Redis operations
         try {
           // Delete the individual user cache
           await redisClient.del(`user:${args._id}`);
@@ -1733,380 +1735,105 @@ Mutation: {
             extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
           });
         }
-      }
-    
-      // Return updated user without exposing password
-      const updatedUser = { ...userToUpdate, ...updateFields };
-      const { password, ...safeUser } = updatedUser;
-      return safeUser;
-    },    
 
-    removeUser: async (_, args) => {
-      //Overkill? Already accomplsihed by helpers? TBD at a later date
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          //Similar status code: 404
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
+        // Return updated user without exposing password
+        const updatedUser = { ...userToUpdate, ...updateFields };
+        const { password, ...safeUser } = updatedUser;
+        return safeUser;
 
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+      },
+
+
+    // MUTATION: removeUser
+    // Purpose: Delete an existing user by ID; ALSO: delete thier applications, updates and comments
+    // Cache: Delete individual and all user caches; these will update on next fetches          
+
+      removeUser: async (_, args) => {
+        
+        // Check if required fields are present
+        if (!args._id) {
+          throw new GraphQLError("The _id field is required.", {
             //Similar status code: 404
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      }
 
-      //Checks
-      helpers.checkArg(args._id, "string", "id");
-
-      // Convert _id string to ObjectId
-      const userId = new ObjectId(args._id);
-
-      //Pull the user and application collections
-      const users = await userCollection();
-
-      //Use findOneAndDelete to remove user from the user collection
-      const deletedUser = await users.findOneAndDelete({ _id: userId });
-
-      //If user could not be deleted, throw GraphQLError.
-      if (!deletedUser) {
-        throw new GraphQLError(
-          `Failed to delete user with this ID (${args._id}). Failed to either find or delete.`,
-          {
-            //Similar to status code 404
-            extensions: { code: "BAD_USER_INPUT" },
+        // Check for extra fields
+        const fieldsAllowed = ["_id"];
+        for (let key in args) {
+          if (!fieldsAllowed.includes(key)) {
+            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+              //Similar status code: 404
+              extensions: { code: "BAD_USER_INPUT" },
+            });
           }
-        );
-      }
-
-      //Propagate this removal across all objects with user objects
-      /*
-      await propagators.propagateUserRemovalChanges(args._id);*/
-
-      //Remove related reference ids
-      const applications = await applicationCollection();
-      const updates = await updateCollection();
-      const comments = await commentCollection();
-
-      const deletedApplications = await applications.deleteMany({ applicantId: args._id });
-      const deletedUpdates = await updates.deleteMany({ posterUserId: args._id });
-      const deletedComments = await comments.deleteMany({ commenterId: args._id });
-
-      // Delete the users and projects cache, as they are no longer accurate; and individual user cache
-      try {
-        await redisClient.del("users");
-        // await redisClient.del("applications");
-        await redisClient.del(`user:${args._id}`);
-        console.log("Redis cache updated for user deletion.");
-      } catch (error) {
-        console.error("Failed to update Redis cache:", error);
-        throw new GraphQLError(
-          "Failed to update Redis cache after removing the user.",
-          {
-            extensions: {
-              code: "INTERNAL_SERVER_ERROR",
-              cause: error.message,
-            },
-          }
-        );
-      }
-
-      //Return the value of the deleted user
-      return deletedUser;
-    },
-
-    // addProject
-    // Purpose: Create a new project and add it to MongoDB
-    // Cache: Add the project to the Redis cache
-
-
-    addProject: async (_, args) => {
-      // Check if required fields are present
-      if (!args.title || !args.department) {
-        throw new GraphQLError(
-          "The title and department are required to create a project.",
-          {
-            extensions: { code: "BAD_USER_INPUT" },
-          }
-        );
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = [
-        "title",
-        "description",
-        "department",
-        "professorIds",
-        "studentIds",
-      ];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
         }
-      }
 
-      // Validate arguments
-      helpers.checkArg(args.title, "string", "title");
-      helpers.checkArg(args.department, "string", "department");
-      if (args.professorIds) {
-        helpers.checkArg(args.professorIds, "array", "professorIds");
-        args.professorIds.forEach((id) => helpers.checkArg(id, "string", "id"));
-      }
-      if (args.studentIds) {
-        helpers.checkArg(args.studentIds, "array", "studentIds");
-        args.studentIds.forEach((id) => helpers.checkArg(id, "string", "id"));
-      }
+        //Checks
+        helpers.checkArg(args._id, "string", "id");
 
-      // Prepare professor and student IDs
-      const toAddProfessorIds = args.professorIds ? args.professorIds.map((id) => id.trim()) : [];
-      const toAddStudentIds = args.studentIds ? args.studentIds.map((id) => id.trim()) : [];
+        // Convert _id string to ObjectId
+        const userId = new ObjectId(args._id);
 
-      // Pull project collection
-      const projects = await projectCollection();
-
-      // Create a new project object
-      const newProject = {
-        _id: new ObjectId(),
-        title: args.title.trim(),
-        createdDate: new Date().toISOString(),
-        description: args.description ? args.description.trim() : null,
-        department: args.department.trim(),
-        professors: toAddProfessorIds, //strings of user IDs
-        students: toAddStudentIds, //strings of user IDs
-      };
-
-      // Insert the new project into the database
-      const insertedProject = await projects.insertOne(newProject);
-
-      // Confirm it was added. If it was not, throw an error.
-      if (!insertedProject.acknowledged || !insertedProject.insertedId) {
-        throw new GraphQLError(`Could not add project.`, {
-          extensions: { code: "INTERNAL_SERVER_ERROR" },
-        });
-      }
-
-      // Update Redis cache
-      try {
-        // Add the project as an individual project cache
-        const cacheKey = `project:${newProject._id}`;
-        await redisClient.set(cacheKey, JSON.stringify(newProject));
-
-        // Delete the projects cache, as it's no longer accurate
-        await redisClient.del("projects");
-      } catch (error) {
-        console.error("Failed to update Redis cache:", error);
-        throw new GraphQLError(
-          "Failed to update Redis cache after adding the project.",
-          {
-            extensions: {
-              code: "INTERNAL_SERVER_ERROR",
-              cause: error.message,
-            },
-          }
-        );
-      }
-
-      return newProject;
-    },
-
-    // editProject
-    // Purpose: Edit an existing project by ID
-    // Cache: Update the Redis cache accordingly
-
-    editProject: async (_, args) => {
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = [
-        "_id",
-        "title",
-        "department",
-        "description",
-        "professorIds",
-        "studentIds",
-        "applicationIds",
-      ];
-
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            // Similar status code: 404
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-      }
-
-      //Checks
-      helpers.checkArg(args._id, "string", "id");
-      const projectId = new ObjectId(args._id);
-
-      //Pull projects collection
-      const projects = await projectCollection();
-
-      //Use findOne to get the project to be edited
-      //Use to set values to locally before adding back to the MongoDb
-      const projectToUpdate = await projects.findOne({ _id: projectId });
-
-      if (!projectToUpdate) {
-        throw new GraphQLError(`Project with ID ${args._id} does not exist.`, {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      //Create object to hold fields that will be updated
-      const updateFields = {};
-
-
-      //Name Update
-      if (args.title) {
-        helpers.checkArg(args.title, "string", "title");
-        updateFields.title = args.title.trim();
-      }
-
-      if (args.description) {
-        helpers.checkArg(args.description, "string", "description");
-        updateFields.description = args.description.trim();
-      }
-
-      //Location Update
-      if (args.department) {
-        helpers.checkArg(args.department, "string", "department");
-        updateFields.department = args.department.trim().toUpperCase();
-      }
-
-      if (args.professorIds) {
-        /*helpers.checkArg(args.professorIds, "array", "professorIds");
-        updateFields.professors = [];
+        //Pull the user and application collections
         const users = await userCollection();
 
-        for (const id of args.professorIds) {
+        //Use findOneAndDelete to remove user from the user collection
+        const deletedUser = await users.findOneAndDelete({ _id: userId });
 
-          helpers.checkArg(id, "string", "id");
-
-          //let newProfessor = await getUserById(id);
-          let newProfessor = await users.findOne({ _id: new ObjectId(id)});
-
-          if (newProfessor) {
-            updateFields.professors.push(newProfessor);
-          }
-
-        }*/
-
-          helpers.checkArg(args.professorIds, "array", "professorIds");
-          args.professorIds.forEach((id) => helpers.checkArg(id, "string", "id"));
-          updateFields.professors = args.professorIds.map((id) => id.trim());
-
-      }
-
-      if (args.studentIds) {
-        
-        /*helpers.checkArg(args.studentIds, "array", "studentIds");
-        updateFields.students = [];
-        const users = await userCollection();
-
-        for (const id of args.studentIds) {
-          helpers.checkArg(id, "string", "id");
-          //let newStudent = getUserById(id);
-          let newStudent = await users.findOne({ _id: new ObjectId(id)});
-
-          if (newStudent) {
-            updateFields.students.push(newStudent);
-          }
-        }*/
-          helpers.checkArg(args.studentIds, "array", "studentIds");
-          args.studentIds.forEach((id) => helpers.checkArg(id, "string", "id"));
-          updateFields.students = args.studentIds.map((id) => id.trim());
-      }
-
-      //Applications
-      //Now modeled after how professors and students arrays are edited.
-      if (args.applicationIds) {
-        
-        helpers.checkArg(args.applicationIds, "array", "applicationIds");
-        args.applicationIds.forEach((id) => helpers.checkArg(id, "string", "id"));
-        updateFields.applications = args.applicationIds.map((id) => id.trim());
-
-        /*helpers.checkArg(args.applicationIds, "array", "applicationIds");
-        
-        updateFields.applications = [];
-        
-        const applications = await applicationCollection();
-      
-        for (const id of args.applicationIds) {
-          
-          helpers.checkArg(id, "string", "id");
-      
-          const application = await applications.findOne({ _id: new ObjectId(id) });
-      
-          if (!application) {
-            console.warn(`Application with ID ${id} does not exist. Skipping.`);
-            continue; // Skip this invalid application ID
-          }
-      
-          // Add the valid application to the updated applications array
-          updateFields.applications.push(application);*/
-        }
-
-        //Use updateOne, matching the _id to the args._id. Note: the ID cannot be updated
-        // $set: updates specific fields of a document without overwriting the entire document
-        const result = await projects.updateOne(
-          { _id: projectId},
-          { $set: updateFields }
-        );
-
-        if (result.modifiedCount === 0) {
+        //If user could not be deleted, throw GraphQLError.
+        if (!deletedUser) {
           throw new GraphQLError(
-            `The project with ID ${args._id} was not successfully updated.`,
+            `Failed to delete user with this ID (${args._id}). Failed to either find or delete.`,
             {
-              extensions: { code: "INTERNAL_SERVER_ERROR" },
+              //Similar to status code 404
+              extensions: { code: "BAD_USER_INPUT" },
             }
           );
         }
 
-        /*
-        //Propagate this edit across all objects with project objects
-        await propagators.propagateProjectEditChanges(args._id, {
-          ...projectToUpdate,
-          ...updateFields,
-        });*/
+        //Remove related reference ids
+        const applications = await applicationCollection();
+        const updates = await updateCollection();
+        const comments = await commentCollection();
 
-        // Fetch the updated project data after successful update
-        //const updatedProject = { ...projectToUpdate, ...updateFields };
-        const updatedProject = await projects.findOne({ _id: projectToUpdate._id });
+        const deletedApplications = await applications.deleteMany({ applicantId: args._id });
+        const deletedUpdates = await updates.deleteMany({ posterUserId: args._id });
+        const deletedComments = await comments.deleteMany({ commenterId: args._id });
 
-        if (!updatedProject) {
-          throw new GraphQLError("Failed to fetch updated project data after update.", {
-            extensions: { code: "INTERNAL_SERVER_ERROR" },
-          });
-        }
-
-        //Try/catch for redis
         try {
-          // Delete the projects cache as it's now out of date
-          await redisClient.del("projects");
+          
+          // Delete general caches
+          await redisClient.del("users");
+          await redisClient.del("applications");
+          await redisClient.del("updates");
+          await redisClient.del("comments");
+        
+          // Delete individual caches for each application, update, and comment tied to the user
+          if (deletedApplications.deletedCount > 0) {
+            for (let app of await applications.find({ applicantId: args._id }).toArray()) {
+              await redisClient.del(`application:${app._id}`);
+            }
+          }
+        
+          if (deletedUpdates.deletedCount > 0) {
+            for (let update of await updates.find({ posterUserId: args._id }).toArray()) {
+              await redisClient.del(`update:${update._id}`);
+            }
+          }
+        
+          if (deletedComments.deletedCount > 0) {
+            for (let comment of await comments.find({ commenterId: args._id }).toArray()) {
+              await redisClient.del(`comment:${comment._id}`);
+            }
+          }
+        
+          console.log("Redis caches cleared for applications, updates, and comments.");
 
-          //Update the projects's individual cache;
-          await redisClient.set(
-            `project:${args._id}`,
-            JSON.stringify(updatedProject)
-          );
         } catch (error) {
-          console.error("Failed to update Redis cache:", error);
+          console.error("Failed to update Redis caches:", error);
           throw new GraphQLError(
-            "Failed to update Redis cache after updating the project.",
+            "Failed to update Redis cache after removing the user.",
             {
               extensions: {
                 code: "INTERNAL_SERVER_ERROR",
@@ -2116,893 +1843,1260 @@ Mutation: {
           );
         }
 
-        //Return the updated project object, which shows the new field values
-        return updatedProject;
+        //Return the value of the deleted user
+        return deletedUser;
+
       },
 
-      removeProject: async (_, args) => {
-        // Validate input
-        if (!args._id) {
-          throw new GraphQLError("The _id field is required.", {
-            extensions: { code: "BAD_USER_INPUT" },
+
+      // MUTATION: addProject
+      // Purpose: Create a new project and add it to MongoDB
+      // Cache: Add the project to the Redis cache; delete all project cache
+
+        addProject: async (_, args) => {
+          
+          // Check if required fields are present
+          if (!args.title || !args.department) {
+            throw new GraphQLError(
+              "The title and department are required to create a project.",
+              {
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
+          }
+
+          // Check for extra fields
+          const fieldsAllowed = [
+            "title",
+            "description",
+            "department",
+            "professorIds",
+            "studentIds",
+          ];
+          for (let key in args) {
+            if (!fieldsAllowed.includes(key)) {
+              throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+          }
+
+          // Validate arguments
+          helpers.checkArg(args.title, "string", "title");
+          helpers.checkArg(args.department, "string", "department");
+          if (args.professorIds) {
+            helpers.checkArg(args.professorIds, "array", "professorIds");
+            args.professorIds.forEach((id) => helpers.checkArg(id, "string", "id"));
+          }
+          if (args.studentIds) {
+            helpers.checkArg(args.studentIds, "array", "studentIds");
+            args.studentIds.forEach((id) => helpers.checkArg(id, "string", "id"));
+          }
+
+          // Prepare professor and student IDs
+          const toAddProfessorIds = args.professorIds ? args.professorIds.map((id) => id.trim()) : [];
+          const toAddStudentIds = args.studentIds ? args.studentIds.map((id) => id.trim()) : [];
+
+          // Pull project collection
+          const projects = await projectCollection();
+
+          // Create a new project object
+          const newProject = {
+            _id: new ObjectId(),
+            title: args.title.trim(),
+            createdDate: new Date().toISOString(),
+            description: args.description ? args.description.trim() : null,
+            department: args.department.trim(),
+            professors: toAddProfessorIds, //strings of user IDs
+            students: toAddStudentIds, //strings of user IDs
+          };
+
+          // Insert the new project into the database
+          const insertedProject = await projects.insertOne(newProject);
+
+          // Confirm it was added. If it was not, throw an error.
+          if (!insertedProject.acknowledged || !insertedProject.insertedId) {
+            throw new GraphQLError(`Could not add project.`, {
+              extensions: { code: "INTERNAL_SERVER_ERROR" },
+            });
+          }
+
+          // Update Redis cache
+          try {
+            // Add the project as an individual project cache
+            const cacheKey = `project:${newProject._id}`;
+            await redisClient.set(cacheKey, JSON.stringify(newProject));
+            // Delete the projects cache, as it's no longer accurate
+            await redisClient.del("projects");
+          } catch (error) {
+            console.error("Failed to update Redis cache:", error);
+            throw new GraphQLError(
+              "Failed to update Redis cache after adding the project.",
+              {
+                extensions: {
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: error.message,
+                },
+              }
+            );
+          }
+
+          return newProject;
+
+        },
+
+
+      // MUTATION: editProject
+      // Purpose: Edit an existing project by ID
+      // Cache: Update the Redis cache accordingly
+
+        editProject: async (_, args) => {
+
+          // Check if required fields are present
+          if (!args._id) {
+            throw new GraphQLError("The _id field is required.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+
+          // Check for extra fields
+          const fieldsAllowed = [
+            "_id",
+            "title",
+            "department",
+            "description",
+            "professorIds",
+            "studentIds",
+            "applicationIds",
+          ];
+
+          for (let key in args) {
+            if (!fieldsAllowed.includes(key)) {
+              throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                // Similar status code: 404
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+          }
+
+          //Checks
+          helpers.checkArg(args._id, "string", "id");
+          const projectId = new ObjectId(args._id);
+
+          //Pull projects collection
+          const projects = await projectCollection();
+
+          //Use findOne to get the project to be edited
+          //Use to set values to locally before adding back to the MongoDb
+          const projectToUpdate = await projects.findOne({ _id: projectId });
+
+          if (!projectToUpdate) {
+            throw new GraphQLError(`Project with ID ${args._id} does not exist.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+
+          //Create object to hold fields that will be updated
+          const updateFields = {};
+
+
+          //Name Update
+          if (args.title) {
+            helpers.checkArg(args.title, "string", "title");
+            updateFields.title = args.title.trim();
+          }
+
+          //Description update
+          if (args.description) {
+            helpers.checkArg(args.description, "string", "description");
+            updateFields.description = args.description.trim();
+          }
+
+          //Location Update
+          if (args.department) {
+            helpers.checkArg(args.department, "string", "department");
+            updateFields.department = args.department.trim().toUpperCase();
+          }
+
+          //ProfessorIds update
+          if (args.professorIds) {
+              helpers.checkArg(args.professorIds, "array", "professorIds");
+              args.professorIds.forEach((id) => helpers.checkArg(id, "string", "id"));
+              updateFields.professors = args.professorIds.map((id) => id.trim());
+          }
+          
+          //StudentIds update
+          if (args.studentIds) { 
+              helpers.checkArg(args.studentIds, "array", "studentIds");
+              args.studentIds.forEach((id) => helpers.checkArg(id, "string", "id"));
+              updateFields.students = args.studentIds.map((id) => id.trim());
+          }
+
+          //ApplicationIds update
+          if (args.applicationIds) {
+            helpers.checkArg(args.applicationIds, "array", "applicationIds");
+            args.applicationIds.forEach((id) => helpers.checkArg(id, "string", "id"));
+            updateFields.applications = args.applicationIds.map((id) => id.trim());
+          }
+
+          // Update projects collection
+          // Use updateOne, matching the _id to the args._id. Note: the ID cannot be updated
+          // $set: updates specific fields of a document without overwriting the entire document
+          const result = await projects.updateOne(
+            { _id: projectId},
+            { $set: updateFields }
+          );
+
+          if (result.modifiedCount === 0) {
+            throw new GraphQLError(
+              `The project with ID ${args._id} was not successfully updated.`,
+              {
+                extensions: { code: "INTERNAL_SERVER_ERROR" },
+              }
+            );
+          }
+
+          // Fetch the updated project data after successful update
+          // Why? Easiest way to get all the correct data for the cache
+          const updatedProject = await projects.findOne({ _id: projectToUpdate._id });
+
+          if (!updatedProject) {
+            throw new GraphQLError("Failed to fetch updated project data after update.", {
+              extensions: { code: "INTERNAL_SERVER_ERROR" },
+            });
+          }
+
+          //Redis operations
+          try {
+            
+            // Delete the projects cache as it's now out of date
+            await redisClient.del("projects");
+
+            //Update the projects's individual cache;
+            await redisClient.set(
+              `project:${args._id}`,
+              JSON.stringify(updatedProject)
+            );
+
+          } catch (error) {
+            console.error("Failed to update Redis cache:", error);
+            throw new GraphQLError(
+              "Failed to update Redis cache after updating the project.",
+              {
+                extensions: {
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: error.message,
+                },
+              }
+            );
+          }
+
+          //Return the updated project object, which shows the new field values
+          return updatedProject;
+
+          },
+
+
+        // MUTATION: removeProject
+        // Purpose: Remove the project from the database; remove related applications and updates
+        // Cache: Remove the project to the Redis cache; delete applications/update caches
+
+          removeProject: async (_, args) => {
+
+            // Validate input
+            if (!args._id) {
+              throw new GraphQLError("The _id field is required.", {
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+            helpers.checkArg(args._id, "string", "id");
+          
+            // Pull collections
+            const projects = await projectCollection();
+          
+            // Find the project to delete
+            const projectToDelete = await projects.findOne({ _id: new ObjectId(args._id) });
+          
+            if (!projectToDelete) {
+              throw new GraphQLError(`Project with ID ${args._id} not found.`, {
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+
+            // Delete the project itself
+            const deletedProject = await projects.findOneAndDelete({
+              _id: new ObjectId(args._id),
+            });
+          
+            if (!deletedProject) {
+              throw new GraphQLError(
+                `The project with ID ${args._id} was not successfully found or deleted.`,
+                {
+                  extensions: { code: "BAD_USER_INPUT" },
+                }
+              );
+            }
+          
+            // Delete related updates and applications
+            try {
+
+              const updates = await updateCollection();
+              const applications = await applicationCollection();
+
+              const deletedUpdates = await updates.deleteMany({ projectId: args._id });
+              const deletedApplications = await applications.deleteMany({ projectId: args._id });
+          
+              console.log(
+                `Deleted ${deletedUpdates.deletedCount} updates and ${deletedApplications.deletedCount} applications for project ${args._id}`
+              );
+
+            } catch (error) {
+              console.error("Error cleaning up dependencies:", error);
+              throw new GraphQLError("Failed to delete related updates or applications.", {
+                extensions: { code: "INTERNAL_SERVER_ERROR" },
+              });
+            }
+
+            //Redis operations
+            try {
+
+              // Delete general caches
+              await redisClient.del("projects");
+              await redisClient.del("updates");
+              await redisClient.del("applications");
+            
+              // Delete the individual projects, updates and application caches
+              await redisClient.del(`project:${args._id}`);
+            
+              if (await updates.countDocuments({ projectId: args._id }) > 0) {
+                for (let update of await updates.find({ projectId: args._id }).toArray()) {
+                  await redisClient.del(`update:${update._id}`);
+                }
+              }
+      
+              if (await applications.countDocuments({ projectId: args._id }) > 0) {
+                for (let app of await applications.find({ projectId: args._id }).toArray()) {
+                  await redisClient.del(`application:${app._id}`);
+                }
+              }
+            
+              console.log("Redis caches cleared for project, updates, and applications.");
+
+            } catch (error) {
+              console.error("Failed to update Redis caches:", error);
+              throw new GraphQLError(
+                "Failed to update Redis cache after removing the project.",
+                {
+                  extensions: {
+                    code: "INTERNAL_SERVER_ERROR",
+                    cause: error.message,
+                  },
+                }
+              );
+            }
+          
+            return deletedProject;
+
+          },
+
+
+      // MUTATION: addUpdate
+      // Purpose: Create a new update and add it to MongoDB
+      // Cache: Add the update to the Redis cache; delete all updates cache
+
+        addUpdate: async (_, args) => {
+
+          // Check if required fields are present
+          if (!args.posterId || !args.subject || !args.content || !args.projectId) {
+            throw new GraphQLError(
+              "The posterId, subject, content, and projectId.",
+              {
+                //404
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
+          }
+
+          // Check for extra fields
+          const fieldsAllowed = ["posterId", "subject", "content", "projectId"];
+          for (let key in args) {
+            if (!fieldsAllowed.includes(key)) {
+              throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                //404
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+          }
+
+          //Checks
+          helpers.checkArg(args.posterId, "string", "id");
+          helpers.checkArg(args.subject, "string", "subject");
+          helpers.checkArg(args.content, "string", "content");
+          helpers.checkArg(args.projectId, "string", "id");
+
+          //Pull update, project, and user collection
+          const updates = await updateCollection();
+          const projects = await projectCollection();
+          const users = await userCollection();
+
+          // Use findOne to get the user and the project based on the args
+          // Need to ensure these exist (adding a update does not add these into their respective mongodbs)
+          const user = await users.findOne({ _id: new ObjectId(args.posterId) });
+          const project = await projects.findOne({
+            _id: new ObjectId(args.projectId),
           });
-        }
-        helpers.checkArg(args._id, "string", "id");
-      
-        // Pull collections
-        const projects = await projectCollection();
-        const updates = await updateCollection();
-        const applications = await applicationCollection();
-      
-        // Find the project to delete
-        const projectToDelete = await projects.findOne({ _id: new ObjectId(args._id) });
-      
-        if (!projectToDelete) {
-          throw new GraphQLError(`Project with ID ${args._id} not found.`, {
-            extensions: { code: "BAD_USER_INPUT" },
+
+          //If there isn't an user or a project, then throw a GraphQLError
+          if (!user || !project) {
+            throw new GraphQLError("The user or project ID was not valid.", {
+              //Similar status code: 404
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+
+          //Create a new update object, set the values to be those pulled from the arguments
+          //Make sure to create a new ObjectId for the update, but also change the project and user id's to be object ids
+          const updateToAdd = {
+            _id: new ObjectId(),
+            posterUserId: args.posterId.trim(),
+            projectId: args.projectId.trim(),
+            subject: args.subject.trim(),
+            content: args.content.trim(),
+            postedDate: new Date().toISOString(), // ISO format: 2024-01-01T00:00:00.000Z
+          };
+
+          //Add the update to the updates collection using insertOne
+          let addedUpdate = await updates.insertOne(updateToAdd);
+
+          //If the update was not successfully added, then throw a GraphQLError
+          if (!addedUpdate.acknowledged || !addedUpdate.insertedId) {
+            throw new GraphQLError(`Could not add update.`, {
+              //Similar status code: 500
+              extensions: { code: "INTERNAL_SERVER_ERROR" },
+            });
+          }
+
+          try {
+            //Set update into redis Cache; set to cacheKey
+            //No expiration on cache
+            const cacheKey = `update:${updateToAdd._id}`;
+            await redisClient.set(cacheKey, JSON.stringify(updateToAdd));
+
+            // Delete cache for updates, as these are no longer accurate
+            await redisClient.del("updates");
+          } catch (error) {
+            console.error("Failed to update Redis cache:", error);
+            throw new GraphQLError(
+              "Failed to update Redis cache after adding the update.",
+              {
+                extensions: {
+                  code: "INTERNAL_SERVER_ERROR",
+                  cause: error.message,
+                },
+              }
+            );
+          }
+
+          //return the added update
+          return updateToAdd;
+
+        },
+
+
+      // MUTATION: editUpdate
+      // Purpose: Edit an existing update by ID
+      // Cache: set individual cache and delete collective update cache; will be updated next query
+
+        editUpdate: async (_, args) => {
+
+          // Validate required fields
+          helpers.checkArg(args._id, "string", "id");
+
+          // Validate optional fields
+          if (args.posterId) helpers.checkArg(args.posterId, "string", "id");
+          if (args.subject) helpers.checkArg(args.subject, "string", "subject");
+          if (args.content) helpers.checkArg(args.content, "string", "content");
+          if (args.projectId) helpers.checkArg(args.projectId, "string", "id");
+
+          // Pull the updates collection
+          const updates = await updateCollection();
+
+          // Fetch the update to be edited
+          let updateToUpdate = await updates.findOne({ _id: new ObjectId(args._id) });
+          if (!updateToUpdate) {
+            throw new GraphQLError(`The update with ID ${args._id} could not be found.`, {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+          
+          //Poster (user) id update
+          if (args.posterId) {
+            const users = await userCollection();
+            const user = await users.findOne({ _id: new ObjectId(args.posterId) });
+            if (!user) {
+              throw new GraphQLError("Invalid poster ID.", {
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+            updateToUpdate.posterUserId = args.posterId.trim();
+          }
+
+          //Subject update
+          if (args.subject) {
+            helpers.checkSubject(args.subject);
+            updateToUpdate.subject = args.subject.trim();
+          }
+
+          //Content update
+          if (args.content) {
+            updateToUpdate.content = args.content.trim();
+          }
+
+          //Project ID update
+          if (args.projectId) {
+            const projects = await projectCollection();
+            const project = await projects.findOne({ _id: new ObjectId(args.projectId) });
+            if (!project) {
+              throw new GraphQLError("Invalid project ID.", {
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+            updateToUpdate.projectId = args.projectId.trim();
+          }
+
+          // Update the update in the database
+          const result = await updates.updateOne(
+            { _id: new ObjectId(args._id) },
+            { $set: updateToUpdate }
+          );
+
+          if (result.modifiedCount === 0) {
+            throw new GraphQLError(
+              `Failed to update the update with ID ${args._id}.`,
+              {
+                extensions: { code: "INTERNAL_SERVER_ERROR" },
+              }
+            );
+          }
+
+          // Update Redis cache
+          try {
+            await redisClient.del("updates"); // Clear updates cache
+            await redisClient.set(`update:${args._id}`, JSON.stringify(updateToUpdate)); 
+          } catch (error) {
+            console.error("Failed to update Redis cache:", error);
+            throw new GraphQLError(
+              "Failed to update Redis cache after editing the update.",
+              {
+                extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
+              }
+            );
+          }
+
+          // Return the updated update
+          return updateToUpdate;
+
+        },
+
+
+      // MUTATION: removeUpdate
+      // Purpose: Remove a update by ID; delete related comments
+      // Cache: Delete cache for individual and collective update; delete collective comment and individual comment cache
+
+        removeUpdate: async (_, args) => {
+
+          // Check if required fields are present
+          if (!args._id) {
+            throw new GraphQLError("The _id field is required.", {
+              //404
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+
+          // Check for extra fields
+          const fieldsAllowed = ["_id"];
+          for (let key in args) {
+            if (!fieldsAllowed.includes(key)) {
+              throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                //404
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+          }
+
+          //Checks
+          helpers.checkArg(args._id, "string", "id");
+
+          //Pull update collection
+          const updates = await updateCollection();
+
+          // Use findOneAndDelete to remove the update from update collection
+          const deletedUpdate = await updates.findOneAndDelete({
+            _id: new ObjectId(args._id),
           });
-        }
+
+          if (!deletedUpdate.value) {
+            throw new GraphQLError(
+              `Could not find or delete update with ID of ${args._id}`,
+              {
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
+          }      
+
+          //Remove related reference ids
+          const comments = await commentCollection();
+          const deletedComments = await comments.deleteMany({ destinationId: args._id });
+
+          // Update Redis cache
+          try {
+            // Delete the general updates cache as it's outdated
+            await redisClient.del("updates");
+            // Delete the individual cache for this update
+            await redisClient.del(`update:${args._id}`);
+            
+            // Delete the general comments cache as it's outdated
+            await redisClient.del("comments");
+
+            // Delete individual caches for each comment related to this update
+            if (deletedComments.deletedCount > 0) {
+              for (let comment of await comments.find({ destinationId: args._id }).toArray()) {
+                await redisClient.del(`comment:${comment._id}`);
+              }
+            }
+
+            console.log(`Redis caches cleared for update ${args._id} and related comments.`);
+          } catch (error) {
+            console.error("Failed to update Redis cache:", error);
+            throw new GraphQLError(
+              "Failed to update Redis cache after deleting the update.",
+              {
+                extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
+              }
+            );
+          }
+
+          // Return the deleted update object
+          //Value because findOneAndDelete also returns metadata
+          return deletedUpdate;
+
+        },
+
+
+      // MUTATION: addApplication
+      // Purpose: Create a new application and add it to MongoDB
+      // Cache: Add the application to the Redis cache; delete all applications cache
+
+        addApplication: async (_, args) => {
+
+          // Check if required fields are present
+          if (!args.applicantId || !args.projectId) {
+            throw new GraphQLError(
+              "The applicantId and projectId fields are required.",
+              {
+                //404
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
+          }
+
+          // Check for extra fields
+          const fieldsAllowed = ["applicantId", "projectId"];
+          for (let key in args) {
+            if (!fieldsAllowed.includes(key)) {
+              throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                //404
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+          }
+
+          //Checks
+          helpers.checkArg(args.applicantId, "string", "id");
+          helpers.checkArg(args.projectId, "string", "id");
+
+          //Pull users, projects and applications collections
+          const users = await userCollection();
+          const projects = await projectCollection();
+          const applications = await applicationCollection();
+
+          //Use findOne to pull the user in question, using the args.userId as the _id to match
+          const matchedUser = await users.findOne({
+            _id: new ObjectId(args.applicantId),
+          });
+
+          const matchedProject = await projects.findOne({
+            _id: new ObjectId(args.projectId),
+          });
+
+          //If a user cannot be pulled from the collection, throw an GraphQLError
+          if (!matchedUser) {
+            throw new GraphQLError(
+              "The applicant ID provided by the user was not valid.",
+              {
+                //Similar status code: 404
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
+          }
+
+          //If a project cannot be pulled from the collection, throw an GraphQLError
+          if (!matchedProject) {
+            throw new GraphQLError(
+              "The project ID provided by the user was not valid.",
+              {
+                //Similar status code: 404
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
+          }
+
+          //Create a local object to hold the args values, and set the id to a new objectID
+          const applicationToAdd = {
+            _id: new ObjectId(),
+            applicantId: args.applicantId.trim(),
+            projectId: args.projectId.trim(),
+            applicationDate: new Date().toISOString(),
+            lastUpdatedDate: new Date().toISOString(),
+            status: "PENDING",
+          };
+
+          //Use insertOne to add the local application object to the applications collection
+          let addedApplication = await applications.insertOne(applicationToAdd);
+
+          //If adding the application was not successful, then throw a GraphQLError
+          if (!addedApplication.acknowledged || !addedApplication.insertedId) {
+            throw new GraphQLError(
+              "The application provided by the user could not be added.",
+              {
+                //Similar status code: 500
+                extensions: { code: "INTERNAL_SERVER_ERROR" },
+              }
+            );
+          }
+
+          //Redis operations
+          try {
+            //Add the individual application cache
+            const cacheKey = `application:${applicationToAdd._id}`;
+            await redisClient.set(cacheKey, JSON.stringify(applicationToAdd));
+            //Delete the applications cache, as this is now out of date.'
+            await redisClient.del("applications");
+          } catch (error) {
+            console.error("Failed to update Redis cache:", error);
+            throw new GraphQLError(
+              "Failed to update Redis cache after adding the application.",
+              {
+                extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
+              }
+            );
+          }
+
+          //Return the local applicationToAdd object, which will be without the meta data
+          return applicationToAdd;
+
+        },
+
+
+      // MUTATION: editApplication
+      // Purpose: Edit an existing application by ID
+      // Cache: set individual cache and delete collective application cache; will be updated next query
+
+        editApplication: async (_, args) => {
+
+          // Validate required fields
+          helpers.checkArg(args._id, "string", "id");
+        
+          // Check if required fields are present
+          if (!args._id) {
+            throw new GraphQLError("The _id field is required.", {
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        
+          // Validate allowed fields
+          const fieldsAllowed = ["_id", "applicantId", "projectId", "status"];
+          Object.keys(args).forEach((key) => {
+            if (!fieldsAllowed.includes(key)) {
+              throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+          });
+        
+          // Pull applications collection
+          console.log("Fetching application collection...");
+          const applications = await applicationCollection();
+        
+          // Find the application
+          console.log(`Looking for application with ID: ${args._id}`);
+          let applicationToUpdate = await applications.findOne({
+            _id: new ObjectId(args._id),
+          });
+        
+          if (!applicationToUpdate) {
+            throw new GraphQLError(
+              `Application with ID ${args._id} not found.`,
+              { extensions: { code: "BAD_USER_INPUT" } }
+            );
+          }
+        
+          //Applicant ID Update
+          if (args.applicantId) {
+
+            helpers.checkArg(args.applicantId, "string", "id");
+
+            const users = await userCollection();
+            const applicant = await users.findOne({ _id: new ObjectId(args.applicantId) });
+        
+            if (!applicant) {
+              throw new GraphQLError("The provided applicantId is not valid.", {
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+        
+            applicationToUpdate.applicantId = args.applicantId.trim();
+          }
+        
+          //Project ID Update
+          if (args.projectId) {
+            helpers.checkArg(args.projectId, "string", "id");
+            const projects = await projectCollection();
+            const project = await projects.findOne({ _id: new ObjectId(args.projectId) });
+        
+            if (!project) {
+              throw new GraphQLError("The provided projectId is not valid.", {
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+        
+            applicationToUpdate.projectId = args.projectId.trim();
+          }
+        
+          // Status Update
+          if (args.status) {
+            helpers.checkArg(args.status, "string", "applicationStatus");
+            applicationToUpdate.status = args.status.trim();
+          }
+        
+          // Update the application in MongoDB
+          const result = await applications.updateOne(
+            { _id: new ObjectId(args._id) },
+            { $set: applicationToUpdate }
+          );
+        
+          if (result.modifiedCount === 0) {
+            throw new GraphQLError(
+              `Failed to update the application with ID ${args._id}.`,
+              { extensions: { code: "INTERNAL_SERVER_ERROR" } }
+            );
+          }
+        
+          // Update Redis cache
+          try {
+
+            // Delete the outdated cache
+            await redisClient.del("applications");
+        
+            // Set the updated application in the cache
+            const cacheKey = `application:${args._id}`;
+            await redisClient.set(cacheKey, JSON.stringify(applicationToUpdate));
+
+          } catch (error) {
+            console.error("Failed to update Redis cache:", error);
+            throw new GraphQLError(
+              "Failed to update Redis cache after editing the application.",
+              { extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message } }
+            );
+          }
+        
+          // Return the updated application
+          return applicationToUpdate;
+
+        },
+
+
+      // MUTATION: removeApplication
+      // Purpose: Remove a application by ID; delete related comments
+      // Cache: Delete cache for individual and collective application; delete collective comment and individual comment cache
       
-        // Delete related updates and applications
-        try {
+        removeApplication: async (_, args) => {
+
+          // Check if required fields are present
+          if (!args._id) {
+            throw new GraphQLError("The _id field is required.", {
+              //404
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+
+          // Check for extra fields
+          const fieldsAllowed = ["_id"];
+          for (let key in args) {
+            if (!fieldsAllowed.includes(key)) {
+              throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                //404
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+          }
+
+          //Checks
+          helpers.checkArg(args._id, "string", "id");
+
+          //Pull the applicationCollection
+          const applications = await applicationCollection();
+
+          //Use findOneAndDelete to remove the applciation from the collection, based on matching the _ids (arg and application)
+          const deletedApplication = await applications.findOneAndDelete({
+            _id: new ObjectId(args._id),
+          });
+
+          //Confirm that the deletedApplication has a value. If not, throw a GraphQLError
+          if (!deletedApplication) {
+            throw new GraphQLError(
+              "Could not find or delete application with the provided ID.",
+              {
+                //Similar status code: 404
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
+          }
+
+          //Remove related reference ids
+          const comments = await commentCollection();
+          const deletedComments = await comments.deleteMany({ destinationId: args._id });
+
+          // Redis operations
+          try {
+
+            // Delete the general applications cache as it's outdated
+            await redisClient.del("applications");
+            // Delete the individual cache for this application
+            await redisClient.del(`application:${args._id}`);
+
+            // Delete the general comments cache as it's outdated
+            await redisClient.del("comments");
+
+            // Delete individual caches for each comment related to this application
+            if (deletedComments.deletedCount > 0) {
+              for (let comment of await comments.find({ destinationId: args._id }).toArray()) {
+                await redisClient.del(`comment:${comment._id}`);
+              }
+            }
+
+            console.log(`Redis caches cleared for application ${args._id} and related comments.`);
+
+          } catch (error) {
+            console.error("Failed to update Redis cache:", error);
+            throw new GraphQLError(
+              "Failed to update Redis cache after deleting the application.",
+              {
+                extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
+              }
+            );
+          }
+
+          //Return the value of deletedApplication
+          return deletedApplication;
+
+        },
+
+      // MUTATION: addComment
+      // Purpose: Create a new commnet and add it to MongoDB
+      // Cache: Add the comment to the Redis cache; delete all comments cache
+
+        addComment: async (_, args) => {
+        
+          // Check if required fields are present
+          if (!args.commenterId || !args.destinationId || !args.content) {
+            throw new GraphQLError(
+              "All fields (commenterId, destinationId, content) are required.",
+              {
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
+          }
+        
+          // Validate arguments
+          helpers.checkArg(args.commenterId, "string", "id");
+          helpers.checkArg(args.destinationId, "string", "id");
+          helpers.checkArg(args.content, "string", "content");
+        
+          // Pull commenter details
+          const users = await userCollection();
+          const commenter = await users.findOne({ _id: new ObjectId(args.commenterId) });
+        
+          if (!commenter) {
+            console.error(`No user found with commenterId: ${args.commenterId}`);
+            throw new GraphQLError(
+              `The commenter with ID ${args.commenterId} does not exist.`,
+              {
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
+          }
+        
+          // Check destinationId exists in either updates or applications
           const updates = await updateCollection();
           const applications = await applicationCollection();
-          const deletedUpdates = await updates.deleteMany({ projectId: args._id });
-          const deletedApplications = await applications.deleteMany({ projectId: args._id });
-      
-          console.log(
-            `Deleted ${deletedUpdates.deletedCount} updates and ${deletedApplications.deletedCount} applications for project ${args._id}`
-          );
-        } catch (error) {
-          console.error("Error cleaning up dependencies:", error);
-          throw new GraphQLError("Failed to delete related updates or applications.", {
-            extensions: { code: "INTERNAL_SERVER_ERROR" },
-          });
-        }
-      
-        // Delete the project itself
-        const deletedProject = await projects.findOneAndDelete({
-          _id: new ObjectId(args._id),
-        });
-      
-        if (!deletedProject) {
-          throw new GraphQLError(
-            `The project with ID ${args._id} was not successfully found or deleted.`,
-            {
-              extensions: { code: "BAD_USER_INPUT" },
-            }
-          );
-        }
-      
-        return deletedProject;
-      },
-
-      // addUpdate
-    // Purpose: Create a new update and add it to MongoDB
-    // Cache: Add the updaet to the Redis cache
-
-    addUpdate: async (_, args) => {
-      // Check if required fields are present
-      if (!args.posterId || !args.subject || !args.content || !args.projectId) {
-        throw new GraphQLError(
-          "The posterId, subject, content, and projectId.",
-          {
-            //404
-            extensions: { code: "BAD_USER_INPUT" },
-          }
-        );
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["posterId", "subject", "content", "projectId"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            //404
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-      }
-
-      //Checks
-      helpers.checkArg(args.posterId, "string", "id");
-      helpers.checkArg(args.subject, "string", "subject");
-      helpers.checkArg(args.content, "string", "content");
-      helpers.checkArg(args.projectId, "string", "id");
-
-      //Pull update, project, and user collection
-      const updates = await updateCollection();
-      const projects = await projectCollection();
-      const users = await userCollection();
-
-      // Use findOne to get the user and the project based on the args
-      // Need to ensure these exist (adding a update does not add these into their respective mongodbs)
-      const user = await users.findOne({ _id: new ObjectId(args.posterId) });
-      const project = await projects.findOne({
-        _id: new ObjectId(args.projectId),
-      });
-
-      //If there isn't an user or a project, then throw a GraphQLError
-      if (!user || !project) {
-        throw new GraphQLError("The user or project ID was not valid.", {
-          //Similar status code: 404
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      //Create a new update object, set the values to be those pulled from the arguments
-      //Make sure to create a new ObjectId for the update, but also change the project and user id's to be object ids
-      const updateToAdd = {
-        _id: new ObjectId(),
-        posterUserId: args.posterId.trim(),
-        projectId: args.projectId.trim(),
-        subject: args.subject.trim(),
-        content: args.content.trim(),
-        postedDate: new Date().toISOString(), // ISO format: 2024-01-01T00:00:00.000Z
-      };
-
-      //Add the update to the updates collection using insertOne
-      let addedUpdate = await updates.insertOne(updateToAdd);
-
-      //If the update was not successfully added, then throw a GraphQLError
-      if (!addedUpdate.acknowledged || !addedUpdate.insertedId) {
-        throw new GraphQLError(`Could not add update.`, {
-          //Similar status code: 500
-          extensions: { code: "INTERNAL_SERVER_ERROR" },
-        });
-      }
-
-      try {
-        //Set update into redis Cache; set to cacheKey
-        //No expiration on cache
-        const cacheKey = `update:${updateToAdd._id}`;
-        await redisClient.set(cacheKey, JSON.stringify(updateToAdd));
-
-        // Delete cache for updates, as these are no longer accurate
-        await redisClient.del("updates");
-      } catch (error) {
-        console.error("Failed to update Redis cache:", error);
-        throw new GraphQLError(
-          "Failed to update Redis cache after adding the update.",
-          {
-            extensions: {
-              code: "INTERNAL_SERVER_ERROR",
-              cause: error.message,
-            },
-          }
-        );
-      }
-
-      //return the added update
-      return updateToAdd;
-    },
-
-
- // editUpdate
-    // Purpose: Edit an existing update by ID
-    // Cache: Update the Redis cache accordingly
-
-    editUpdate: async (_, args) => {
-      // Validate required fields
-      helpers.checkArg(args._id, "string", "id");
-
-      // Validate optional fields
-      if (args.posterId) helpers.checkArg(args.posterId, "string", "id");
-      if (args.subject) helpers.checkArg(args.subject, "string", "subject");
-      if (args.content) helpers.checkArg(args.content, "string", "content");
-      if (args.projectId) helpers.checkArg(args.projectId, "string", "id");
-
-      // Pull the updates collection
-      const updates = await updateCollection();
-
-      // Fetch the update to be edited
-      let updateToUpdate = await updates.findOne({ _id: new ObjectId(args._id) });
-      if (!updateToUpdate) {
-        throw new GraphQLError(`The update with ID ${args._id} could not be found.`, {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Update fields
-      if (args.posterId) {
-        const users = await userCollection();
-        const user = await users.findOne({ _id: new ObjectId(args.posterId) });
-        if (!user) {
-          throw new GraphQLError("Invalid poster ID.", {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-        updateToUpdate.posterUserId = args.posterId.trim();
-      }
-
-      if (args.subject) {
-        helpers.checkSubject(args.subject);
-        updateToUpdate.subject = args.subject.trim();
-      }
-
-      if (args.content) {
-        updateToUpdate.content = args.content.trim();
-      }
-
-      if (args.projectId) {
-        const projects = await projectCollection();
-        const project = await projects.findOne({ _id: new ObjectId(args.projectId) });
-        if (!project) {
-          throw new GraphQLError("Invalid project ID.", {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-        updateToUpdate.projectId = args.projectId.trim();
-      }
-
-      // Update the update in the database
-      const result = await updates.updateOne(
-        { _id: new ObjectId(args._id) },
-        { $set: updateToUpdate }
-      );
-
-      if (result.modifiedCount === 0) {
-        throw new GraphQLError(
-          `Failed to update the update with ID ${args._id}.`,
-          {
-            extensions: { code: "INTERNAL_SERVER_ERROR" },
-          }
-        );
-      }
-
-      // Update Redis cache
-      try {
-        await redisClient.del("updates"); // Clear updates cache
-        await redisClient.set(`update:${args._id}`, JSON.stringify(updateToUpdate)); // Set individual cache
-      } catch (error) {
-        console.error("Failed to update Redis cache:", error);
-        throw new GraphQLError(
-          "Failed to update Redis cache after editing the update.",
-          {
-            extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
-          }
-        );
-      }
-
-      // Return the updated update
-      return updateToUpdate;
-    },
-
-    // removeUpdate
-    // Purpose: Remove a update by ID
-    // Cache: Remove the update from the Redis cache
-
-    removeUpdate: async (_, args) => {
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          //404
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            //404
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-      }
-      //Checks
-      helpers.checkArg(args._id, "string", "id");
-
-      //Pull update collection
-      const updates = await updateCollection();
-
-      // Use findOneAndDelete to remove the update from update collection
-      const deletedUpdate = await updates.findOneAndDelete({
-        _id: new ObjectId(args._id),
-      });
-
-      if (!deletedUpdate.value) {
-        throw new GraphQLError(
-          `Could not find or delete update with ID of ${args._id}`,
-          {
-            extensions: { code: "BAD_USER_INPUT" },
-          }
-        );
-      }      
-
-      //Remove related reference ids
-      const deletedComments = await comments.deleteMany({ destinationId: args._id });
-
-      // Update Redis cache
-      try {
-        // Delete the updates as these are outdate
-        await redisClient.del("updates");
-        // Delete the individual cache for this update
-        await redisClient.del(`update:${args._id}`);
-      } catch (error) {
-        console.error("Failed to update Redis cache:", error);
-        throw new GraphQLError(
-          "Failed to update Redis cache after deleting the update.",
-          {
-            extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
-          }
-        );
-      }
-
-      // Return the deleted update object
-      //Value because findOneAndDelete also returns metadata
-      return deletedUpdate;
-    },
-
-
-    //addApplication
-
-    addApplication: async (_, args) => {
-      // Check if required fields are present
-      if (!args.applicantId || !args.projectId) {
-        throw new GraphQLError(
-          "The applicantId and projectId fields are required.",
-          {
-            //404
-            extensions: { code: "BAD_USER_INPUT" },
-          }
-        );
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["applicantId", "projectId"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            //404
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-      }
-
-      //Checks
-      helpers.checkArg(args.applicantId, "string", "id");
-      helpers.checkArg(args.projectId, "string", "id");
-
-      //Pull users, projects and applications collections
-      const users = await userCollection();
-      const projects = await projectCollection();
-      const applications = await applicationCollection();
-
-      //Use findOne to pull the user in question, using the args.userId as the _id to match
-      const matchedUser = await users.findOne({
-        _id: new ObjectId(args.applicantId),
-      });
-      const matchedProject = await projects.findOne({
-        _id: new ObjectId(args.projectId),
-      });
-
-      //If a user cannot be pulled from the collection, throw an GraphQLError
-      if (!matchedUser) {
-        throw new GraphQLError(
-          "The applicant ID provided by the user was not valid.",
-          {
-            //Similar status code: 404
-            extensions: { code: "BAD_USER_INPUT" },
-          }
-        );
-      }
-
-      //If a project cannot be pulled from the collection, throw an GraphQLError
-      if (!matchedProject) {
-        throw new GraphQLError(
-          "The project ID provided by the user was not valid.",
-          {
-            //Similar status code: 404
-            extensions: { code: "BAD_USER_INPUT" },
-          }
-        );
-      }
-
-      //Create a local object to hold the args values, and set the id to a new objectID
-      const applicationToAdd = {
-        _id: new ObjectId(),
-        applicantId: args.applicantId.trim(),
-        projectId: args.projectId.trim(),
-        applicationDate: new Date().toISOString(),
-        lastUpdatedDate: new Date().toISOString(),
-        status: "PENDING",
-      };
-
-      //Use insertOne to add the local application object to the applications collection
-      let addedApplication = await applications.insertOne(applicationToAdd);
-
-      //If adding the application was not successful, then throw a GraphQLError
-      if (!addedApplication.acknowledged || !addedApplication.insertedId) {
-        throw new GraphQLError(
-          "The application provided by the user could not be added.",
-          {
-            //Similar status code: 500
-            extensions: { code: "INTERNAL_SERVER_ERROR" },
-          }
-        );
-      }
-
-     /* // Propagate changes
-      await propagators.propagateApplicationAdditionChanges(
-        applicationToAdd._id.toString(),
-        applicationToAdd
-      );*/
-
-      try {
-        //Add the individual application cache
-        const cacheKey = `application:${applicationToAdd._id}`;
-        await redisClient.set(cacheKey, JSON.stringify(applicationToAdd));
-
-        //Delete the applications cache, as this is now out of date.'
-        await redisClient.del("applications");
-      } catch (error) {
-        console.error("Failed to update Redis cache:", error);
-        throw new GraphQLError(
-          "Failed to update Redis cache after adding the application.",
-          {
-            extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
-          }
-        );
-      }
-
-      //Return the local applicationToAdd object, which will be without the meta data
-      return applicationToAdd;
-    },
-
-    editApplication: async (_, args) => {
-
-      console.log("editApplication called with args:", args);
-
-      // Validate required fields
-      helpers.checkArg(args._id, "string", "id");
-    
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-    
-      // Validate allowed fields
-      const fieldsAllowed = ["_id", "applicantId", "projectId", "status"];
-      Object.keys(args).forEach((key) => {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-      });
-    
-      // Pull applications collection
-      console.log("Fetching application collection...");
-      const applications = await applicationCollection();
-    
-      // Find the application
-      console.log(`Looking for application with ID: ${args._id}`);
-      let applicationToUpdate = await applications.findOne({
-        _id: new ObjectId(args._id),
-      });
-    
-      if (!applicationToUpdate) {
-        throw new GraphQLError(
-          `Application with ID ${args._id} not found.`,
-          { extensions: { code: "BAD_USER_INPUT" } }
-        );
-      }
-    
-      // Update applicantId if provided
-      if (args.applicantId) {
-        helpers.checkArg(args.applicantId, "string", "id");
-        const users = await userCollection();
-        const applicant = await users.findOne({ _id: new ObjectId(args.applicantId) });
-    
-        if (!applicant) {
-          throw new GraphQLError("The provided applicantId is not valid.", {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-    
-        applicationToUpdate.applicantId = args.applicantId.trim();
-      }
-    
-      // Update projectId if provided
-      if (args.projectId) {
-        helpers.checkArg(args.projectId, "string", "id");
-        const projects = await projectCollection();
-        const project = await projects.findOne({ _id: new ObjectId(args.projectId) });
-    
-        if (!project) {
-          throw new GraphQLError("The provided projectId is not valid.", {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-    
-        applicationToUpdate.projectId = args.projectId.trim();
-      }
-    
-      // Update status if provided
-      if (args.status) {
-        helpers.checkArg(args.status, "string", "applicationStatus");
-        applicationToUpdate.status = args.status.trim();
-      }
-    
-      // Update the application in MongoDB
-      const result = await applications.updateOne(
-        { _id: new ObjectId(args._id) },
-        { $set: applicationToUpdate }
-      );
-    
-      if (result.modifiedCount === 0) {
-        throw new GraphQLError(
-          `Failed to update the application with ID ${args._id}.`,
-          { extensions: { code: "INTERNAL_SERVER_ERROR" } }
-        );
-      }
-    
-      // Update Redis cache
-      try {
-        // Delete the outdated cache
-        await redisClient.del("applications");
-    
-        // Set the updated application in the cache
-        const cacheKey = `application:${args._id}`;
-        await redisClient.set(cacheKey, JSON.stringify(applicationToUpdate));
-      } catch (error) {
-        console.error("Failed to update Redis cache:", error);
-        throw new GraphQLError(
-          "Failed to update Redis cache after editing the application.",
-          { extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message } }
-        );
-      }
-    
-      // Return the updated application
-      return applicationToUpdate;
-    },
-
-    removeApplication: async (_, args) => {
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          //404
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            //404
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-      }
-
-      //Checks
-      helpers.checkArg(args._id, "string", "id");
-
-      //Pull the applicationCollection
-      const applications = await applicationCollection();
-
-      //Use findOneAndDelete to remove the applciation from the collection, based on matching the _ids (arg and application)
-      const deletedApplication = await applications.findOneAndDelete({
-        _id: new ObjectId(args._id),
-      });
-
-      //Confirm that the deletedApplication has a value. If not, throw a GraphQLError
-      if (!deletedApplication) {
-        throw new GraphQLError(
-          "Could not find or delete application with the provided ID.",
-          {
-            //Similar status code: 404
-            extensions: { code: "BAD_USER_INPUT" },
-          }
-        );
-      }
-
-      //Remove related reference ids
-      const comments = await commentCollection();
-      const deletedComments = await comments.deleteMany({ destinationId: args._id });
-
-      //Propagate this removal across all objects with application objects
-      //await propagators.propagateApplicationRemovalChanges(args._id);
-
-      //Delete the individual application cache, and the applications cache, as this is now out of data
-      await redisClient.del(`application:${args._id}`);
-      await redisClient.del("applications");
-
-      //Return the value of deletedApplication
-      return deletedApplication;
-    },
-
-    addComment: async (_, args) => {
-      console.log("addComment resolver called with args:", args);
-    
-      // Check if required fields are present
-      if (!args.commenterId || !args.destinationId || !args.content) {
-        throw new GraphQLError(
-          "All fields (commenterId, destinationId, content) are required.",
-          {
-            extensions: { code: "BAD_USER_INPUT" },
-          }
-        );
-      }
-    
-      // Validate arguments
-      helpers.checkArg(args.commenterId, "string", "id");
-      helpers.checkArg(args.destinationId, "string", "id");
-      helpers.checkArg(args.content, "string", "content");
-    
-      // Pull commenter details
-      const users = await userCollection();
-      const commenter = await users.findOne({ _id: new ObjectId(args.commenterId) });
-    
-      if (!commenter) {
-        console.error(`No user found with commenterId: ${args.commenterId}`);
-        throw new GraphQLError(
-          `The commenter with ID ${args.commenterId} does not exist.`,
-          {
-            extensions: { code: "BAD_USER_INPUT" },
-          }
-        );
-      }
-    
-      // Check destinationId exists in either updates or applications
-      const updates = await updateCollection();
-      const applications = await applicationCollection();
-    
-      const isUpdate = await updates.findOne({ _id: new ObjectId(args.destinationId) });
-      const isApplication = await applications.findOne({
-        _id: new ObjectId(args.destinationId),
-      });
-    
-      if (!isUpdate && !isApplication) {
-        console.error(
-          `No valid destination found for destinationId: ${args.destinationId}`
-        );
-        throw new GraphQLError(
-          `The destination ID ${args.destinationId} does not exist.`,
-          {
-            extensions: { code: "BAD_USER_INPUT" },
-          }
-        );
-      }
-    
-      // Create the comment object
-      const newComment = {
-        _id: new ObjectId(),
-        commenterId: args.commenterId.trim(),
-        content: args.content.trim(),
-        postedDate: new Date().toISOString(),
-        destinationId: args.destinationId.trim(),
-      };
-    
-      console.log("New comment object created:", newComment);
-    
-      // Insert the comment into the comments collection
-      const comments = await commentCollection();
-      const insertedComment = await comments.insertOne(newComment);
-    
-      if (!insertedComment) {
-        throw new GraphQLError("Failed to add the comment.", {
-          extensions: { code: "INTERNAL_SERVER_ERROR" },
-        });
-      }
-    
-      console.log("Comment successfully inserted into database:", insertedComment);
-  
         
-      // Update Redis cache
-      try {
-        console.log("Updating Redis cache for comment...");
-        const cacheKey = `comment:${newComment._id}`;
-        await redisClient.set(cacheKey, JSON.stringify(newComment));
-        await redisClient.del("comments");
-        console.log("Redis cache updated successfully.");
-      } catch (redisError) {
-        console.error("Failed to update Redis cache:", redisError);
-        throw new GraphQLError("Failed to update Redis cache after adding the comment.", {
-          extensions: { code: "INTERNAL_SERVER_ERROR", cause: redisError.message },
-        });
-      }
-    
-      // Return the added comment
-      return newComment;
-    },
-
-    editComment: async (_, args) => {
-      console.log("editComment resolver called with args:", args);
-    
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-    
-      // Validate allowed fields
-      const fieldsAllowed = ["_id", "content", "commenterId"];
-      Object.keys(args).forEach((key) => {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            extensions: { code: "BAD_USER_INPUT" },
+          const fetchedUpdate = await updates.findOne({ _id: new ObjectId(args.destinationId) });
+          const fetchedApplication = await applications.findOne({
+            _id: new ObjectId(args.destinationId),
           });
-        }
-      });
-    
-      // Validate arguments
-      helpers.checkArg(args._id, "string", "id");
-      if (args.content) {
-        helpers.checkArg(args.content, "string", "content");
-      }
-      if (args.commenterId) {
-        helpers.checkArg(args.commenterId, "string", "id");
-      }
-    
-      // Pull the comments collection
-      const comments = await commentCollection();
-    
-      // Find the comment by ID
-      const commentToUpdate = await comments.findOne({ _id: new ObjectId(args._id) });
-    
-      if (!commentToUpdate) {
-        throw new GraphQLError(
-          `The comment with ID ${args._id} does not exist.`,
-          {
-            extensions: { code: "BAD_USER_INPUT" },
+        
+          if (!fetchedUpdate && !fetchedApplication) {
+            console.error(
+              `No valid destination found for destinationId: ${args.destinationId}`
+            );
+            throw new GraphQLError(
+              `The destination ID ${args.destinationId} does not exist.`,
+              {
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
           }
-        );
-      }
-    
-      // Object to hold fields to update
-      const updateFields = {};
-    
-      // Update content if provided
-      if (args.content) {
-        updateFields.content = args.content.trim();
-      }
-    
-      // Update commenterId if provided
-      if (args.commenterId) {
-        const users = await userCollection();
-        const commenter = await users.findOne({ _id: new ObjectId(args.commenterId) });
-    
-        if (!commenter) {
-          throw new GraphQLError(
-            `User with ID ${args.commenterId} does not exist.`,
-            {
+        
+          // Create the comment object
+          const newComment = {
+            _id: new ObjectId(),
+            commenterId: args.commenterId.trim(),
+            content: args.content.trim(),
+            postedDate: new Date().toISOString(),
+            destinationId: args.destinationId.trim(),
+          };
+                
+          // Insert the comment into the comments collection
+          const comments = await commentCollection();
+          const insertedComment = await comments.insertOne(newComment);
+        
+          if (!insertedComment) {
+            throw new GraphQLError("Failed to add the comment.", {
+              extensions: { code: "INTERNAL_SERVER_ERROR" },
+            });
+          }
+                    
+          // Update Redis cache
+          try {
+            console.log("Updating Redis cache for comment...");
+            const cacheKey = `comment:${newComment._id}`;
+            await redisClient.set(cacheKey, JSON.stringify(newComment));
+            await redisClient.del("comments");
+            console.log("Redis cache updated successfully.");
+          } catch (redisError) {
+            console.error("Failed to update Redis cache:", redisError);
+            throw new GraphQLError("Failed to update Redis cache after adding the comment.", {
+              extensions: { code: "INTERNAL_SERVER_ERROR", cause: redisError.message },
+            });
+          }
+        
+          // Return the added comment
+          return newComment;
+
+        },
+
+      // MUTATION: editComment
+      // Purpose: Edit an existing comment by ID
+      // Cache: set individual cache and delete collective comment cache; will be updated next query
+
+        editComment: async (_, args) => {
+        
+          // Check if required fields are present
+          if (!args._id) {
+            throw new GraphQLError("The _id field is required.", {
               extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+        
+          // Validate allowed fields
+          const fieldsAllowed = ["_id", "content", "commenterId"];
+          Object.keys(args).forEach((key) => {
+            if (!fieldsAllowed.includes(key)) {
+              throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                extensions: { code: "BAD_USER_INPUT" },
+              });
             }
-          );
-        }
-    
-        updateFields.commenterId = args.commenterId.trim();
-      }
-    
-      // Update the comment in the database
-      const result = await comments.updateOne(
-        { _id: commentToUpdate._id },
-        { $set: updateFields }
-      );
-    
-      if (result.modifiedCount === 0) {
-        throw new GraphQLError(
-          `Failed to update the comment with ID ${args._id}.`,
-          {
-            extensions: { code: "INTERNAL_SERVER_ERROR" },
-          }
-        );
-      }
-    
-      // Merge updates with the original comment
-      const updatedComment = { ...commentToUpdate, ...updateFields };
-    
-      // Update Redis cache
-      try {
-        const cacheKey = `comment:${commentToUpdate._id}`;
-        await redisClient.set(cacheKey, JSON.stringify(updatedComment));
-        await redisClient.del("comments");
-  
-      } catch (error) {
-        console.error("Failed to update Redis cache:", error);
-        throw new GraphQLError(
-          "Failed to update Redis cache after editing the comment.",
-          {
-            extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
-          }
-        );
-      }
-    
-      console.log("Comment successfully updated:", updatedComment);
-    
-      // Return the updated comment
-      return updatedComment;
-    },
-    removeComment: async (_, args) => {
-      // Check if required fields are present
-      if (!args._id) {
-        throw new GraphQLError("The _id field is required.", {
-          //404
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
-      // Check for extra fields
-      const fieldsAllowed = ["_id"];
-      for (let key in args) {
-        if (!fieldsAllowed.includes(key)) {
-          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-            //404
-            extensions: { code: "BAD_USER_INPUT" },
           });
+        
+          // Validate arguments
+          helpers.checkArg(args._id, "string", "id");
+          if (args.content) {
+            helpers.checkArg(args.content, "string", "content");
+          }
+          if (args.commenterId) {
+            helpers.checkArg(args.commenterId, "string", "id");
+          }
+        
+          // Pull the comments collection
+          const comments = await commentCollection();
+        
+          // Find the comment by ID
+          const commentToUpdate = await comments.findOne({ _id: new ObjectId(args._id) });
+        
+          if (!commentToUpdate) {
+            throw new GraphQLError(
+              `The comment with ID ${args._id} does not exist.`,
+              {
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
+          }
+        
+          // Object to hold fields to update
+          const updateFields = {};
+        
+          // Content Update
+          if (args.content) {
+            updateFields.content = args.content.trim();
+          }
+        
+          // CommenterId Update
+          if (args.commenterId) {
+            const users = await userCollection();
+            const commenter = await users.findOne({ _id: new ObjectId(args.commenterId) });
+        
+            if (!commenter) {
+              throw new GraphQLError(
+                `User with ID ${args.commenterId} does not exist.`,
+                {
+                  extensions: { code: "BAD_USER_INPUT" },
+                }
+              );
+            }
+        
+            updateFields.commenterId = args.commenterId.trim();
+          }
+        
+          // Update the comment in the database
+          const result = await comments.updateOne(
+            { _id: commentToUpdate._id },
+            { $set: updateFields }
+          );
+        
+          if (result.modifiedCount === 0) {
+            throw new GraphQLError(
+              `Failed to update the comment with ID ${args._id}.`,
+              {
+                extensions: { code: "INTERNAL_SERVER_ERROR" },
+              }
+            );
+          }
+        
+          // Merge updates with the original comment
+          const updatedComment = { ...commentToUpdate, ...updateFields };
+        
+          // Update Redis cache
+          try {
+            const cacheKey = `comment:${commentToUpdate._id}`;
+            await redisClient.set(cacheKey, JSON.stringify(updatedComment));
+            await redisClient.del("comments");
+          } catch (error) {
+            console.error("Failed to update Redis cache:", error);
+            throw new GraphQLError(
+              "Failed to update Redis cache after editing the comment.",
+              {
+                extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
+              }
+            );
+          }
+        
+          console.log("Comment successfully updated:", updatedComment);
+        
+          // Return the updated comment
+          return updatedComment;
+
+        },
+
+      // MUTATION: removeComment
+      // Purpose: Remove a comment by ID
+      // Cache: Delete cache for individual and collective application; delete collective comment and individual comment cache
+
+        removeComment: async (_, args) => {
+
+          // Check if required fields are present
+          if (!args._id) {
+            throw new GraphQLError("The _id field is required.", {
+              //404
+              extensions: { code: "BAD_USER_INPUT" },
+            });
+          }
+
+          // Check for extra fields
+          const fieldsAllowed = ["_id"];
+          for (let key in args) {
+            if (!fieldsAllowed.includes(key)) {
+              throw new GraphQLError(`Unexpected field '${key}' provided.`, {
+                //404
+                extensions: { code: "BAD_USER_INPUT" },
+              });
+            }
+          }
+
+          //Checks
+          helpers.checkArg(args._id, "string", "id");
+
+          //Pull the commentCollection
+          const comments = await commentCollection();
+
+          //Use findOneAndDelete to remove the comment from the collection, based on matching the _ids (arg and comment)
+          const deletedComment = await comments.findOneAndDelete({
+            _id: new ObjectId(args._id),
+          });
+
+          //Confirm deletedComment the deletedComment has a value. If not, throw a GraphQLError
+          if (!deletedComment) {
+            throw new GraphQLError(
+              "Could not find or delete comment with the provided ID.",
+              {
+                //Similar status code: 404
+                extensions: { code: "BAD_USER_INPUT" },
+              }
+            );
+          }
+
+          //Propagate this removal across all objects with user objects
+          //await propagators.propagateCommentRemovalChanges(args._id);
+
+          try {
+            await redisClient.del(`comment:${args._id}`);
+            await redisClient.del("comments");
+          } catch (error) {
+            console.error("Failed to update Redis cache:", error);
+            throw new GraphQLError(
+              "Failed to update Redis cache after removing the comment.",
+              {
+                extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
+              }
+            );
+          }
+
+          //Return the value of deletedComment
+          return deletedComment;
+
+        },
+
+      //LOGIN
+      login: async (_, { token }) => {
+        try {
+          const decodedToken = await admin.auth().verifyIdToken(token);
+          const uid = decodedToken.uid;
+          const email = decodedToken.email;
+          const users = await userCollection();
+          const user = await users.findOne({ email: email });
+          return {
+            message: "Token verified successfully",
+            _id: user._id,
+            name: `${user.firstName} ${user.lastName}`,
+            email,
+            role: user.role,
+          };
+        } catch (error) {
+          throw new Error("Invalid or expired token");
         }
-      }
-
-      //Checks
-      helpers.checkArg(args._id, "string", "id");
-
-      //Pull the commentCollection
-      const comments = await commentCollection();
-
-      //Use findOneAndDelete to remove the comment from the collection, based on matching the _ids (arg and comment)
-      const deletedComment = await comments.findOneAndDelete({
-        _id: new ObjectId(args._id),
-      });
-
-      //Confirm deletedComment the deletedComment has a value. If not, throw a GraphQLError
-      if (!deletedComment) {
-        throw new GraphQLError(
-          "Could not find or delete comment with the provided ID.",
-          {
-            //Similar status code: 404
-            extensions: { code: "BAD_USER_INPUT" },
-          }
-        );
-      }
-
-      //Propagate this removal across all objects with user objects
-      //await propagators.propagateCommentRemovalChanges(args._id);
-
-      try {
-        await redisClient.del(`comment:${args._id}`);
-        await redisClient.del("comments");
-      } catch (error) {
-        console.error("Failed to update Redis cache:", error);
-        throw new GraphQLError(
-          "Failed to update Redis cache after removing the comment.",
-          {
-            extensions: { code: "INTERNAL_SERVER_ERROR", cause: error.message },
-          }
-        );
-      }
-
-      //Return the value of deletedComment
-      return deletedComment;
-    },
-
-    login: async (_, { token }) => {
-      try {
-        const decodedToken = await admin.auth().verifyIdToken(token);
-        const uid = decodedToken.uid;
-        const email = decodedToken.email;
-        const users = await userCollection();
-        const user = await users.findOne({ email: email });
-        return {
-          message: "Token verified successfully",
-          _id: user._id,
-          name: `${user.firstName} ${user.lastName}`,
-          email,
-          role: user.role,
-        };
-      } catch (error) {
-        throw new Error("Invalid or expired token");
-      }
-    },
-  
-},
+      },
+    
+  },
 
 };
 
