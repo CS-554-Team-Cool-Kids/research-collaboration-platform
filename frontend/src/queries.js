@@ -391,16 +391,23 @@ const ADD_UPDATE = gql`
     }
   }
 `;
+
 const ADD_APPLICATION = gql`
   mutation AddApplication($applicantId: String!, $projectId: String!) {
-    addApplication(applicationId: $applicationId, projectId: $projectId) {
+    addApplication(applicantId: $applicantId, projectId: $projectId) {
       _id
-      applicantId
-      projectId
       applicationDate
       lastUpdatedDate
       status
-      comments
+      applicant {
+        _id
+        firstName
+        lastName
+      }
+      project {
+        _id
+        title
+      }
     }
   }
 `;
