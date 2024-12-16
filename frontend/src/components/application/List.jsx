@@ -1,11 +1,11 @@
-import React, {useState, useEffect} from 'react';
-import {useMutation, useQuery} from '@apollo/client';
-import queries from '../../queries';
-import { Link } from 'react-router-dom';
-import {useAuth} from "../../context/AuthContext";
+import React, { useState, useEffect } from "react";
+import { useMutation, useQuery } from "@apollo/client";
+import queries from "../../queries";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 function ApplicationList(props) {
-    /* 
+  /* 
         Note: The props will be passing one of two things: user id (either professor or student) or the array of applications that will be displayed. Need to investigate and confirm the instances in which either would be passed.
 
         This component will display:
@@ -18,18 +18,18 @@ function ApplicationList(props) {
             c. button to view the details, which would redirect to the application/detail page.
             Note: the queries file was updated to ensure the necessary pieces of data are passed.
     */
-   
-    const {authState} = useAuth();
-    const id = authState.user.id;
-    const userRole = authState.user.role;
-    
-    const {loading, error, data, refetch} = useQuery(queries.GET_USER_BY_ID, {
-        variables: { id },
-        fetchPolicy: 'network-only'
-    });
 
-    const [applications, setApplications] = useState([]);
-    const [selectedApplication, setSelectedApplication] = useState(null);
+  const { authState } = useAuth();
+  const id = authState.user.id;
+  const userRole = authState.user.role;
+
+  const { loading, error, data, refetch } = useQuery(queries.GET_USER_BY_ID, {
+    variables: { id },
+    fetchPolicy: "network-only",
+  });
+
+  const [applications, setApplications] = useState([]);
+  const [selectedApplication, setSelectedApplication] = useState(null);
 
     // Mutation to remove an application
     const [removeApplication] = useMutation(queries.REMOVE_APPLICATION);
@@ -44,26 +44,26 @@ function ApplicationList(props) {
         }
     }
 
-    const handleDelete = async () => {
-        if(!selectedApplication?._id) return;
-        const confirmDeletion = window.confirm(
-            `Are you sure you want to delete the project "${selectedProject.title}"?`
-        )
-        if(confirmDeletion){
-            try{
-                await removeApplication({variables: { id: selectedApplication._id}});
-                await refetch();
-            } catch (error) {
-                console.error("Deletion failed: ", error);
-            }
-        }
+  const handleDelete = async () => {
+    if (!selectedApplication?._id) return;
+    const confirmDeletion = window.confirm(
+      `Are you sure you want to delete the project "${selectedProject.title}"?`
+    );
+    if (confirmDeletion) {
+      try {
+        await removeApplication({ variables: { id: selectedApplication._id } });
+        await refetch();
+      } catch (error) {
+        console.error("Deletion failed: ", error);
+      }
     }
+  };
 
-    useEffect(() => {
-        if(data) {
-            setSelectedApplication(null); //REset selected application when data changes
-        }
-    }, [data]);
+  useEffect(() => {
+    if (data) {
+      setSelectedApplication(null); //REset selected application when data changes
+    }
+  }, [data]);
 
     if(loading){
         return (
