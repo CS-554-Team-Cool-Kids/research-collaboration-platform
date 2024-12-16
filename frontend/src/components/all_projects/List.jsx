@@ -4,47 +4,77 @@ import { useMutation, useQuery } from "@apollo/client";
 import queries from "../../queries.js";
 import { useAuth } from "../../context/AuthContext.jsx";
 
-const ProjectList = () => {
+const AllProjectList = () => {
   const { authState } = useAuth();
-
   const userId = authState.user.id;
-  const { data, loading, error, refetch } = useQuery(queries.GET_USER_BY_ID, {
+
+  // Query to fetch all projects
+  const {
+    data: projectsData,
+    loading: projectsLoading,
+    error: projectsError,
+    refetch: refetchAllProjects,
+  } = useQuery(queries.GET_PROJECTS, {
+    fetchPolicy: "network-only",
+  });
+
+  // Query to fetch user-specific data (applications and current projects)
+  const {
+    data: userData,
+    loading: userLoading,
+    error: userError,
+    refetch: refetchUserData,
+  } = useQuery(queries.GET_USER_BY_ID, {
     variables: { id: userId },
     fetchPolicy: "network-only",
   });
 
   const [selectedProject, setSelectedProject] = useState(null);
+  const [enrollProject] = useMutation(queries.ADD_APPLICATION);
 
-  // Mutation to remove a project
-  const [removeProject] = useMutation(queries.REMOVE_PROJECT);
+  const handleEnroll = async (project) => {
+    try {
+      await enrollProject({
+        variables: {
+          applicantId: userId, // Current user's ID
+          projectId: project._id, // Selected project's ID
+        },
+      });
+      alert(`Successfully applied to project: ${project.title}`);
 
-  const handleDelete = async () => {
-    if (!selectedProject?._id) return;
-
-    const confirmDeletion = window.confirm(
-      `Are you sure you want to delete the project "${selectedProject.title}"?`
-    );
-
-    if (confirmDeletion) {
-      try {
-        await removeProject({ variables: { id: selectedProject._id } });
-        await refetch();
-      } catch (error) {
-        console.error("Deletion failed:", error);
-      }
+      await refetchAllProjects(); // Refetch all projects to update enrollment status
+      await refetchUserData(); // Refetch user data to update enrollment status
+    } catch (error) {
+      console.error("Error applying to project:", error.message);
+      alert("Failed to apply to the project. Please try again.");
     }
   };
 
   useEffect(() => {
-    if (data) {
-      setSelectedProject(null); // Reset selected project when data changes
+    if (projectsData) {
+      setSelectedProject(null); // Reset selected project when project data changes
     }
-  }, [data]);
+  }, [projectsData]);
 
-  if (loading) return <p>Loading projects...</p>;
-  if (error) return <p>Error loading projects: {error.message}</p>;
+  if (projectsLoading || userLoading) return <p>Loading projects...</p>;
+  if (projectsError)
+    return <p>Error loading projects: {projectsError.message}</p>;
+  if (userError) return <p>Error loading user data: {userError.message}</p>;
 
-  const projects = data?.getUserById?.projects || [];
+  const projects = projectsData?.projects || [];
+  const userApplications = userData?.getUserById?.applications || [];
+  const userProjects = userData?.getUserById?.projects || [];
+
+  // Function to check if the user is already enrolled in a project
+  const isUserEnrolled = (project) => {
+    const isInApplications = userApplications.some(
+      (application) => application.project._id === project._id
+    );
+    const isInProjects = userProjects.some(
+      (userProject) => userProject._id === project._id
+    );
+    return isInApplications || isInProjects;
+  };
 
   return (
     <main className="dashboard">
@@ -54,39 +84,31 @@ const ProjectList = () => {
             <div className="col-12">
               <div className="row">
                 <div className="col my-auto">
-                  <h2>Project List</h2>
+                  <h2>All Project List</h2>
                 </div>
-
                 <div className="col-auto d-flex">
                   {selectedProject?._id ? (
                     <div className="d-flex">
-                      <Link
-                        className="nav-link"
-                        to={`/project/${selectedProject._id}`}
-                      >
-                        <button className="btn btn-info ms-2">Details</button>
-                      </Link>
-                      <button
-                        className="btn btn-danger ms-2"
-                        onClick={handleDelete}
-                      >
-                        Delete
-                      </button>
+                      {isUserEnrolled(selectedProject) ? (
+                        <button className="btn btn-success ms-2" disabled>
+                          Enrolled
+                        </button>
+                      ) : (
+                        <button
+                          className="btn btn-info ms-2"
+                          onClick={() => handleEnroll(selectedProject)}
+                        >
+                          Enroll
+                        </button>
+                      )}
                     </div>
                   ) : (
                     <div className="d-flex">
                       <button className="btn btn-info ms-2 invisible">
-                        Details
-                      </button>
-                      <button className="btn btn-danger ms-2 invisible">
-                        Delete
+                        Enroll
                       </button>
                     </div>
                   )}
-
-                  <Link className="nav-link" to="/project/add">
-                    <button className="btn btn-success ms-2">Add</button>
-                  </Link>
                 </div>
               </div>
             </div>
@@ -131,4 +153,4 @@ const ProjectList = () => {
   );
 };
 
-export default ProjectList;
+export default AllProjectList;
