@@ -714,102 +714,101 @@ export const resolvers = {
     // Purpose: Fetch all comments of an update by the update ID
     // Cache: For one hour
 
-      getCommentsByUpdateId: async (_, args) => {
+    getCommentsByUpdateId: async (_, args) => {
+      // Check if required field '_id' (updateId) is present
+      if (!args.updateId) {
+        throw new GraphQLError("The updateId field (_id) is required.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
 
-        // Check if required field '_id' (updateId) is present
-        if (!args.updateId) {
-          throw new GraphQLError("The updateId field (_id) is required.", {
+      // Check for extra fields
+      const fieldsAllowed = ["updateId"];
+      for (let key in args) {
+        if (!fieldsAllowed.includes(key)) {
+          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      
-        // Check for extra fields
-        const fieldsAllowed = ["updateId"];
-        for (let key in args) {
-          if (!fieldsAllowed.includes(key)) {
-            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-              extensions: { code: "BAD_USER_INPUT" },
-            });
-          }
-        }
-    
-        // Validate the 'updateId' argument
-        helpers.checkArg(args.updateId, "string", "updateId");
-      
-        // Cache key constructor and check
-        const cacheKey = `comments:${args.updateId}`;
-        const cachedComments = await redisClient.get(cacheKey);
-      
-        // If comments are cached, return them
-        if (cachedComments) {
-          console.log("Returning comments from cache.");
-          return JSON.parse(cachedComments);
-        }
-      
-        // Fetch comments from the database based on destinationId
-        const comments = await commentCollection();
-        const fetchedComments = await comments
-          .find({ destinationId: args.updateId }) 
-          .toArray();
-      
-        // Cache the result
-        await redisClient.set(cacheKey, JSON.stringify(fetchedComments), { EX: 3600 });
-      
-        // Return the list of comments
-        return fetchedComments;
-        
-      },
-    
+      }
+
+      // Validate the 'updateId' argument
+      helpers.checkArg(args.updateId, "string", "updateId");
+
+      // Cache key constructor and check
+      const cacheKey = `comments:${args.updateId}`;
+      const cachedComments = await redisClient.get(cacheKey);
+
+      // If comments are cached, return them
+      if (cachedComments) {
+        console.log("Returning comments from cache.");
+        return JSON.parse(cachedComments);
+      }
+
+      // Fetch comments from the database based on destinationId
+      const comments = await commentCollection();
+      const fetchedComments = await comments
+        .find({ destinationId: args.updateId })
+        .toArray();
+
+      // Cache the result
+      await redisClient.set(cacheKey, JSON.stringify(fetchedComments), {
+        EX: 3600,
+      });
+
+      // Return the list of comments
+      return fetchedComments;
+    },
 
     // QUERY: getCommentsByApplicationId(updateId: String!): [Comment]
     // Purpose: Fetch all comments of an application by the application ID
     // Cache: For one hour
 
-      getCommentsByApplicationId: async (_, args) => {
-        
-        // Check if required field '_id' (applicationId) is present
-        if (!args.applicationId) {
-          throw new GraphQLError("The applicationId field (_id) is required.", {
+    getCommentsByApplicationId: async (_, args) => {
+      // Check if required field '_id' (applicationId) is present
+      if (!args.applicationId) {
+        throw new GraphQLError("The applicationId field (_id) is required.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      // Check for extra fields
+      const fieldsAllowed = ["applicationId"];
+      for (let key in args) {
+        if (!fieldsAllowed.includes(key)) {
+          throw new GraphQLError(`Unexpected field '${key}' provided.`, {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-      
-        // Check for extra fields
-        const fieldsAllowed = ["applicationId"];
-        for (let key in args) {
-          if (!fieldsAllowed.includes(key)) {
-            throw new GraphQLError(`Unexpected field '${key}' provided.`, {
-              extensions: { code: "BAD_USER_INPUT" },
-            });
-          }
-        }
-      
-        // Validate _id as a string
-        helpers.checkArg(args.applicationId, "string", "id");
-      
-        // Cache key constructor and check
-        const cacheKey = `comments:${args.applicationId}`;
-        const cachedComments = await redisClient.get(cacheKey);
-      
-        // If comments are cached, return them
-        if (cachedComments) {
-          console.log("Returning comments from cache.");
-          return JSON.parse(cachedComments);
-        }
-      
-        // Fetch comments from the database based on destinationId
-        const comments = await commentCollection();
-        const fetchedComments = await comments
-          .find({ destinationId: args._id }) 
-          .toArray();
-      
-        // Cache the result
-        await redisClient.set(cacheKey, JSON.stringify(fetchedComments), { EX: 3600 });
-      
-        // Return the list of comments
-        return fetchedComments;
+      }
 
-      },
+      // Validate _id as a string
+      helpers.checkArg(args.applicationId, "string", "id");
+
+      // Cache key constructor and check
+      const cacheKey = `comments:${args.applicationId}`;
+      const cachedComments = await redisClient.get(cacheKey);
+
+      // If comments are cached, return them
+      if (cachedComments) {
+        console.log("Returning comments from cache.");
+        return JSON.parse(cachedComments);
+      }
+
+      // Fetch comments from the database based on destinationId
+      const comments = await commentCollection();
+      const fetchedComments = await comments
+        .find({ destinationId: args._id })
+        .toArray();
+
+      // Cache the result
+      await redisClient.set(cacheKey, JSON.stringify(fetchedComments), {
+        EX: 3600,
+      });
+
+      // Return the list of comments
+      return fetchedComments;
+    },
 
     //QUERY: projectsByDepartment(department: Department!): [Project]
     //Purpose: Fetch all projects that match the specified department
@@ -1762,14 +1761,14 @@ export const resolvers = {
       // Convert _id string to ObjectId
       const userId = new ObjectId(args._id);
 
-        //Pull the user and application collections
-        const users = await userCollection();
+      //Pull the user and application collections
+      const users = await userCollection();
 
-        //Use findOneAndDelete to remove user from the user collection
-        const deletedUser = await users.findOneAndDelete({ _id: userId });
+      //Use findOneAndDelete to remove user from the user collection
+      const deletedUser = await users.findOneAndDelete({ _id: userId });
 
-        // Log the shape of deletedUser to understand its structure
-        console.log("Deleted user result:", deletedUser);
+      // Log the shape of deletedUser to understand its structure
+      console.log("Deleted user result:", deletedUser);
 
       //If user could not be deleted, throw GraphQLError.
       if (!deletedUser) {
@@ -1782,56 +1781,68 @@ export const resolvers = {
         );
       }
 
-        //Remove related reference ids
-        const applications = await applicationCollection();
-        const updates = await updateCollection();
-        const comments = await commentCollection();
+      //Remove related reference ids
+      const applications = await applicationCollection();
+      const updates = await updateCollection();
+      const comments = await commentCollection();
 
-        const deletedApplications = await applications.deleteMany({ applicantId: args._id });
-        const deletedUpdates = await updates.deleteMany({ posterUserId: args._id });
-        const deletedComments = await comments.deleteMany({ commenterId: args._id });
+      const deletedApplications = await applications.deleteMany({
+        applicantId: args._id,
+      });
+      const deletedUpdates = await updates.deleteMany({
+        posterUserId: args._id,
+      });
+      const deletedComments = await comments.deleteMany({
+        commenterId: args._id,
+      });
 
-        try {
-          
-          // Delete general caches
-          await redisClient.del("users");
-          await redisClient.del("applications");
-          await redisClient.del("updates");
-          await redisClient.del("comments");
-        
-          // Delete individual caches for each application, update, and comment tied to the user
-          if (deletedApplications.deletedCount > 0) {
-            for (let app of await applications.find({ applicantId: args._id }).toArray()) {
-              await redisClient.del(`application:${app._id}`);
-            }
-          }
-        
-          if (deletedUpdates.deletedCount > 0) {
-            for (let update of await updates.find({ posterUserId: args._id }).toArray()) {
-              await redisClient.del(`update:${update._id}`);
-            }
-          }
-        
-          if (deletedComments.deletedCount > 0) {
-            for (let comment of await comments.find({ commenterId: args._id }).toArray()) {
-              await redisClient.del(`comment:${comment._id}`);
-            }
-          }
-        
-          console.log("Redis caches cleared for applications, updates, and comments.");
+      try {
+        // Delete general caches
+        await redisClient.del("users");
+        await redisClient.del("applications");
+        await redisClient.del("updates");
+        await redisClient.del("comments");
 
-        } catch (error) {
-          console.error("Failed to update Redis caches:", error);
-          throw new GraphQLError(
-            "Failed to update Redis cache after removing the user.",
-            {
-              extensions: {
-                code: "INTERNAL_SERVER_ERROR",
-                cause: error.message,
-              },
-            }
-          );
+        // Delete individual caches for each application, update, and comment tied to the user
+        if (deletedApplications.deletedCount > 0) {
+          for (let app of await applications
+            .find({ applicantId: args._id })
+            .toArray()) {
+            await redisClient.del(`application:${app._id}`);
+          }
         }
+
+        if (deletedUpdates.deletedCount > 0) {
+          for (let update of await updates
+            .find({ posterUserId: args._id })
+            .toArray()) {
+            await redisClient.del(`update:${update._id}`);
+          }
+        }
+
+        if (deletedComments.deletedCount > 0) {
+          for (let comment of await comments
+            .find({ commenterId: args._id })
+            .toArray()) {
+            await redisClient.del(`comment:${comment._id}`);
+          }
+        }
+
+        console.log(
+          "Redis caches cleared for applications, updates, and comments."
+        );
+      } catch (error) {
+        console.error("Failed to update Redis caches:", error);
+        throw new GraphQLError(
+          "Failed to update Redis cache after removing the user.",
+          {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              cause: error.message,
+            },
+          }
+        );
+      }
 
       //Return the value of the deleted user
       return deletedUser;
@@ -2091,47 +2102,47 @@ export const resolvers = {
     // Purpose: Remove the project from the database; remove related applications and updates
     // Cache: Remove the project to the Redis cache; delete applications/update caches
 
-          removeProject: async (_, args) => {
+    removeProject: async (_, args) => {
+      // Validate input
+      if (!args._id) {
+        throw new GraphQLError("The _id field is required.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+      helpers.checkArg(args._id, "string", "id");
 
-            // Validate input
-            if (!args._id) {
-              throw new GraphQLError("The _id field is required.", {
-                extensions: { code: "BAD_USER_INPUT" },
-              });
-            }
-            helpers.checkArg(args._id, "string", "id");
-          
-            // Pull collections
-            const projects = await projectCollection();
-          
-            // Find the project to delete
-            const projectToDelete = await projects.findOne({ _id: new ObjectId(args._id) });
-          
-            if (!projectToDelete) {
-              throw new GraphQLError(`Project with ID ${args._id} not found.`, {
-                extensions: { code: "BAD_USER_INPUT" },
-              });
-            }
+      // Pull collections
+      const projects = await projectCollection();
 
-            // Delete the project itself
-            const deletedProject = await projects.findOneAndDelete({
-              _id: new ObjectId(args._id),
-            });
-          
-            if (!deletedProject) {
-              throw new GraphQLError(
-                `The project with ID ${args._id} was not successfully found or deleted.`,
-                {
-                  extensions: { code: "BAD_USER_INPUT" },
-                }
-              );
-            }
-          
-            // Delete related updates and applications
-            try {
+      // Find the project to delete
+      const projectToDelete = await projects.findOne({
+        _id: new ObjectId(args._id),
+      });
 
-              const updates = await updateCollection();
-              const applications = await applicationCollection();
+      if (!projectToDelete) {
+        throw new GraphQLError(`Project with ID ${args._id} not found.`, {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      // Delete the project itself
+      const deletedProject = await projects.findOneAndDelete({
+        _id: new ObjectId(args._id),
+      });
+
+      if (!deletedProject) {
+        throw new GraphQLError(
+          `The project with ID ${args._id} was not successfully found or deleted.`,
+          {
+            extensions: { code: "BAD_USER_INPUT" },
+          }
+        );
+      }
+
+      // Delete related updates and applications
+      try {
+        const updates = await updateCollection();
+        const applications = await applicationCollection();
 
         const deletedUpdates = await updates.deleteMany({
           projectId: args._id,
@@ -2153,47 +2164,50 @@ export const resolvers = {
         );
       }
 
-            //Redis operations
-            try {
+      //Redis operations
+      try {
+        // Delete general caches
+        await redisClient.del("projects");
+        await redisClient.del("updates");
+        await redisClient.del("applications");
 
-              // Delete general caches
-              await redisClient.del("projects");
-              await redisClient.del("updates");
-              await redisClient.del("applications");
-            
-              // Delete the individual projects, updates and application caches
-              await redisClient.del(`project:${args._id}`);
-            
-              if (await updates.countDocuments({ projectId: args._id }) > 0) {
-                for (let update of await updates.find({ projectId: args._id }).toArray()) {
-                  await redisClient.del(`update:${update._id}`);
-                }
-              }
-      
-              if (await applications.countDocuments({ projectId: args._id }) > 0) {
-                for (let app of await applications.find({ projectId: args._id }).toArray()) {
-                  await redisClient.del(`application:${app._id}`);
-                }
-              }
-            
-              console.log("Redis caches cleared for project, updates, and applications.");
+        // Delete the individual projects, updates and application caches
+        await redisClient.del(`project:${args._id}`);
 
-            } catch (error) {
-              console.error("Failed to update Redis caches:", error);
-              throw new GraphQLError(
-                "Failed to update Redis cache after removing the project.",
-                {
-                  extensions: {
-                    code: "INTERNAL_SERVER_ERROR",
-                    cause: error.message,
-                  },
-                }
-              );
-            }
-          
-            return deletedProject;
+        if ((await updates.countDocuments({ projectId: args._id })) > 0) {
+          for (let update of await updates
+            .find({ projectId: args._id })
+            .toArray()) {
+            await redisClient.del(`update:${update._id}`);
+          }
+        }
 
-          },
+        if ((await applications.countDocuments({ projectId: args._id })) > 0) {
+          for (let app of await applications
+            .find({ projectId: args._id })
+            .toArray()) {
+            await redisClient.del(`application:${app._id}`);
+          }
+        }
+
+        console.log(
+          "Redis caches cleared for project, updates, and applications."
+        );
+      } catch (error) {
+        console.error("Failed to update Redis caches:", error);
+        throw new GraphQLError(
+          "Failed to update Redis cache after removing the project.",
+          {
+            extensions: {
+              code: "INTERNAL_SERVER_ERROR",
+              cause: error.message,
+            },
+          }
+        );
+      }
+
+      return deletedProject;
+    },
 
     // MUTATION: addUpdate
     // Purpose: Create a new update and add it to MongoDB
@@ -2425,8 +2439,8 @@ export const resolvers = {
       //Checks
       helpers.checkArg(args._id, "string", "id");
 
-          //Pull update collection
-          const updates = await updateCollection();
+      //Pull update collection
+      const updates = await updateCollection();
 
       // Use findOneAndDelete to remove the update from update collection
       const deletedUpdate = await updates.findOneAndDelete({
@@ -2442,9 +2456,11 @@ export const resolvers = {
         );
       }
 
-          //Remove related reference ids
-          const comments = await commentCollection();
-          const deletedComments = await comments.deleteMany({ destinationId: args._id });
+      //Remove related reference ids
+      const comments = await commentCollection();
+      const deletedComments = await comments.deleteMany({
+        destinationId: args._id,
+      });
 
       // Update Redis cache
       try {
@@ -2456,12 +2472,14 @@ export const resolvers = {
         // Delete the general comments cache as it's outdated
         await redisClient.del("comments");
 
-            // Delete individual caches for each comment related to this update
-            if (deletedComments.deletedCount > 0) {
-              for (let comment of await comments.find({ destinationId: args._id }).toArray()) {
-                await redisClient.del(`comment:${comment._id}`);
-              }
-            }
+        // Delete individual caches for each comment related to this update
+        if (deletedComments.deletedCount > 0) {
+          for (let comment of await comments
+            .find({ destinationId: args._id })
+            .toArray()) {
+            await redisClient.del(`comment:${comment._id}`);
+          }
+        }
 
         console.log(
           `Redis caches cleared for update ${args._id} and related comments.`
@@ -2737,8 +2755,8 @@ export const resolvers = {
       //Checks
       helpers.checkArg(args._id, "string", "id");
 
-          //Pull the applicationCollection
-          const applications = await applicationCollection();
+      //Pull the applicationCollection
+      const applications = await applicationCollection();
 
       //Use findOneAndDelete to remove the applciation from the collection, based on matching the _ids (arg and application)
       const deletedApplication = await applications.findOneAndDelete({
@@ -2756,9 +2774,11 @@ export const resolvers = {
         );
       }
 
-          //Remove related reference ids
-          const comments = await commentCollection();
-          const deletedComments = await comments.deleteMany({ destinationId: args._id });
+      //Remove related reference ids
+      const comments = await commentCollection();
+      const deletedComments = await comments.deleteMany({
+        destinationId: args._id,
+      });
 
       // Redis operations
       try {
@@ -2770,12 +2790,14 @@ export const resolvers = {
         // Delete the general comments cache as it's outdated
         await redisClient.del("comments");
 
-            // Delete individual caches for each comment related to this application
-            if (deletedComments.deletedCount > 0) {
-              for (let comment of await comments.find({ destinationId: args._id }).toArray()) {
-                await redisClient.del(`comment:${comment._id}`);
-              }
-            }
+        // Delete individual caches for each comment related to this application
+        if (deletedComments.deletedCount > 0) {
+          for (let comment of await comments
+            .find({ destinationId: args._id })
+            .toArray()) {
+            await redisClient.del(`comment:${comment._id}`);
+          }
+        }
 
         console.log(
           `Redis caches cleared for application ${args._id} and related comments.`
