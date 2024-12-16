@@ -33,6 +33,7 @@ redisClient.on("error", (err) => console.error("Redis Client Error", err));
 (async () => {
   try {
     await redisClient.connect();
+    await redisClient.flushAll();
     console.log("Connected to Redis");
   } catch (error) {
     console.error("Failed to connect to Redis:", error);
@@ -1241,12 +1242,22 @@ export const resolvers = {
 
     professors: async (parentValue) => {
       const users = await userCollection();
-      if (!parentValue.professors || !Array.isArray(parentValue.professors)) {
+      if (
+        !parentValue.professors ||
+        !Array.isArray(parentValue.professors) ||
+        parentValue.professors.length === 0
+      ) {
         return [];
       }
+      const professorObjectIds = parentValue.professors.map(
+        (id) => new ObjectId(id)
+      );
+      console.log(professorObjectIds);
       const projectProfessors = await users
         .find({
-          _id: { $in: parentValue.professors.map((id) => new ObjectId(id)) },
+          _id: {
+            $in: professorObjectIds,
+          },
           role: "PROFESSOR",
         })
         .toArray();
