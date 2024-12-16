@@ -153,8 +153,8 @@ export const typeDefs = `#graphql
             role: Role!                     # required (enum)
             department: Department!         # required (enum)
             bio: String                     # not required
-            applications: [Application]     # Array of application objects
-            projects: [Project]             # Array of project objects
+            applications: [Application]     # Computed Value, Array of application objects
+            projects: [Project]             # Computed value, arraay of project objects
             numOfApplications: Int!         # Computed value, number of applications completed
             numOfProjects: Int!             # Computed value, number of projects involved in
         }
@@ -171,6 +171,7 @@ export const typeDefs = `#graphql
             students: [User]                # array of user objects where Role = student, not required
             applications: [Application]     # array of Applicaiton objects
             numOfApplications: Int!         # Computed value, number of applications for this project
+            updates: [Update]               # Computed value,
             numOfUpdates: Int!              # Computed value, the number of updates delivered about this project
         }
 
@@ -178,37 +179,36 @@ export const typeDefs = `#graphql
    
         type Update {
             _id: String!                    # ObjectId, required
-            posterUser: User!               # user object who created update, required
+            posterUser: User!               # Computed value, shows user object who created update
             subject: UpdateSubject!         # Enum defining the type of update, required
             content: String!                # Additional details related to project update
-            project: Project!               # associated project object, required
+            project: Project!               # Computed value, shows the associated project object, required
             postedDate: String!             # ISO format, required
-            comments: [Comment]             # Array of commment objects added to update, not required
-            numOfComments: Int!             # Computed value, the number of comments under this update
+            comments: [Comment]             # Computed Value, shows the Array of commment objects added to update, not required
+            numOfComments: Int!             # Computed value, shows the number of comments under this update
         }
 
     # Application Type: Definition
 
         type Application {
             _id: String!                    # ObjectId, required
-            applicant: User!                # user object who applied to project, required
-            project: Project!               # associated project object, required
+            applicant: User!                # Computed Value, shows user object who applied to project, required
+            project: Project!               # Computed Value, shows associated project object, required
             applicationDate: String!        # ISO format required
             lastUpdatedDate: String!        # ISO format required, shows when last modified
             status: ApplicationStatus!      # Enum defining where the application stands, required
-            comments: [Comment]             # Array of commment  added to application, not required
-            numOfComments: Int!             # Computed value, the number of comments under this update
+            comments: [Comment]             # Computed Value, shows array of commments added to application, not required
+            numOfComments: Int!             # Computed value, the number of comments under this application
         }
 
     # Comment Type: Definition
 
         type Comment {
             _id: String!                    # ObjectId, required
-            commenter: User!                # User object who made the comment, required
+            commenter: User!                # Computed Value, shows the ser object who made the comment, required
             content: String!                # text content of the comment, required
             postedDate: String!             # ISO format, required
-            commentDestination: CommentDestination! #Enum, comment destination
-            destinationId: String!          #Reference ID for the update or application where the comment is stored
+            destinationId: String!          # Reference ID for the update or application where the comment is stored
         }
 
     # LoginResponse Type: Definition
@@ -322,10 +322,6 @@ export const typeDefs = `#graphql
             role: Role                       
             department: Department           
             bio: String        
-            ed: String
-            projectEditId: String
-            applicationRemovalId: String
-            applicationEditId: String
         ): User
     
     # addProject
@@ -336,7 +332,7 @@ export const typeDefs = `#graphql
             title: String!
             department: Department!
             description: String
-            professorIds: [String]    # Array of IDs for professors to associate with the project, not required, will be resolved to user objects
+            professorIds: [String]      # Array of IDs for professors to associate with the project, not required, will be resolved to user objects
             studentIds: [String]        # Array of IDs for students to associate with the project, not required, will be resolved to user objects
         ): Project
     
@@ -391,8 +387,6 @@ export const typeDefs = `#graphql
             subject: UpdateSubject        
             content: String                
             projectId: String             # ID of the Project associated with the update, will resolve to a project object
-            commentRemovalId: String
-            commentEditId: String
         ): Update
 
     # addApplication
@@ -413,8 +407,6 @@ export const typeDefs = `#graphql
             applicantId: String          # ID of the User who applied, will resolve to a user object    
             projectId: String            # ID of the Project, will resolve to a project object 
             status: ApplicationStatus
-            commentRemovalId: String
-            commentEditId: String
         ): Application
 
     # removeApplication
@@ -431,7 +423,6 @@ export const typeDefs = `#graphql
 
         addComment(
             commenterId: String!                        # ID of the User who commented, will resolve to a user object 
-            commentDestination: CommentDestination!
             destinationId: String!                      # ID of where comment will appear
             content: String!               
         ): Comment
