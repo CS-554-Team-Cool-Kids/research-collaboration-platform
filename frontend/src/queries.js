@@ -41,15 +41,25 @@ const GET_APPLICATIONS = gql`
 `;
 const GET_UPDATES = gql`
   query Update {
-    update {
+    updates {
       _id
-      posterId
-      subject
-      constent
-      projectId
-      poastedDate
-      comments
+      comments {
+        _id
+        content
+      }
+      content
       numOfComments
+      postedDate
+      posterUser {
+        firstName
+        lastName
+        _id
+      }
+      project {
+        _id
+        title
+      }
+      subject
     }
   }
 `;
@@ -79,10 +89,22 @@ const GET_USER_BY_ID = gql`
         applicationDate
         lastUpdatedDate
         status
+        numOfComments
       }
       projects {
         _id
         title
+        professors {
+          _id
+          firstName
+          lastName
+        }
+        students {
+          _id
+          firstName
+          lastName
+        }
+        createdDate
       }
       numOfApplications
       numOfProjects
@@ -119,12 +141,24 @@ const GET_APPLICATION_BY_ID = gql`
   query GetApplicationById($id: String!) {
     getApplicationById(_id: $id) {
       _id
-      applicantId
-      projectId
+      applicant {
+        _id
+        firstName
+        lastName
+      }
+      project {
+        _id
+        title
+        professors {
+          _id
+          firstName
+          lastName
+        }
+      }
       applicationDate
       lastUpdatedDate
       status
-      comments
+      numOfComments
     }
   }
 `;
@@ -416,29 +450,32 @@ const ADD_APPLICATION = gql`
 const EDIT_USER = gql`
   mutation EditUser(
     $id: String!
-    $firstName: String!
-    $lastName: String!
+    $firstName: String
+    $lastName: String
     $email: String
-    $password: String
     $role: Role
     $department: Department
     $bio: String
-  ) {
+    $projectEditId: String
+    $applicationRemovalId: String
+    $applicationEditId: String) 
+  {
     editUser(
       _id: $id
       firstName: $firstName
       lastName: $lastName
       email: $email
-      password: $password
       role: $role
       department: $department
       bio: $bio
-    ) {
+      projectEditId: $projectEditId
+      applicationRemovalId: $applicationRemovalId
+      applicationEditId: $applicationEditId) 
+    {
       _id
       firstName
       lastName
       email
-      password
       role
       department
       bio
