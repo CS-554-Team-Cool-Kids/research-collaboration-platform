@@ -62,7 +62,7 @@ function checkArg(argument, type, argumentName) {
   }
 
   if (argumentName === "name" || argumentName === "title") {
-    const nameRegex = /^[a-zA-Z\s\-]+$/;
+    const nameRegex = /^[\p{L}\s\-]+$/u;
 
     if (!nameRegex.test(argument)) {
       throw new GraphQLError(
