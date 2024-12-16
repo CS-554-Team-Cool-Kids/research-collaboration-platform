@@ -16,9 +16,10 @@ import ProjectAdd from "./components/project/Add";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Chat from "./components/Chat";
 
-import ApplicationList from './components/application/List';
-import ApplicationDetails from './components/application/[id]/Details';
-import ApplicationAdd from './components/application/Add';
+import ApplicationList from "./components/application/List";
+import ApplicationDetails from "./components/application/[id]/Details";
+import ApplicationAdd from "./components/application/Add";
+import AllProjectList from "./components/all_projects/List";
 
 const App = () => {
   //Theming
@@ -133,7 +134,7 @@ const App = () => {
         <Route path="/auth/register" element={<Register />} />
 
         {/* Protected routes */}
-        <Route 
+        <Route
           path="/dashboard"
           element={
             <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
@@ -141,6 +142,16 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/allprojects"
+          element={
+            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <AllProjectList />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/project"
           element={
@@ -181,7 +192,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route 
+        <Route
           path="/application/:id"
           element={
             <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
