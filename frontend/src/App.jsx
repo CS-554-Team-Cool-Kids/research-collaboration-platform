@@ -23,6 +23,7 @@ import AllProjectList from "./components/all_projects/List";
 import Requests from "./components/project/[id]/Requests";
 import ResetPasswordRequest from "./components/auth/ResetPasswordRequest";
 import ChangePassword from "./components/auth/ChangePassword";
+import Team from "./components/project/[id]/Team";
 
 const App = () => {
   //Theming
@@ -181,6 +182,14 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
               <ProjectDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/project/:id/team"
+          element={
+            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <Team />
             </ProtectedRoute>
           }
         />

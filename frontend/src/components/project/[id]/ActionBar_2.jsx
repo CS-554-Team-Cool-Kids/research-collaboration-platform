@@ -1,54 +1,38 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import HomeIcon from "../../../assets/svg/HomeIcon_2";
 import NextIcon from "../../../assets/svg/NextIcon";
 import ChatIcon from "../../../assets/svg/ChatIcon_2";
 import AnnouncementIcon from "../../../assets/svg/Announcement";
 import VoiceIcon from "../../../assets/svg/VoiceIcon";
-import Members from "../../../assets/svg/Members";
+import Team from "../../../assets/svg/Team";
 import Requests from "../../../assets/svg/Requests";
 import { useAuth } from "../../../context/AuthContext"; // Import your AuthContext
 
 const ActionBar = (props) => {
-  const { authState, logout } = useAuth(); // Use the AuthContext to get authState and logout function
+  const { authState } = useAuth(); // Use the AuthContext to get authState
+  const location = useLocation(); // Get the current route location
 
   useEffect(() => {
     const sidebar = document.querySelector(".sidebar");
-    const navItems = document.querySelectorAll(".nav-item");
     const toggle = document.querySelector(".sidebar .toggle");
 
     if (toggle) {
       toggle.addEventListener("click", () => {
-        if (sidebar.className === "sidebar glassEffect open")
+        if (sidebar.classList.contains("open"))
           sidebar.classList.remove("open");
-        else {
-          sidebar.classList.add("open");
-        }
-      });
-    }
-
-    if (navItems.length > 0) {
-      navItems.forEach((navItem) => {
-        navItem.addEventListener("click", () => {
-          navItems.forEach((item) => {
-            item.classList.remove("active");
-          });
-
-          navItem.classList.add("active");
-        });
+        else sidebar.classList.add("open");
       });
     }
 
     // Cleanup event listeners on component unmount
     return () => {
       if (toggle) toggle.removeEventListener("click", () => {});
-      if (navItems.length > 0) {
-        navItems.forEach((navItem) => {
-          navItem.removeEventListener("click", () => {});
-        });
-      }
     };
   }, []); // Empty dependency array ensures this only runs once on mount
+
+  // Utility to determine if a route is active
+  const isActive = (path) => location.pathname === path;
 
   return (
     <div className="sidebar glassEffect open">
@@ -56,32 +40,49 @@ const ActionBar = (props) => {
         <NextIcon />
       </div>
 
-      <div className="logo">Project Alpha</div>
+      <div className="logo">{props.projectTitle}</div>
 
       <nav>
         <div className="nav-title">Management</div>
 
         <ul>
           <Link to={`/project/${props.projectId}`} className="nav-link">
-            <li className="nav-item active">
+            <li
+              className={`nav-item ${
+                isActive(`/project/${props.projectId}`) ? "active" : ""
+              }`}
+            >
               <div className="iconSwitch">
                 <HomeIcon />
               </div>
               <span>Home</span>
             </li>
           </Link>
-          <li className="nav-item">
-            <div className="iconSwitch">
-              <Members />
-            </div>
-            <span>Members</span>
-          </li>
+          <Link to={`/project/${props.projectId}/team`} className="nav-link">
+            <li
+              className={`nav-item ${
+                isActive(`/project/${props.projectId}/team`) ? "active" : ""
+              }`}
+            >
+              <div className="iconSwitch">
+                <Team />
+              </div>
+              <span>Team</span>
+            </li>
+          </Link>
+
           {authState.user.role === "PROFESSOR" && (
             <Link
               to={`/project/${props.projectId}/requests`}
               className="nav-link"
             >
-              <li className="nav-item">
+              <li
+                className={`nav-item ${
+                  isActive(`/project/${props.projectId}/requests`)
+                    ? "active"
+                    : ""
+                }`}
+              >
                 <div className="iconSwitch">
                   <Requests />
                 </div>
@@ -93,14 +94,20 @@ const ActionBar = (props) => {
 
         <div className="nav-title">Channel</div>
         <ul>
-          <li className="nav-item active">
+          <li
+            className={`nav-item ${isActive("/channel/text") ? "active" : ""}`}
+          >
             <div className="iconSwitch">
               <ChatIcon />
             </div>
             <span>Text</span>
           </li>
 
-          <li className="nav-item">
+          <li
+            className={`nav-item ${
+              isActive("/channel/announcement") ? "active" : ""
+            }`}
+          >
             <div className="iconSwitch">
               <AnnouncementIcon />
             </div>

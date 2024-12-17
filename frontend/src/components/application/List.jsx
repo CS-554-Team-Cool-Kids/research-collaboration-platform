@@ -70,36 +70,6 @@ function ApplicationList(props) {
                 <div className="col my-auto">
                   <h2>Application List</h2>
                 </div>
-                <div className="col-auto d-flex">
-                  {selectedApplication?._id ? (
-                    <div className="d-flex">
-                      <Link
-                        className="nav-link"
-                        to={"/application/details/" + selectedApplication?._id}
-                      >
-                        <button className="btn btn-info ms-2">Details</button>
-                      </Link>
-                      <button
-                        className="btn btn-danger ms-2"
-                        onClick={handleDelete}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="d-flex">
-                      <button className="btn btn-info ms-2 invisible">
-                        Details
-                      </button>
-                      <button className="btn btn-danger ms-2 invisible">
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                  <Link className="nav-link" to="/application/add">
-                    <button className="btn btn-success ms-2">Add</button>
-                  </Link>
-                </div>
               </div>
             </div>
             <div className="d-card-body p-0">

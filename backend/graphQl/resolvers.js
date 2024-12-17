@@ -2930,6 +2930,8 @@ export const resolvers = {
         { returnDocument: "after" }
       );
 
+      await redisClient.flushAll();
+
       return result;
     },
 

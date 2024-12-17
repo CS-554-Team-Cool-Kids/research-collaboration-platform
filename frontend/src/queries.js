@@ -112,10 +112,33 @@ const GET_USER_BY_ID = gql`
   }
 `;
 const GET_PROJECT_BY_ID = gql`
-  query getProjectById($id: String!) {
+  query Query($id: String!) {
     getProjectById(_id: $id) {
       _id
       title
+      applications {
+        _id
+        applicant {
+          _id
+          firstName
+          lastName
+        }
+        status
+      }
+      professors {
+        firstName
+        lastName
+        email
+        department
+        role
+      }
+      students {
+        firstName
+        lastName
+        email
+        department
+        role
+      }
     }
   }
 `;
@@ -159,6 +182,16 @@ const GET_APPLICATION_BY_ID = gql`
       lastUpdatedDate
       status
       numOfComments
+    }
+  }
+`;
+
+const CHANGE_APPLICATION_STATUS = gql`
+  mutation Mutation($id: String!, $status: ApplicationStatus!) {
+    changeApplicationStatus(_id: $id, status: $status) {
+      _id
+      applicationDate
+      status
     }
   }
 `;
@@ -255,15 +288,6 @@ const UDPATES_BY_SUBJECT = gql`
   }
 `;
 
-const CHANGE_APPLICATION_STATUS = gql`
-  mutation Mutation($id: String!, $status: ApplicationStatus!) {
-    changeApplicationStatus(_id: $id, status: $status) {
-      _id
-      applicationDate
-      status
-    }
-  }
-`;
 const PROJECTS_BY_CREATED_YEAR = gql`
   query Query($min: Int!, $max: Int!) {
     projectsByCreatedYear(min: $min, max: $max) {
@@ -670,6 +694,7 @@ let exported = {
   GET_PROJECT_BY_ID,
   GET_UPDATE_BY_ID,
   GET_APPLICATION_BY_ID,
+  CHANGE_APPLICATION_STATUS,
   GET_PROFESSORS_BY_PROJECT_ID,
   GET_STUDENT_BY_PROJECT_ID,
   PROJECTS_BY_DEPARTMENT,
@@ -692,7 +717,6 @@ let exported = {
   LOGIN_MUTATION,
   GET_ENUM_DEPARTMENT,
   GET_ENUM_ROLE,
-  CHANGE_APPLICATION_STATUS,
 };
 
 export default exported;
