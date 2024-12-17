@@ -60,28 +60,30 @@ const Requests = () => {
               <p>Error loading requests: {error.message}</p>
             ) : (
               <div className="col-12">
-                {data.getProjectById.applications.map((application, index) => (
-                  <div key={application._id} className="row mt-3">
-                    <div className="col my-auto">
-                      {application.applicant.firstName}{" "}
-                      {application.applicant.lastName}
+                {data.getProjectById.applications
+                  .filter((application) => application.status === "PENDING")
+                  .map((application) => (
+                    <div key={application._id} className="row mt-3">
+                      <div className="col my-auto">
+                        {application.applicant.firstName}{" "}
+                        {application.applicant.lastName}
+                      </div>
+                      <div className="col-auto">
+                        <button
+                          className="btn btn-success mx-2"
+                          onClick={() => handleAccept(application._id)}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          className="btn btn-danger mx-2"
+                          onClick={() => handleReject(application._id)}
+                        >
+                          Reject
+                        </button>
+                      </div>
                     </div>
-                    <div className="col-auto">
-                      <button
-                        className="btn btn-success mx-2"
-                        onClick={() => handleAccept(application._id)}
-                      >
-                        Accept
-                      </button>
-                      <button
-                        className="btn btn-danger mx-2"
-                        onClick={() => handleReject(application._id)}
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </div>

@@ -288,15 +288,6 @@ const UDPATES_BY_SUBJECT = gql`
   }
 `;
 
-const CHANGE_APPLICATION_STATUS = gql`
-  mutation Mutation($id: String!, $status: ApplicationStatus!) {
-    changeApplicationStatus(_id: $id, status: $status) {
-      _id
-      applicationDate
-      status
-    }
-  }
-`;
 const PROJECTS_BY_CREATED_YEAR = gql`
   query Query($min: Int!, $max: Int!) {
     projectsByCreatedYear(min: $min, max: $max) {
@@ -726,7 +717,6 @@ let exported = {
   LOGIN_MUTATION,
   GET_ENUM_DEPARTMENT,
   GET_ENUM_ROLE,
-  CHANGE_APPLICATION_STATUS,
 };
 
 export default exported;
