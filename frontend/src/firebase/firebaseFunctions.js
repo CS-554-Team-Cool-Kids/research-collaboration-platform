@@ -23,6 +23,7 @@ async function doSignInWithEmailAndPassword(email, password) {
 }
 
 async function doChangePassword(email, oldPassword, newPassword) {
+  console.log(email);
   const auth = getAuth();
   let credential = EmailAuthProvider.credential(email, oldPassword);
   console.log(credential);
