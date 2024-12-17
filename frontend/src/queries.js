@@ -40,6 +40,7 @@ const GET_APPLICATIONS = gql`
   }
 `;
 const GET_UPDATES = gql`
+<<<<<<< HEAD
 query Updates {
     updates {
       _id
@@ -55,7 +56,28 @@ query Updates {
         title
       }
       postedDate
+=======
+  query Update {
+    updates {
+      _id
+      comments {
+        _id
+        content
+      }
+      content
+>>>>>>> origin/dev_ajinkya
       numOfComments
+      postedDate
+      posterUser {
+        firstName
+        lastName
+        _id
+      }
+      project {
+        _id
+        title
+      }
+      subject
     }
   }
 `;
@@ -85,10 +107,22 @@ const GET_USER_BY_ID = gql`
         applicationDate
         lastUpdatedDate
         status
+        numOfComments
       }
       projects {
         _id
         title
+        professors {
+          _id
+          firstName
+          lastName
+        }
+        students {
+          _id
+          firstName
+          lastName
+        }
+        createdDate
       }
       numOfApplications
       numOfProjects
@@ -96,10 +130,33 @@ const GET_USER_BY_ID = gql`
   }
 `;
 const GET_PROJECT_BY_ID = gql`
-  query getProjectById($id: String!) {
+  query Query($id: String!) {
     getProjectById(_id: $id) {
       _id
       title
+      applications {
+        _id
+        applicant {
+          _id
+          firstName
+          lastName
+        }
+        status
+      }
+      professors {
+        firstName
+        lastName
+        email
+        department
+        role
+      }
+      students {
+        firstName
+        lastName
+        email
+        department
+        role
+      }
     }
   }
 `;
@@ -126,12 +183,34 @@ const GET_APPLICATION_BY_ID = gql`
   query GetApplicationById($id: String!) {
     getApplicationById(_id: $id) {
       _id
-      applicantId
-      projectId
+      applicant {
+        _id
+        firstName
+        lastName
+      }
+      project {
+        _id
+        title
+        professors {
+          _id
+          firstName
+          lastName
+        }
+      }
       applicationDate
       lastUpdatedDate
       status
-      comments
+      numOfComments
+    }
+  }
+`;
+
+const CHANGE_APPLICATION_STATUS = gql`
+  mutation Mutation($id: String!, $status: ApplicationStatus!) {
+    changeApplicationStatus(_id: $id, status: $status) {
+      _id
+      applicationDate
+      status
     }
   }
 `;
@@ -227,6 +306,7 @@ const UDPATES_BY_SUBJECT = gql`
     }
   }
 `;
+
 const PROJECTS_BY_CREATED_YEAR = gql`
   query Query($min: Int!, $max: Int!) {
     projectsByCreatedYear(min: $min, max: $max) {
@@ -398,16 +478,23 @@ const ADD_UPDATE = gql`
     }
   }
 `;
+
 const ADD_APPLICATION = gql`
   mutation AddApplication($applicantId: String!, $projectId: String!) {
-    addApplication(applicationId: $applicationId, projectId: $projectId) {
+    addApplication(applicantId: $applicantId, projectId: $projectId) {
       _id
-      applicantId
-      projectId
       applicationDate
       lastUpdatedDate
       status
-      comments
+      applicant {
+        _id
+        firstName
+        lastName
+      }
+      project {
+        _id
+        title
+      }
     }
   }
 `;
@@ -416,29 +503,32 @@ const ADD_APPLICATION = gql`
 const EDIT_USER = gql`
   mutation EditUser(
     $id: String!
-    $firstName: String!
-    $lastName: String!
+    $firstName: String
+    $lastName: String
     $email: String
-    $password: String
     $role: Role
     $department: Department
     $bio: String
+    $projectEditId: String
+    $applicationRemovalId: String
+    $applicationEditId: String
   ) {
     editUser(
       _id: $id
       firstName: $firstName
       lastName: $lastName
       email: $email
-      password: $password
       role: $role
       department: $department
       bio: $bio
+      projectEditId: $projectEditId
+      applicationRemovalId: $applicationRemovalId
+      applicationEditId: $applicationEditId
     ) {
       _id
       firstName
       lastName
       email
-      password
       role
       department
       bio
@@ -645,6 +735,7 @@ let exported = {
   GET_PROJECT_BY_ID,
   GET_UPDATE_BY_ID,
   GET_APPLICATION_BY_ID,
+  CHANGE_APPLICATION_STATUS,
   GET_PROFESSORS_BY_PROJECT_ID,
   GET_STUDENT_BY_PROJECT_ID,
   PROJECTS_BY_DEPARTMENT,

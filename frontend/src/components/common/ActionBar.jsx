@@ -31,13 +31,13 @@ function ActionBar(props){
                     </Link>
                 </li>
                 <li>
-                    <Link className="action-link" to={"/"}>
+                    <Link className="action-link" to={"/chat"}>
                         <ChatIcon />
                         <span>Chat</span>
                     </Link>
                 </li>
                 <li>
-                    <Link className="action-link" to={"/"}>
+                    <Link className="action-link" to={"/project"}>
                         <ProjectIcon />
                         <span>Project</span>
                     </Link>

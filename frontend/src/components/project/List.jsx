@@ -54,7 +54,7 @@ const ProjectList = () => {
             <div className="col-12">
               <div className="row">
                 <div className="col my-auto">
-                  <h2>Project List</h2>
+                  <h2>My Project List</h2>
                 </div>
 
                 <div className="col-auto d-flex">
