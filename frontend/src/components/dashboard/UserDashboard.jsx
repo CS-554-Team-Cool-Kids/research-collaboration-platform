@@ -3,23 +3,13 @@ import { Link } from 'react-router-dom';
 import {useQuery} from '@apollo/client'; 
 import queries from '../../queries';
 import ActionBar from '../common/ActionBar';
-import EditUser from '../modals/EditUser';
-import { useAuth } from "../../context/AuthContext.jsx";
+import { useAuth } from "../../context/AuthContext";
 
 const UserDashboard = () => {
-    const [showEditUser, setShowEditUser] = useState(false);
 
     const { authState } = useAuth();
     const userId = authState.user.id;
 
-    // Edit User Modal
-    const handleOpenEditModal = () => {
-        setShowEditUser(true)
-    }
-    // Close Edit User Modal
-    const handleCloseModal = () => {
-        setShowEditUser(false);
-    }
     
     // User Data
     const userData = useQuery(queries.GET_USER_BY_ID, {
@@ -58,7 +48,7 @@ const UserDashboard = () => {
     const updates = updatesData.data.updates;
     return(
         <main className="dashboard">
-            <ActionBar role={user.role}/>
+            <ActionBar role={user.role} />
             <div className="main-content">
                 <h1>Welcome {user.firstName} {user.lastName}</h1>
                 <div className="dashboard-table">
@@ -141,11 +131,10 @@ const UserDashboard = () => {
                         <div className="d-card">
                             <div className="d-card-header">
                                 <h2>User Information</h2>
-                                <button 
-                                    type="button" 
+                                <Link
                                     className="card-header-link"
-                                    onClick={() => {handleOpenEditModal()}}
-                                >Edit</button>
+                                    to="/edituser"
+                                >Edit</Link>
                             </div>
                             <div className="d-card-body">
                                 <dl className="desc-list">
@@ -203,13 +192,6 @@ const UserDashboard = () => {
                     </div>
                 </div>
             </div>
-            {showEditUser && (
-                <EditUser
-                    isOpen={showEditUser}
-                    handleClose={handleCloseModal}
-                    user={user}
-                />
-            )}
         </main>
     );
 }
