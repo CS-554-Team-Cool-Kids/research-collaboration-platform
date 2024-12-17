@@ -12,9 +12,15 @@ const Team = () => {
     fetchPolicy: "network-only",
   });
 
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
   return (
     <main className="dashboard">
-      <ActionBar projectId={projectId} />
+      <ActionBar
+        projectId={projectId}
+        projectTitle={data.getProjectById.title}
+      />
       <div className="container-fluid my-3">
         <div className="d-card glassEffect">
           <div className="d-card-header">

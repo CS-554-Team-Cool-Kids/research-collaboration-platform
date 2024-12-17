@@ -17,12 +17,6 @@ const Requests = () => {
 
   const [changeStatus] = useMutation(queries.CHANGE_APPLICATION_STATUS);
 
-  useEffect(() => {
-    if (data) {
-      console.log(data.getProjectById.applications);
-    }
-  }, [data]);
-
   const handleAccept = async (applicationId) => {
     try {
       await changeStatus({
@@ -45,9 +39,15 @@ const Requests = () => {
     }
   };
 
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
   return (
     <main className="dashboard">
-      <ActionBar projectId={projectId} />
+      <ActionBar
+        projectId={projectId}
+        projectTitle={data.getProjectById.title}
+      />
       <div className="container-fluid my-3">
         <div className="d-card glassEffect">
           <div className="d-card-header">
