@@ -32,10 +32,30 @@ const ApplicationDetails = () => {
   };
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <main className="dashboard">
+        <ActionBar />
+        <div className="container-fluid my-3">
+          <div className="d-card glassEffect">
+            <div className="d-card-header">Application Details</div>
+            <div className="d-card-body">Loading Application Details</div>
+          </div>
+        </div>
+      </main>
+    );
   }
   if (error) {
-    return <p>Error: {error.message}</p>;
+    return (
+      <main className="dashboard">
+        <ActionBar />
+        <div className="container-fluid my-3">
+          <div className="d-card glassEffect">
+            <div className="d-card-header">Application Details</div>
+            <div className="d-card-body">error.message</div>
+          </div>
+        </div>
+      </main>
+    );
   }
   const application = data?.getApplicationById || [];
   return (

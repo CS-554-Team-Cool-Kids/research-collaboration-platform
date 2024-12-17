@@ -39,57 +39,46 @@ const Requests = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-
   return (
-    <main className="dashboard">
-      <ActionBar
-        projectId={projectId}
-        projectTitle={data.getProjectById.title}
-      />
-      <div className="container-fluid my-3">
-        <div className="d-card glassEffect">
-          <div className="d-card-header">
-            <h2>Requests</h2>
-          </div>
-          <div className="d-card-body">
-            {loading ? (
-              <p>Loading...</p>
-            ) : error ? (
-              <p>Error loading requests: {error.message}</p>
-            ) : (
-              <div className="col-12">
-                {data.getProjectById.applications
-                  .filter((application) => application.status === "PENDING")
-                  .map((application) => (
-                    <div key={application._id} className="row mt-3">
-                      <div className="col my-auto">
-                        {application.applicant.firstName}{" "}
-                        {application.applicant.lastName}
-                      </div>
-                      <div className="col-auto">
-                        <button
-                          className="btn btn-success mx-2"
-                          onClick={() => handleAccept(application._id)}
-                        >
-                          Accept
-                        </button>
-                        <button
-                          className="btn btn-danger mx-2"
-                          onClick={() => handleReject(application._id)}
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
-        </div>
+    <div className="d-card glassEffect">
+      <div className="d-card-header">
+        <h2>Requests</h2>
       </div>
-    </main>
+      <div className="d-card-body">
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p>Error loading requests: {error.message}</p>
+        ) : (
+          <div className="col-12">
+            {data?.getProjectById.applications
+              .filter((application) => application.status === "PENDING")
+              .map((application) => (
+                <div key={application._id} className="row mt-3">
+                  <div className="col my-auto">
+                    {application.applicant.firstName}{" "}
+                    {application.applicant.lastName}
+                  </div>
+                  <div className="col-auto">
+                    <button
+                      className="btn btn-success mx-2"
+                      onClick={() => handleAccept(application._id)}
+                    >
+                      Accept
+                    </button>
+                    <button
+                      className="btn btn-danger mx-2"
+                      onClick={() => handleReject(application._id)}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
