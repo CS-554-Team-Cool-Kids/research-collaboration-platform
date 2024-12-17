@@ -317,6 +317,12 @@ nav .navbar-collapse {
   align-items: center;
   text-align: center;
 }
+.action-link:hover,
+.action-link:active,
+.action-link:focus{
+  color:#fff;
+  text-decoration:underline;
+}
 .action-link svg {
   width: 35px;
   height: 35px;
@@ -783,3 +789,10 @@ footer {
 .toolbar-class {
   border: 1px solid #ccc;
 }
+
+
+/* Not Found Styles
+================================================== */
+.not-found{margin-top:15%;}
+.not-found h1{text-align:center;}
+.not-found p{text-align:center;}

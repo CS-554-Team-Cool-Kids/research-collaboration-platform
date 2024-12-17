@@ -48,7 +48,7 @@ const Login = () => {
       });
 
       // Redirect to the originally intended route or default to '/chat'
-      const from = location.state?.from?.pathname || "/project";
+      const from = location.state?.from?.pathname || "/dashboard";
       navigate(from, { replace: true });
     } catch (error) {
       alert(error.message);
