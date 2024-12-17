@@ -17,7 +17,7 @@ const ProjectDetails = () => {
   );
 
   if (loading) return <p className="loader">Loading...</p>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (error) return <p className="error-message">Error: {error.message}</p>;
 
   return (
     <main className="dashboard">
