@@ -21,6 +21,10 @@ import ApplicationList from "./components/application/List";
 import ApplicationDetails from "./components/application/[id]/Details";
 import ApplicationAdd from "./components/application/Add";
 import AllProjectList from "./components/all_projects/List";
+import Requests from "./components/project/[id]/Requests";
+import ResetPasswordRequest from "./components/auth/ResetPasswordRequest";
+import ChangePassword from "./components/auth/ChangePassword";
+import Team from "./components/project/[id]/Team";
 
 const App = () => {
   //Theming
@@ -133,6 +137,11 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/register" element={<Register />} />
+        <Route
+          path="/auth/resetpasswordrequest"
+          element={<ResetPasswordRequest />}
+        />
+        <Route path="/auth/changepassword" element={<ChangePassword />} />
 
         {/* Protected routes */}
         <Route
@@ -183,6 +192,22 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
               <ProjectDetails />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/project/:id/team"
+          element={
+            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <Team />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/project/:id/requests"
+          element={
+            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN"]}>
+              <Requests />
             </ProtectedRoute>
           }
         />

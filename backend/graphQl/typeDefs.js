@@ -417,6 +417,14 @@ export const typeDefs = `#graphql
             _id: String!
         ): Application
 
+    # changeApplicationStatus
+    # Purpose: Change the status of an application, if accepted add to project, if rejected just update the STATUS
+
+        changeApplicationStatus(
+            _id: String!
+            status: ApplicationStatus!
+        ): Application
+
     # addComment
     # Purpose: Create a new comment and add it to an existing update or application.
     # Cache: add the individual comment cache, delete the comments cache; handle caches or applications/updates

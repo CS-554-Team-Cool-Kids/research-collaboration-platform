@@ -7,8 +7,8 @@ import { useAuth } from "../../context/AuthContext";
 
 const UserDashboard = () => {
 
-    const { authState } = useAuth();
-    const userId = authState.user.id;
+  const { authState } = useAuth();
+  const userId = authState.user.id;
 
     
     // User Data
@@ -19,26 +19,28 @@ const UserDashboard = () => {
     const userLoading = userData.loading;
     const userError = userData.error;
 
-    // NewsFeed Data
-    const updatesData = useQuery(queries.GET_UPDATES, {
-        fetchPolicy: 'network-only'
-    });
-    const updateLoading = updatesData.loading;
-    const updateError = updatesData.error;
-    
-    // Format Date
-    const formatDate = (date) => {
-        let newDate = new Date(date);
-        const formattedDate = newDate.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-        });
-        return (formattedDate);
-    }
+  // NewsFeed Data
+  const updatesData = useQuery(queries.GET_UPDATES, {
+    fetchPolicy: "network-only",
+  });
+  const updateLoading = updatesData.loading;
+  const updateError = updatesData.error;
 
-    // If loading
-    if(userLoading || updateLoading){ return <p>Loading...</p>}
+  // Format Date
+  const formatDate = (date) => {
+    let newDate = new Date(date);
+    const formattedDate = newDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    return formattedDate;
+  };
+
+  // If loading
+  if (userLoading || updateLoading) {
+    return <p>Loading...</p>;
+  }
 
     // If error
     if(userError || updateError){ return <p>Error loading: {userError? userError.message : updateError.message}</p>}

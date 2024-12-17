@@ -112,10 +112,33 @@ const GET_USER_BY_ID = gql`
   }
 `;
 const GET_PROJECT_BY_ID = gql`
-  query getProjectById($id: String!) {
+  query Query($id: String!) {
     getProjectById(_id: $id) {
       _id
       title
+      applications {
+        _id
+        applicant {
+          _id
+          firstName
+          lastName
+        }
+        status
+      }
+      professors {
+        firstName
+        lastName
+        email
+        department
+        role
+      }
+      students {
+        firstName
+        lastName
+        email
+        department
+        role
+      }
     }
   }
 `;
@@ -159,6 +182,16 @@ const GET_APPLICATION_BY_ID = gql`
       lastUpdatedDate
       status
       numOfComments
+    }
+  }
+`;
+
+const CHANGE_APPLICATION_STATUS = gql`
+  mutation Mutation($id: String!, $status: ApplicationStatus!) {
+    changeApplicationStatus(_id: $id, status: $status) {
+      _id
+      applicationDate
+      status
     }
   }
 `;
@@ -254,6 +287,7 @@ const UDPATES_BY_SUBJECT = gql`
     }
   }
 `;
+
 const PROJECTS_BY_CREATED_YEAR = gql`
   query Query($min: Int!, $max: Int!) {
     projectsByCreatedYear(min: $min, max: $max) {
@@ -458,8 +492,8 @@ const EDIT_USER = gql`
     $bio: String
     $projectEditId: String
     $applicationRemovalId: String
-    $applicationEditId: String) 
-  {
+    $applicationEditId: String
+  ) {
     editUser(
       _id: $id
       firstName: $firstName
@@ -470,8 +504,8 @@ const EDIT_USER = gql`
       bio: $bio
       projectEditId: $projectEditId
       applicationRemovalId: $applicationRemovalId
-      applicationEditId: $applicationEditId) 
-    {
+      applicationEditId: $applicationEditId
+    ) {
       _id
       firstName
       lastName
@@ -660,6 +694,7 @@ let exported = {
   GET_PROJECT_BY_ID,
   GET_UPDATE_BY_ID,
   GET_APPLICATION_BY_ID,
+  CHANGE_APPLICATION_STATUS,
   GET_PROFESSORS_BY_PROJECT_ID,
   GET_STUDENT_BY_PROJECT_ID,
   PROJECTS_BY_DEPARTMENT,
