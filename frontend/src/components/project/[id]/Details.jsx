@@ -16,9 +16,6 @@ const ProjectDetails = () => {
     }
   );
 
-  if (loading) return <p className="loader">Loading...</p>;
-  if (error) return <p className="error-message">Error: {error.message}</p>;
-
   return (
     <div className="d-card glassEffect">
       <div className="d-card-header">Project Details</div>
