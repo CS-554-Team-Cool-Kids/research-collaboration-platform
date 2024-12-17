@@ -62,13 +62,18 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li className="nav-item">
+                  <Link className="nav-link" to="/allprojects">
+                    Project Database
+                  </Link>
+                </li>
+                <li className="nav-item">
                   <Link className="nav-link" to="/project">
-                    Project
+                    My Projects
                   </Link>
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/application">
-                    Application
+                    Application Status
                   </Link>
                 </li>
                 <li className="nav-item">

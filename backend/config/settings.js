@@ -7,6 +7,6 @@ export const mongoConfig = {
 };
 
 // export const mongoConfig = {
-//   serverUrl: 'mongodb://localhost:27017/',
-//   database: 'final'
+//   serverUrl: "mongodb://localhost:27017/",
+//   database: "final",
 // };
