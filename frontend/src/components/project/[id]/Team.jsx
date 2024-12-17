@@ -1,6 +1,5 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-import ActionBar from "./ActionBar_2";
 import { useQuery } from "@apollo/client";
 import queries from "../../../queries";
 

@@ -13,6 +13,10 @@ import Register from "./components/auth/Register";
 
 import ProjectList from "./components/project/List";
 import ProjectDetails from "./components/project/[id]/Details";
+import Requests from "./components/project/[id]/Requests";
+import Team from "./components/project/[id]/Team";
+import ProjectLayout from "./components/project/[id]/ProjectWrapper";
+
 import ProjectAdd from "./components/project/Add";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Chat from "./components/Chat";
@@ -20,11 +24,11 @@ import Chat from "./components/Chat";
 import ApplicationList from "./components/application/List";
 import ApplicationDetails from "./components/application/[id]/Details";
 import ApplicationAdd from "./components/application/Add";
+
 import AllProjectList from "./components/all_projects/List";
-import Requests from "./components/project/[id]/Requests";
+
 import ResetPasswordRequest from "./components/auth/ResetPasswordRequest";
 import ChangePassword from "./components/auth/ChangePassword";
-import Team from "./components/project/[id]/Team";
 
 const App = () => {
   //Theming
@@ -191,26 +195,35 @@ const App = () => {
           path="/project/:id"
           element={
             <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
-              <ProjectDetails />
+              <ProjectLayout />
             </ProtectedRoute>
           }
-        />
-        <Route
-          path="/project/:id/team"
-          element={
-            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
-              <Team />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/project/:id/requests"
-          element={
-            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN"]}>
-              <Requests />
-            </ProtectedRoute>
-          }
-        />
+        >
+          <Route
+            path=""
+            element={
+              <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+                <ProjectDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="team"
+            element={
+              <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+                <Team />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="requests"
+            element={
+              <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN"]}>
+                <Requests />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
         <Route
           path="/chat"
           element={

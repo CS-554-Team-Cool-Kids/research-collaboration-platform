@@ -20,18 +20,10 @@ const ProjectDetails = () => {
   if (error) return <p className="error-message">Error: {error.message}</p>;
 
   return (
-    <main className="dashboard">
-      <ActionBar
-        projectId={projectId}
-        projectTitle={data.getProjectById.title}
-      />
-      <div className="container-fluid my-3">
-        <div className="d-card glassEffect">
-          <div className="d-card-header">Home</div>
-          <div className="d-card-body"></div>
-        </div>
-      </div>
-    </main>
+    <div className="d-card glassEffect">
+      <div className="d-card-header">Project Details</div>
+      <div className="d-card-body"></div>
+    </div>
   );
 };
 
