@@ -36,7 +36,7 @@ const AddApplication = () => {
   };
   if (projectsData.loading) return <p className="loader">Loading projects...</p>;
   if (projectsData.error)
-    return <p>Error loading projects: {projectsData.error.message}</p>;
+    return <p className="error-message">Error loading projects: {projectsData.error.message}</p>;
   return (
     <div className="d-card col-12 col-md-6 glassEffect my-4 mx-auto">
       <div className="d-card-header">

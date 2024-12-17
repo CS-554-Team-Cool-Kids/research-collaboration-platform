@@ -35,7 +35,7 @@ const ApplicationDetails = () => {
     return <p className="loader">Loading...</p>;
   }
   if (error) {
-    return <p>Error: {error.message}</p>;
+    return <p className="error-message">Error: {error.message}</p>;
   }
   const application = data?.getApplicationById || [];
   return (

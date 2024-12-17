@@ -43,7 +43,7 @@ const UserDashboard = () => {
   }
 
     // If error
-    if(userError || updateError){ return <p>Error loading: {userError? userError.message : updateError.message}</p>}
+    if(userError || updateError){ return <p className="error-message">Error loading: {userError? userError.message : updateError.message}</p>}
 
     // Return data
     const user = userData.data.getUserById;

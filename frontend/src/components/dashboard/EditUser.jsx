@@ -125,9 +125,10 @@ const EditUser = () => {
             console.error(error)
         }
     }
-
+    
     if(userLoading) return <p className="loader">Loading user data...</p>;
-    if(userError) return <p>Error loading user data: {userError.message}</p>
+    if(userError) return <p className="error-message">Error loading user data: {userError.message}</p>
+
 
     return (
         <div className="d-card col-12 col-md-6 glassEffect my-4 mx-auto">

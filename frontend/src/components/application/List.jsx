@@ -72,7 +72,7 @@ function ApplicationList() {
         );
     } else if (error){
         return (
-            <p>Error: {error.message}</p>
+            <p className="error-message">Error: {error.message}</p>
         );
     } else {
         const applications = data?.getUserById?.applications || [];
