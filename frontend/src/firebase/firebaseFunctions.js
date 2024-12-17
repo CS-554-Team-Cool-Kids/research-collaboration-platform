@@ -38,4 +38,13 @@ async function doSignOut() {
   await signOut(auth);
 }
 
-export { doSignInWithEmailAndPassword, doChangePassword };
+async function doSendPasswordResetEmail(email) {
+  const auth = getAuth();
+  await sendPasswordResetEmail(auth, email);
+}
+
+export {
+  doSignInWithEmailAndPassword,
+  doChangePassword,
+  doSendPasswordResetEmail,
+};
