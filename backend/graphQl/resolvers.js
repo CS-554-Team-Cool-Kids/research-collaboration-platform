@@ -33,6 +33,7 @@ redisClient.on("error", (err) => console.error("Redis Client Error", err));
 (async () => {
   try {
     await redisClient.connect();
+    await redisClient.flushAll();
     console.log("Connected to Redis");
   } catch (error) {
     console.error("Failed to connect to Redis:", error);
@@ -1241,12 +1242,22 @@ export const resolvers = {
 
     professors: async (parentValue) => {
       const users = await userCollection();
-      if (!parentValue.professors || !Array.isArray(parentValue.professors)) {
+      if (
+        !parentValue.professors ||
+        !Array.isArray(parentValue.professors) ||
+        parentValue.professors.length === 0
+      ) {
         return [];
       }
+      const professorObjectIds = parentValue.professors.map(
+        (id) => new ObjectId(id)
+      );
+      console.log(professorObjectIds);
       const projectProfessors = await users
         .find({
-          _id: { $in: parentValue.professors.map((id) => new ObjectId(id)) },
+          _id: {
+            $in: professorObjectIds,
+          },
           role: "PROFESSOR",
         })
         .toArray();
@@ -2870,6 +2881,56 @@ export const resolvers = {
 
       //Return the value of deletedApplication
       return deletedApplication;
+    },
+
+    changeApplicationStatus: async (_, args) => {
+      if (!args._id || !args.status) {
+        throw new GraphQLError("The _id and status fields are required.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      helpers.checkArg(args._id, "string", "id");
+      helpers.checkArg(args.status, "string", "status");
+
+      const applications = await applicationCollection();
+      const application = await applications.findOne({
+        _id: new ObjectId(args._id),
+      });
+      if (!application) {
+        throw new GraphQLError(`Application with ID ${args._id} not found.`, {
+          extensions: { code: "NOT_FOUND" },
+        });
+      }
+      application.status = args.status.trim();
+
+      const projects = await projectCollection();
+      const project = await projects.findOne({
+        _id: new ObjectId(application.projectId),
+      });
+
+      if (args.status === "APPROVED") {
+        project.students.push(application.applicantId);
+        const updatedProject = await projects.updateOne(
+          { _id: new ObjectId(application.projectId) },
+          { $set: project }
+        );
+
+        if (updatedProject.modifiedCount === 0) {
+          throw new GraphQLError(
+            `Failed to update the project with ID ${application.projectId}.`,
+            { extensions: { code: "INTERNAL_SERVER_ERROR" } }
+          );
+        }
+      }
+
+      const result = await applications.findOneAndUpdate(
+        { _id: new ObjectId(args._id) },
+        { $set: application },
+        { returnDocument: "after" }
+      );
+
+      return result;
     },
 
     // MUTATION: addComment

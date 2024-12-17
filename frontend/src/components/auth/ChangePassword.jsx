@@ -1,15 +1,33 @@
 import React, { useState } from "react";
 import KeyIcon from "../../assets/svg/KeyIcon.jsx";
+import { doChangePassword } from "../../firebase/firebaseFunctions";
+import { useAuth } from "../../context/AuthContext.jsx";
+import { checkIsProperPassword } from "../../helpers.js";
+import { useNavigate } from "react-router-dom";
 
 const ChangePassword = () => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
+  const { login, authState, logout } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Change Password Logic
+    try {
+      let { currentPassword, newPassword, confirmPassword } = e.target.elements;
+      currentPassword.value = checkIsProperPassword(currentPassword.value);
+      newPassword.value = checkIsProperPassword(newPassword.value);
+      confirmPassword.value = checkIsProperPassword(confirmPassword.value);
+      if (newPassword.value !== confirmPassword.value) {
+        throw new Error("Passwords do not match");
+      }
+      await doChangePassword(currentPassword.value, newPassword.value);
+      logout();
+      navigate("/auth/login");
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   return (
