@@ -1,4 +1,4 @@
-const Members = () => {
+const Team = () => {
   return (
     <svg
       width="40px"
@@ -54,4 +54,4 @@ const Members = () => {
   );
 };
 
-export default Members;
+export default Team;

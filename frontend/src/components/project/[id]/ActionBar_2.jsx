@@ -5,7 +5,7 @@ import NextIcon from "../../../assets/svg/NextIcon";
 import ChatIcon from "../../../assets/svg/ChatIcon_2";
 import AnnouncementIcon from "../../../assets/svg/Announcement";
 import VoiceIcon from "../../../assets/svg/VoiceIcon";
-import Members from "../../../assets/svg/Members";
+import Team from "../../../assets/svg/Team";
 import Requests from "../../../assets/svg/Requests";
 import { useAuth } from "../../../context/AuthContext"; // Import your AuthContext
 
@@ -70,12 +70,15 @@ const ActionBar = (props) => {
               <span>Home</span>
             </li>
           </Link>
-          <li className="nav-item">
-            <div className="iconSwitch">
-              <Members />
-            </div>
-            <span>Members</span>
-          </li>
+          <Link to={`/project/${props.projectId}/team`} className="nav-link">
+            <li className="nav-item">
+              <div className="iconSwitch">
+                <Team />
+              </div>
+              <span>Team</span>
+            </li>
+          </Link>
+
           {authState.user.role === "PROFESSOR" && (
             <Link
               to={`/project/${props.projectId}/requests`}
