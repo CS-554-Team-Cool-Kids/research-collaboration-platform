@@ -40,7 +40,7 @@ const GET_APPLICATIONS = gql`
   }
 `;
 const GET_UPDATES = gql`
-query Updates {
+  query Updates {
     updates {
       _id
       posterUser {
@@ -67,11 +67,15 @@ query Updates {
         title
       }
       subject
+      comments {
+        _id
+        content
+        commenter {
+          firstName
+          lastName
+        }
+      }
     }
-    comments {
-    _id
-    content
-  }
   }
 `;
 
@@ -156,20 +160,20 @@ const GET_PROJECT_BY_ID = gql`
 const GET_UPDATE_BY_ID = gql`
   query GetUpdateById($id: String!) {
     getUpdateById(_id: $id) {
-    _id
-    subject
-    content
-    comments {
       _id
-      commenter {
-        firstName
-        lastName
-      }
+      subject
       content
-      postedDate
+      comments {
+        _id
+        commenter {
+          firstName
+          lastName
+        }
+        content
+        postedDate
+      }
+      numOfComments
     }
-    numOfComments
-  }
   }
 `;
 const GET_APPLICATION_BY_ID = gql`
@@ -699,17 +703,25 @@ const GET_ENUM_ROLE = gql`
 `;
 
 const ADD_COMMENT = gql`
-mutation AddComment($commenterId: String!, $destinationId: String!, $content: String!) {
-  addComment(commenterId: $commenterId, destinationId: $destinationId, content: $content) {
-     _id
-    content
-    postedDate
-    commenter {
-      firstName
-      lastName
+  mutation AddComment(
+    $commenterId: String!
+    $destinationId: String!
+    $content: String!
+  ) {
+    addComment(
+      commenterId: $commenterId
+      destinationId: $destinationId
+      content: $content
+    ) {
+      _id
+      content
+      postedDate
+      commenter {
+        firstName
+        lastName
+      }
     }
   }
-}
 `;
 
 const REMOVE_COMMENT = gql`
@@ -751,8 +763,8 @@ let exported = {
   LOGIN_MUTATION,
   GET_ENUM_DEPARTMENT,
   GET_ENUM_ROLE,
-  ADD_COMMENT, 
-  REMOVE_COMMENT
+  ADD_COMMENT,
+  REMOVE_COMMENT,
 };
 
 export default exported;
