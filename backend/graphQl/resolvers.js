@@ -2883,6 +2883,56 @@ export const resolvers = {
       return deletedApplication;
     },
 
+    changeApplicationStatus: async (_, args) => {
+      if (!args._id || !args.status) {
+        throw new GraphQLError("The _id and status fields are required.", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      helpers.checkArg(args._id, "string", "id");
+      helpers.checkArg(args.status, "string", "status");
+
+      const applications = await applicationCollection();
+      const application = await applications.findOne({
+        _id: new ObjectId(args._id),
+      });
+      if (!application) {
+        throw new GraphQLError(`Application with ID ${args._id} not found.`, {
+          extensions: { code: "NOT_FOUND" },
+        });
+      }
+      application.status = args.status.trim();
+
+      const projects = await projectCollection();
+      const project = await projects.findOne({
+        _id: new ObjectId(application.projectId),
+      });
+
+      if (args.status === "APPROVED") {
+        project.students.push(application.applicantId);
+        const updatedProject = await projects.updateOne(
+          { _id: new ObjectId(application.projectId) },
+          { $set: project }
+        );
+
+        if (updatedProject.modifiedCount === 0) {
+          throw new GraphQLError(
+            `Failed to update the project with ID ${application.projectId}.`,
+            { extensions: { code: "INTERNAL_SERVER_ERROR" } }
+          );
+        }
+      }
+
+      const result = await applications.findOneAndUpdate(
+        { _id: new ObjectId(args._id) },
+        { $set: application },
+        { returnDocument: "after" }
+      );
+
+      return result;
+    },
+
     // MUTATION: addComment
     // Purpose: Create a new commnet and add it to MongoDB
     // Cache: Add the comment to the Redis cache; delete all comments cache

@@ -254,6 +254,16 @@ const UDPATES_BY_SUBJECT = gql`
     }
   }
 `;
+
+const CHANGE_APPLICATION_STATUS = gql`
+  mutation Mutation($id: String!, $status: ApplicationStatus!) {
+    changeApplicationStatus(_id: $id, status: $status) {
+      _id
+      applicationDate
+      status
+    }
+  }
+`;
 const PROJECTS_BY_CREATED_YEAR = gql`
   query Query($min: Int!, $max: Int!) {
     projectsByCreatedYear(min: $min, max: $max) {
@@ -458,8 +468,8 @@ const EDIT_USER = gql`
     $bio: String
     $projectEditId: String
     $applicationRemovalId: String
-    $applicationEditId: String) 
-  {
+    $applicationEditId: String
+  ) {
     editUser(
       _id: $id
       firstName: $firstName
@@ -470,8 +480,8 @@ const EDIT_USER = gql`
       bio: $bio
       projectEditId: $projectEditId
       applicationRemovalId: $applicationRemovalId
-      applicationEditId: $applicationEditId) 
-    {
+      applicationEditId: $applicationEditId
+    ) {
       _id
       firstName
       lastName
@@ -682,6 +692,7 @@ let exported = {
   LOGIN_MUTATION,
   GET_ENUM_DEPARTMENT,
   GET_ENUM_ROLE,
+  CHANGE_APPLICATION_STATUS,
 };
 
 export default exported;
