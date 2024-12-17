@@ -484,48 +484,23 @@ const ADD_APPLICATION = gql`
 const EDIT_USER = gql`
   mutation EditUser(
     $id: String!
-    $firstName: String
     $lastName: String
-    $email: String
-    $role: Role
+    $firstName: String
     $department: Department
     $bio: String
-    $projectEditId: String
-    $applicationRemovalId: String
-    $applicationEditId: String
-  ) {
+    $role: Role
+    $email: String) 
+  {
     editUser(
       _id: $id
-      firstName: $firstName
       lastName: $lastName
-      email: $email
-      role: $role
+      firstName: $firstName
       department: $department
       bio: $bio
-      projectEditId: $projectEditId
-      applicationRemovalId: $applicationRemovalId
-      applicationEditId: $applicationEditId
-    ) {
+      role: $role
+      email: $email) 
+    {
       _id
-      firstName
-      lastName
-      email
-      role
-      department
-      bio
-      applications {
-        _id
-        applicantId
-        projectId
-        status
-      }
-      projects {
-        _id
-        title
-        department
-      }
-      numOfApplications
-      numOfProjects
     }
   }
 `;

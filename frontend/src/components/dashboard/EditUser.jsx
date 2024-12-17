@@ -18,9 +18,6 @@ const EditUser = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [oldPassword, setOldPassword] = useState("");
     const [role, setRole] = useState("");
     const [department, setDepartment] = useState("");
     const [bio, setBio] = useState("");
@@ -59,71 +56,65 @@ const EditUser = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const user = userData.getUserById;
+        
         const {
             firstName,
             lastName,
             email,
-            oldPassword,
-            newPassword,
-            confirmPassword,
             role,
             department,
             bio
         } = e.target.elements;
 
+        let firstNameValue, lastNameValue, emailValue, roleValue, departmentValue, bioValue;
+
         try {
-            if(firstName.value){
+            if(firstName.value !== ""){
                 firstName.value = checkIsProperFirstOrLastName(firstName.value, "firstName");
+                firstNameValue = firstName.value;
             } else {
-                setFirstName(user.firstName);
+                firstNameValue = user.firstName;
             }
-            if(lastName.value){
+            if(lastName.value !== ""){
                 lastName.value = checkIsProperFirstOrLastName(lastName.value, "lastName");
+                lastNameValue = lastName.value;
             } else {
-                setLastName(user.lastname);
+                lastNameValue = user.lastName;
             }
             if(email.value){
                 email.value = validateEmail(email.value);
+                emailValue = email.value;
             } else {
-                setEmail(user.email);
-            }
-            if(oldPassword && newPassword && oldPassword.value !== newPassword.value){
-                alert("Old password and new password do not match");
-                return;
-            }
-            if(newPassword.value){
-                newPassword.value = checkIsProperPassword(newPassword.value);
-            }
-            if(newPassword.value && confirmPassword && newPassword.value !== confirmPassword.value){
-                alert("Password and confirm password do not match");
-                return;
+                emailValue = user.email;
             }
             if(role.value){
                 role.value = checkIsProperString(role.value, "role");
+                roleValue = role.value;
             } else {
-                setRole(user.role);
+                roleValue = user.role;
             }
             if(department.value){
                 department.value = checkIsProperString(department.value, "department");
+                departmentValue = department.value;
             } else {
-                setDepartment(user.department);
+                departmentValue = user.department;
             }
             if(bio.value){
                 bio.value = checkIsProperString(bio.value, "bio");
+                bioValue = bio.value;
             } else {
-                setBio(user.bio);
+                bioValue = user.bio;
             }
 
             const {data} = await editUser({
                 variables: {
                     id: userId,
-                    firstName: firstName.value,
-                    lastName: lastName.value,
-                    email: email.value,
-                    newPassword: newPassword.value,
-                    role: role.value,
-                    department: department.value,
-                    bio: bio.value,
+                    firstName: firstNameValue,
+                    lastName: lastNameValue,
+                    email: emailValue,
+                    role: roleValue,
+                    department: departmentValue,
+                    bio: bioValue,
                 }
             });
 
@@ -135,7 +126,7 @@ const EditUser = () => {
         }
     }
 
-    if(userLoading) return <p>Loading user data...</p>;
+    if(userLoading) return <p className="loader">Loading user data...</p>;
     if(userError) return <p>Error loading user data: {userError.message}</p>
 
     return (
@@ -185,46 +176,6 @@ const EditUser = () => {
                             onChange={(e) => setEmail(e.target.value)}
                         />
                         <label htmlFor="email">Email:</label>
-                    </div>
-
-                    {/* Password */}
-                    <div className="form-floating md-3">
-                        <input 
-                            className="form-control"
-                            type="password"
-                            id="oldPassword"
-                            name="oldPassword"
-                            placeholder="Old Password"
-                            value={oldPassword}
-                            onChange={(e) => setOldPassword(e.target.value)}
-                        />
-                        <label htmlFor="oldPassword">Old Password:</label>
-                    </div>
-
-                    <div className="form-floating md-3">
-                        <input 
-                            className="form-control"
-                            type="password"
-                            id="newPassword"
-                            name="newPassword"
-                            placeholder="New Password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                        />
-                        <label htmlFor="newPassword">New Password</label>
-                    </div>
-
-                    <div className="form-floating md-3">
-                        <input 
-                            className="form-control"
-                            type="password"
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            placeholder="Confirm Password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                        />
-                        <label htmlFor="confirmPassword">Confirm New Password</label>
                     </div>
 
                     {/* Role */}

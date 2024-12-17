@@ -28,7 +28,7 @@ const Team = () => {
           </div>
           <div className="d-card-body">
             {loading ? (
-              <p>Loading...</p>
+              <p className="loader">Loading...</p>
             ) : error ? (
               <p>Error loading team members: {error.message}</p>
             ) : (

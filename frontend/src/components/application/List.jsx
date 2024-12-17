@@ -4,7 +4,7 @@ import queries from "../../queries";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-function ApplicationList(props) {
+function ApplicationList() {
   /* 
         Note: The props will be passing one of two things: user id (either professor or student) or the array of applications that will be displayed. Need to investigate and confirm the instances in which either would be passed.
 
@@ -65,9 +65,10 @@ function ApplicationList(props) {
     }
   }, [data]);
 
+
     if(loading){
         return (
-            <p>Loading...</p>
+            <p className="loader">Loading...</p>
         );
     } else if (error){
         return (

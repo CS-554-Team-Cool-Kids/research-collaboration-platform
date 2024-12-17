@@ -32,7 +32,7 @@ const ApplicationDetails = () => {
   };
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <p className="loader">Loading...</p>;
   }
   if (error) {
     return <p>Error: {error.message}</p>;

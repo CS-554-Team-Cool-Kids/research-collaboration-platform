@@ -16,7 +16,7 @@ const ProjectDetails = () => {
     }
   );
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <p className="loader">Loading...</p>;
   if (error) return <div>Error: {error.message}</div>;
 
   return (

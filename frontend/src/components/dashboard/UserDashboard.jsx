@@ -39,7 +39,7 @@ const UserDashboard = () => {
 
   // If loading
   if (userLoading || updateLoading) {
-    return <p>Loading...</p>;
+    return <p className="loader">Loading...</p>;
   }
 
     // If error

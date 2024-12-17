@@ -41,7 +41,7 @@ const AddProject = () => {
     }
   };
 
-  if (departmentLoading) return <p>Loading departments...</p>;
+  if (departmentLoading) return <p className="loader">Loading departments...</p>;
   if (departmentError)
     return <p>Error loading departments: {departmentError.message}</p>;
 

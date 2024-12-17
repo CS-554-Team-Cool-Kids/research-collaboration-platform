@@ -41,7 +41,7 @@ const ProjectList = () => {
     }
   }, [data]);
 
-  if (loading) return <p>Loading projects...</p>;
+  if (loading) return <p className="loader">Loading projects...</p>;
   if (error) return <p>Error loading projects: {error.message}</p>;
 
   const projects = data?.getUserById?.projects || [];
