@@ -370,7 +370,7 @@ export const resolvers = {
         }
       }
 
-      // Helpers: check ObjectId
+      // Helpers: check ObjectId 
       helpers.checkArg(args._id, "string", "id");
 
       // Cache key constructor and check

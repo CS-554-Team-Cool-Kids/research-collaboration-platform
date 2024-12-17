@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import { useQuery, useMutation, gql } from "@apollo/client";
+import { useQuery, useMutation, useLazyQuery } from "@apollo/client";
 import queries from "../queries"; // Import your query definitions
 import { useAuth } from "../context/AuthContext";
 
 const Newsfeed = () => {
   const { authState } = useAuth();
   const userId = authState.user.id;
-  const { loading, error, data } = useQuery(queries.GET_UPDATES);
-  const [commentsByUpdate, setCommentsByUpdate] = useState({});
+  const { loading, error, data, refetch } = useQuery(queries.GET_UPDATES);
+  const [commentsByUpdate, setCommentsByUpdate] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [activeUpdateId, setActiveUpdateId] = useState(null);
+  const [getUpdateById, { loading: commentsLoading, error: commentsError }] =
+    useLazyQuery(queries.GET_UPDATE_BY_ID);
 
   // Mutations
   const [addComment] = useMutation(queries.ADD_COMMENT, {
@@ -27,8 +29,13 @@ const Newsfeed = () => {
   const fetchComments = async (updateId) => {
     setActiveUpdateId(updateId);
     try {
-      const { data } = await queries.client.query({
-        query: queries.GET_UPDATE_BY_ID,
+      // const { data } = await queries.client.query({
+      //   query: queries.GET_UPDATE_BY_ID,
+      //   variables: { id: updateId },
+      //   fetchPolicy: "network-only",
+      // });
+
+      const { data } = await getUpdateById({
         variables: { id: updateId },
         fetchPolicy: "network-only",
       });
@@ -55,6 +62,7 @@ const Newsfeed = () => {
         },
       });
       fetchComments(updateId); // Refresh comments
+      await refetch(); // Refresh newsfeed
       setNewComment("");
     } catch (error) {
       console.error("Error adding comment:", error);
@@ -75,7 +83,10 @@ const Newsfeed = () => {
 
   // Render comments section for a specific update
   const renderComments = (updateId) => {
-    const comments = commentsByUpdate[updateId] || [];
+    // console.log("commentsByUpdate", commentsByUpdate);
+    const comments = data?.getUpdateById?.comments || [];
+    console.log("comments", comments);
+    // const comments = commentsByUpdate[updateId] || [];
 
     return (
       <div className="comments-section">
@@ -155,7 +166,7 @@ const Newsfeed = () => {
       </div>
 
       {/* Render comments dynamically */}
-      {activeUpdateId === update._id && renderComments(update._id)}
+      {update.numOfComments > 0 && renderComments(update._id)}
     </div>
   );
 

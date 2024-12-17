@@ -40,7 +40,6 @@ const GET_APPLICATIONS = gql`
   }
 `;
 const GET_UPDATES = gql`
-<<<<<<< HEAD
 query Updates {
     updates {
       _id
@@ -56,16 +55,6 @@ query Updates {
         title
       }
       postedDate
-=======
-  query Update {
-    updates {
-      _id
-      comments {
-        _id
-        content
-      }
-      content
->>>>>>> origin/dev_ajinkya
       numOfComments
       postedDate
       posterUser {
@@ -79,6 +68,10 @@ query Updates {
       }
       subject
     }
+    comments {
+    _id
+    content
+  }
   }
 `;
 
