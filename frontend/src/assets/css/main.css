@@ -822,3 +822,49 @@ footer {
 .btn-view-comments:hover {
   background-color: #4a148c;
 }
+
+
+.comments-section {
+  margin-top: 15px;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.comment {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.comment p {
+  margin: 0;
+  color: #555;
+}
+
+.add-comment {
+  display: flex;
+  gap: 10px;
+}
+
+.add-comment input {
+  flex: 1;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.btn-add,
+.btn-remove {
+  background-color: #6a1b9a;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-add:hover,
+.btn-remove:hover {
+  background-color: #4a148c;
+}
