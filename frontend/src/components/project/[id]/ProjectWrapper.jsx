@@ -7,10 +7,13 @@ import queries from "../../../queries";
 const ProjectLayout = () => {
   const { id: projectId } = useParams(); // Extract projectId from the URL
 
-  const { data, loading, error } = useQuery(queries.GET_PROJECT_BY_ID, {
-    variables: { id: projectId },
-    fetchPolicy: "network-only",
-  });
+  const { data, loading, error, refetch } = useQuery(
+    queries.GET_PROJECT_BY_ID,
+    {
+      variables: { id: projectId },
+      fetchPolicy: "network-only",
+    }
+  );
 
   if (loading) {
     return (
@@ -47,7 +50,7 @@ const ProjectLayout = () => {
         projectTitle={data.getProjectById.title}
       />
       <div className="container-fluid my-3">
-        <Outlet />
+        <Outlet context={{ refetch }} />
       </div>
     </main>
   );
