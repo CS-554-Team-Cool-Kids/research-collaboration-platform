@@ -6,6 +6,7 @@ import Footer from "./components/common/Footer";
 import NotFound from "./components/common/NotFound";
 import Home from "./components/common/Home";
 import UserDashboard from "./components/dashboard/UserDashboard";
+import EditUser from "./components/dashboard/EditUser";
 
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
@@ -152,6 +153,15 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
               <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route 
+          path="/edituser"
+          element={
+            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <EditUser />
             </ProtectedRoute>
           }
         />

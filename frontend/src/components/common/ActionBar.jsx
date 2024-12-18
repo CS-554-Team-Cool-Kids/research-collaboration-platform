@@ -25,7 +25,7 @@ function ActionBar(props){
         <aside className="action-bar">
             <ul className="action-bar-list">
                 <li>
-                    <Link className="action-link" to={"/userDashboard" + props.id}>
+                    <Link className="action-link" to={"/dashboard"}>
                         <HomeIcon />
                         <span>Home</span>
                     </Link>

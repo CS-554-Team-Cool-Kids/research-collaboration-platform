@@ -92,8 +92,8 @@ function Chat() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (loading) return <p className="loader">Loading...</p>;
+  if (error) return <p className="error-message">Error: {error.message}</p>;
 
   const user = data?.getUserById;
   const projects = user?.projects || [];
