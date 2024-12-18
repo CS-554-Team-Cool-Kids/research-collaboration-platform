@@ -457,7 +457,7 @@ const ADD_PROJECT = gql`
   }
 `;
 const ADD_UPDATE = gql`
-   mutation AddUpdate(
+  mutation AddUpdate(
     $posterId: String!
     $subject: UpdateSubject!
     $content: String!
@@ -514,8 +514,8 @@ const EDIT_USER = gql`
     $department: Department
     $bio: String
     $role: Role
-    $email: String) 
-  {
+    $email: String
+  ) {
     editUser(
       _id: $id
       lastName: $lastName
@@ -523,8 +523,8 @@ const EDIT_USER = gql`
       department: $department
       bio: $bio
       role: $role
-      email: $email) 
-    {
+      email: $email
+    ) {
       _id
     }
   }
@@ -596,14 +596,8 @@ const EDIT_UPDATE = gql`
   }
 `;
 const EDIT_APPLICATION = gql`
-  mutation EditApplication(
-    $id: String!
-    $projectId: String) 
-  {
-    editApplication(
-      _id: $id
-      projectId: $projectId) 
-    {
+  mutation EditApplication($id: String!, $projectId: String) {
+    editApplication(_id: $id, projectId: $projectId) {
       _id
     }
   }
@@ -628,15 +622,15 @@ const REMOVE_PROJECT = gql`
   }
 `;
 const REMOVE_UPDATE = gql`
-mutation RemoveUpdate($id: String!) {
-  removeUpdate(_id: $id) {
-    _id
+  mutation RemoveUpdate($id: String!) {
+    removeUpdate(_id: $id) {
+      _id
+    }
   }
-}
 `;
 const REMOVE_APPLICATION = gql`
   mutation RemoveApplication($id: String!) {
-    removeApplication(id: $id) {
+    removeApplication(_id: $id) {
       _id
     }
   }
@@ -703,8 +697,6 @@ const REMOVE_COMMENT = gql`
     }
   }
 `;
-
-
 
 let exported = {
   GET_PROJECTS,
