@@ -139,9 +139,14 @@ const GET_PROJECT_BY_ID = gql`
         department
         role
       }
+      department
+      createdDate
+      description
+      numOfApplications
     }
   }
 `;
+
 const GET_UPDATE_BY_ID = gql`
   query GetUpdateById($id: String!) {
     getUpdateById(_id: $id) {

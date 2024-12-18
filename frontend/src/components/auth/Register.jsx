@@ -105,6 +105,13 @@ const Register = () => {
     }
   };
 
+  const formatDepartment = (department) => {
+    return department
+      .split("_") // Split by underscores
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" "); // Join the words back with spaces
+  };
+
   return (
     <div className="d-card col-12 col-md-6 glassEffect my-4 mx-auto">
       <div className="d-card-header">
@@ -234,7 +241,7 @@ const Register = () => {
                 <option value="">Select a department</option>
                 {departmentData.__type.enumValues.map((dept) => (
                   <option key={dept.name} value={dept.name}>
-                    {dept.name}
+                    {formatDepartment(dept.name)}
                   </option>
                 ))}
               </select>

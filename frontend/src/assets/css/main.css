@@ -17,7 +17,7 @@
   --stripeTableColor1: #0000000f;
   --stripeTableColor2: #ffffff1a;
   --shadow1: #5959594f;
-  --shadow2: #f3f3f317;
+  --shadow2: #81818121;
 
   --lightGradient1: linear-gradient(
     to top,
@@ -44,8 +44,10 @@
   --activeGradientColor: var(--lightGradient1);
   --activeAccentColor: var(--purple2);
   --activeFont: "Apple1";
+  --activeBorderRadius: var(--borderRadius1);
 
   --transitionDuration: 0.2s;
+  --borderRadius1: 20px;
 }
 
 /* General Styles
@@ -69,9 +71,7 @@ body {
 
   transition: all var(--transitionDuration) linear;
   font-family: var(--activeFont), "Montserrat", sans-serif;
-  font-optical-sizing: auto;
   font-style: normal;
-  font-weight: 400;
   transition: all var(--transitionDuration) linear;
 }
 
@@ -186,7 +186,12 @@ select:-webkit-autofill:focus {
   box-shadow: 0px 10px 30px var(--activeShadowColor) !important;
   -webkit-backdrop-filter: blur(10px) !important;
   backdrop-filter: blur(10px) !important;
-  border: 1px solid #ffffff73 !important;
+  border: 1px solid var(--activeStripeTableColor) !important;
+  transition: all var(--transitionDuration) linear;
+}
+
+.glassEffect:hover {
+  border: 1px solid var(--purple1) !important;
 }
 
 .glassEffect > .d-card-header {
@@ -203,6 +208,7 @@ a:focus {
 .btn {
   min-width: 100px;
   box-shadow: 0px 5px 30px var(--activeShadowColor) !important;
+  border-radius: var(--activeBorderRadius);
 }
 
 .btn.btn-primary {
@@ -255,6 +261,18 @@ nav .navbar-collapse {
 .navbar-nav .nav-item {
   margin-top: auto;
   margin-bottom: auto;
+}
+
+.nav-item .nav-link,
+.navbar-brand {
+  color: var(--activeTextColor);
+}
+
+.nav-item .nav-link.active {
+  border-radius: var(--activeBorderRadius);
+  background-color: var(--activeAccentColor);
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 /* ActionBar Styles
@@ -470,7 +488,7 @@ footer {
 /* Card Styles */
 .d-card {
   color: var(--activeTextColor);
-  border-radius: 10px;
+  border-radius: var(--borderRadius1);
   border: 1px solid var(--lightGrey1);
   margin-bottom: 1em;
 }
@@ -751,4 +769,42 @@ footer {
 }
 .toolbar-class {
   border: 1px solid #ccc;
+}
+
+/* Transition of components */
+
+.fade-in {
+  animation: fadeIn 1s forwards;
+}
+
+.fade-out {
+  animation: fadeOut 1s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.transition-fade-in-out {
+  &.fade-in {
+    animation: fadeIn 1s forwards;
+  }
+
+  &.fade-out {
+    animation: fadeOut 1s forwards;
+  }
 }
