@@ -919,9 +919,6 @@ main.home-page{
   transition: transform 0.3s ease;
 }
 
-.news-card:hover {
-  transform: scale(1.02);
-}
 
 /* News Header */
 .news-header {
@@ -948,12 +945,12 @@ main.home-page{
 .news-header h3 {
   margin: 0;
   font-size: 16px;
-  color: #333;
+  color: var(--bs-heading-color);
 }
 
 .news-meta {
   font-size: 12px;
-  color: #777;
+  color: var(--activeTextColor);
   margin-bottom:0;
 }
 
@@ -965,7 +962,7 @@ main.home-page{
 
 .news-body h4 {
   font-size: 16px;
-  color: #333;
+  color: var(--bs-heading-color);
   margin-bottom: 10px;
   font-family:Arial, Helvetica, sans-serif;
   font-weight:900;
@@ -974,7 +971,7 @@ main.home-page{
 
 .news-body p {
   font-size: 14px;
-  color: #555;
+  color: var(--activeTextColor);
   line-height: 1.5;
   margin-bottom:4px;
 }
@@ -990,7 +987,7 @@ main.home-page{
 
 .news-date {
   font-size: 14px;
-  color: #4c4c4c;
+  color: var(--activeTextColor);
 }
 
 .add-comment-section{
@@ -999,15 +996,16 @@ main.home-page{
 .add-comment-section input{
   width:calc(100% - 70px);
   height:40px;
-  border: 1px solid #ddd !important;
+  border: 1px solid var(--purple1) !important;
   border-radius:5px !important;
   margin-right: 12px;
   padding-left:8px;
+  background-color:var(--activeGlassColor);
 }
 .add-comment-section input:focus,
 .add-comment-section input:focus-visible{
   outline:none;
-  border-left:4px solid var(--purple1) !important;
+  border-left:8px solid var(--purple1) !important;
   border-color:var(--purple1) !important;
 }
 
@@ -1027,7 +1025,7 @@ main.home-page{
 .comments-section {
   margin-top: 15px;
   padding: 10px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--activeAccentColor);
 }
 
 .comments-section h5{
@@ -1053,7 +1051,7 @@ main.home-page{
 
 .comment p {
   margin: 0;
-  color: #555;
+  color: var(--activeTextColor);
 }
 
 .comment p strong{

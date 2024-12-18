@@ -180,7 +180,7 @@ const UserDashboard = () => {
                                         return(
                                             <li key={update._id}>
                                                 <div className="news-text">
-                                                    <p className="news-list-header">{update.subject}</p>
+                                                    <p className="news-list-header">{update.subject.replace("_", " ")}</p>
                                                     <p>{update.content}</p>
                                                 </div>
                                                 <p>{formatDate(update.postedDate)}</p>
