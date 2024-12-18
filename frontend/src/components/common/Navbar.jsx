@@ -41,6 +41,7 @@ const Navbar = () => {
             </li>
 
             {/* Add Newsfeed as News */}
+
             <li className="nav-item">
               <Link className="nav-link" to="/newsfeed">
                 News
@@ -83,6 +84,7 @@ const Navbar = () => {
                     Dashboard
                   </Link>
                 </li>
+                {/* Show links based on user role */}
                 <li className="nav-item">
                   <Link
                     className={`nav-link ${
@@ -93,6 +95,7 @@ const Navbar = () => {
                     Project Database
                   </Link>
                 </li>
+
                 <li className="nav-item">
                   <Link
                     className={`nav-link ${
@@ -103,16 +106,19 @@ const Navbar = () => {
                     My Projects
                   </Link>
                 </li>
-                <li className="nav-item">
-                  <Link
-                    className={`nav-link ${
-                      isActive("/application") ? "active" : ""
-                    }`}
-                    to="/application"
-                  >
-                    Application Status
-                  </Link>
-                </li>
+                {authState.user.role === "STUDENT" && (
+                  <li className="nav-item">
+                    <Link
+                      className={`nav-link ${
+                        isActive("/application") ? "active" : ""
+                      }`}
+                      to="/application"
+                    >
+                      Application Status
+                    </Link>
+                  </li>
+                )}
+
                 <li className="nav-item ms-5">
                   <button
                     type="button"
