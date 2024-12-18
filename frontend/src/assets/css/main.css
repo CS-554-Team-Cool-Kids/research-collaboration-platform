@@ -741,39 +741,39 @@ footer {
   display: flex;
   flex-direction: column;
   padding: 20px;
-  margin:1em;
-  background-color:rgba(255,255,255,0.2);
-  border-radius:15px;
+  margin: 1em;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
 }
-.chat-container h2{
-  text-align:center;
-  font-size:2em;
-  font-weight:900;
-  font-family:Arial, Helvetica, sans-serif;
-  letter-spacing:-1px;
+.chat-container h2 {
+  text-align: center;
+  font-size: 2em;
+  font-weight: 900;
+  font-family: Arial, Helvetica, sans-serif;
+  letter-spacing: -1px;
 }
-.chat-container .channels{
-  margin-bottom:2em;
-  padding:1em;
-  border:2px solid #fff;
-  border-radius:15px;
+.chat-container .channels {
+  margin-bottom: 2em;
+  padding: 1em;
+  border: 2px solid #fff;
+  border-radius: 15px;
 }
-.channels h3{
-  font-size:1.3em;
+.channels h3 {
+  font-size: 1.3em;
 }
-.channels ul{
-  list-style-type:none;
-  margin:0;
+.channels ul {
+  list-style-type: none;
+  margin: 0;
 }
-.channels ul li{
-  text-decoration:underline;
+.channels ul li {
+  text-decoration: underline;
   cursor: pointer;
-  height:30px;
+  height: 30px;
 }
 .channels ul li:hover,
 .channels ul li:focus,
-.channels ul li:active{
-  text-decoration:none;
+.channels ul li:active {
+  text-decoration: none;
 }
 
 /* .chat-container {
@@ -801,9 +801,9 @@ footer {
   margin-bottom: 10px;
 } */
 
-.messages h4{
-  font-family:Arial, Helvetica, sans-serif;
-  font-weight:900;
+.messages h4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
 }
 
 .message {
@@ -817,19 +817,19 @@ footer {
   display: flex;
   flex-direction: column;
   margin-top: 10px;
-  margin-bottom:2em;
+  margin-bottom: 2em;
 }
 
 .current-user {
   align-self: flex-end;
   background-color: var(--purple1); /* Purple for current user's messages */
-  color:var(--white1);
+  color: var(--white1);
 }
 
 .other-user {
   align-self: flex-start;
-  background-color:var(--purple2); /* Light red for other users' messages */
-  color:#3f1c73;
+  background-color: var(--purple2); /* Light red for other users' messages */
+  color: #3f1c73;
 }
 
 .message-input {
@@ -840,7 +840,7 @@ footer {
   flex: 1;
   padding: 10px;
   border: 1px solid #ccc !important;
-  border-bottom:1px solid #ccc !important;
+  border-bottom: 1px solid #ccc !important;
   border-radius: 8px 0 0 8px !important;
 }
 
@@ -880,7 +880,6 @@ footer {
 .toolbar-class {
   border: 1px solid #ccc;
 }
-
 
 /* General Newsfeed Styles */
 .newsfeed {
@@ -978,7 +977,6 @@ footer {
 .btn-view-comments:hover {
   background-color: #4a148c;
 }
-
 
 .comments-section {
   margin-top: 15px;
@@ -1084,52 +1082,53 @@ footer {
 
 .btn-add:hover {
   background-color: #4caf50;
-/* Transition of components */
+  /* Transition of components */
 
-.fade-in {
-  animation: fadeIn 1s forwards;
-}
-
-.fade-out {
-  animation: fadeOut 1s forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-.transition-fade-in-out {
-  &.fade-in {
+  .fade-in {
     animation: fadeIn 1s forwards;
   }
 
-  &.fade-out {
+  .fade-out {
     animation: fadeOut 1s forwards;
   }
-}
 
-/* Not Found Styles
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  .transition-fade-in-out {
+    &.fade-in {
+      animation: fadeIn 1s forwards;
+    }
+
+    &.fade-out {
+      animation: fadeOut 1s forwards;
+    }
+  }
+
+  /* Not Found Styles
 ================================================== */
-.not-found {
-  margin-top: 15%;
-}
-.not-found h1 {
-  text-align: center;
-}
-.not-found p {
-  text-align: center;
+  .not-found {
+    margin-top: 15%;
+  }
+  .not-found h1 {
+    text-align: center;
+  }
+  .not-found p {
+    text-align: center;
+  }
 }
