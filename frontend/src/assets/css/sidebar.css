@@ -84,7 +84,7 @@ body {
 }
 
 .sidebar nav .nav-item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--activeStripeTableColor);
 }
 
 .sidebar nav .nav-item span {

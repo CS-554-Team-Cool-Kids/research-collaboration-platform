@@ -12,7 +12,7 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="navbar navbar-expand-md glassEffect">
+    <nav className="navbar navbar-expand-md sticky-top glassEffect">
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">
           RCP_LOGO
