@@ -41,7 +41,7 @@ const ProjectList = () => {
     }
   }, [data]);
 
-  if (loading) return <p>Loading projects...</p>;
+  if (loading) return <p className="loader">Loading projects...</p>;
   if (error) return <p>Error loading projects: {error.message}</p>;
 
   const projects = data?.getUserById?.projects || [];
@@ -64,9 +64,12 @@ const ProjectList = () => {
                         className="nav-link"
                         to={`/project/${selectedProject._id}`}
                       >
-                        <button className="btn btn-info ms-2">Details</button>
+                        <button type="button" className="btn btn-info ms-2">
+                          Details
+                        </button>
                       </Link>
                       <button
+                        type="button"
                         className="btn btn-danger ms-2"
                         onClick={handleDelete}
                       >
@@ -75,23 +78,31 @@ const ProjectList = () => {
                     </div>
                   ) : (
                     <div className="d-flex">
-                      <button className="btn btn-info ms-2 invisible">
+                      <button
+                        type="button"
+                        className="btn btn-info ms-2 invisible"
+                      >
                         Details
                       </button>
-                      <button className="btn btn-danger ms-2 invisible">
+                      <button
+                        type="button"
+                        className="btn btn-danger ms-2 invisible"
+                      >
                         Delete
                       </button>
                     </div>
                   )}
 
                   <Link className="nav-link" to="/project/add">
-                    <button className="btn btn-success ms-2">Add</button>
+                    <button type="button" className="btn btn-success ms-2">
+                      Add
+                    </button>
                   </Link>
                 </div>
               </div>
             </div>
           </div>
-          <div className="d-card-body p-0">
+          <div className="d-card-body mb-3 p-0">
             <div className="row">
               {/* Left Side: Project List */}
               <div className="col-md-4 pe-0">

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { useMutation, useQuery } from "@apollo/client";
+import React from "react";
+import { useParams, Link } from "react-router-dom";
+import { useQuery } from "@apollo/client";
 import queries from "../../../queries";
 import ActionBar from "../../project/[id]/ActionBar_2";
-import { useAuth } from "../../../context/AuthContext";
 
 const ApplicationDetails = () => {
   /* 
@@ -63,7 +62,12 @@ const ApplicationDetails = () => {
       <ActionBar />
       <div className="container-fluid my-3">
         <div className="d-card glassEffect">
-          <div className="d-card-header">Application Details</div>
+          <div className="d-card-header">
+            <p>Application Details</p>
+            <Link className="card-header-link" to={"/application/edit/" + id}>
+              Edit
+            </Link>
+          </div>
           <div className="d-card-body">
             <dl className="desc-list">
               <div>

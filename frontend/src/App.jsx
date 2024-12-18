@@ -6,6 +6,7 @@ import Footer from "./components/common/Footer";
 import NotFound from "./components/common/NotFound";
 import Home from "./components/common/Home";
 import UserDashboard from "./components/dashboard/UserDashboard";
+import EditUser from "./components/dashboard/EditUser";
 
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
@@ -24,6 +25,7 @@ import Newsfeed from "./components/Newsfeed";
 import ApplicationList from "./components/application/List";
 import ApplicationDetails from "./components/application/[id]/Details";
 import ApplicationAdd from "./components/application/Add";
+import ApplicationEdit from "./components/application/[id]/Edit";
 
 import AllProjectList from "./components/all_projects/List";
 
@@ -31,7 +33,7 @@ import ResetPasswordRequest from "./components/auth/ResetPasswordRequest";
 import ChangePassword from "./components/auth/ChangePassword";
 
 const App = () => {
-  //Theming
+  // Theming
   const getCSSVariable = (variable) =>
     getComputedStyle(document.documentElement).getPropertyValue(variable);
 
@@ -44,6 +46,7 @@ const App = () => {
       stripeTableColor: getCSSVariable("--stripeTableColor1"),
       gradientColor: getCSSVariable("--lightGradient1"),
       accentColor: getCSSVariable("--purple2"),
+      activeAccentGradient: getCSSVariable("--purpleGradient1"),
     },
     dark: {
       textColor: getCSSVariable("--white1"),
@@ -52,7 +55,8 @@ const App = () => {
       shadowColor: getCSSVariable("--shadow2"),
       stripeTableColor: getCSSVariable("--stripeTableColor2"),
       gradientColor: getCSSVariable("--darkGradient1"),
-      accentColor: getCSSVariable("--purple1"),
+      accentColor: getCSSVariable("--red2"),
+      activeAccentGradient: getCSSVariable("--redGradient1"),
     },
   };
 
@@ -87,6 +91,10 @@ const App = () => {
       "--activeAccentColor",
       theme.accentColor
     );
+    document.documentElement.style.setProperty(
+      "--activeAccentGradient",
+      theme.activeAccentGradient
+    );
 
     document.body.classList.toggle("dark", isDarkMode);
 
@@ -107,13 +115,13 @@ const App = () => {
     const isDarkMode = document.body.classList.contains("dark");
     const newMode = !isDarkMode;
 
-    window._isDarkMode = newMode ? 1 : 0;
+    localStorage.setItem("isDarkMode", newMode ? 1 : 0);
     applyTheme(newMode);
   };
 
   useEffect(() => {
-    // Initialize theme
-    const isDarkMode = window._isDarkMode === 1;
+    // Initialize theme from localStorage
+    const isDarkMode = localStorage.getItem("isDarkMode") === "1";
     applyTheme(isDarkMode);
 
     // Add event listener for theme switch
@@ -156,6 +164,15 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
               <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/edituser"
+          element={
+            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <EditUser />
             </ProtectedRoute>
           }
         />
@@ -247,6 +264,14 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={["STUDENT"]}>
               <ApplicationAdd />
+            </ProtectedRoute>
+          }
+        />
+        <Route 
+          path="/application/edit/:id"
+          element={
+            <ProtectedRoute allowedRoles={["STUDENT", "PROFESSOR", "ADMIN"]}>
+              <ApplicationEdit />
             </ProtectedRoute>
           }
         />

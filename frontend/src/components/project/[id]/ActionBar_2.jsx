@@ -37,7 +37,9 @@ const ActionBar = (props) => {
   return (
     <div className="sidebar glassEffect open">
       <div className="toggle">
-        <NextIcon />
+        <div className="iconSwitch">
+          <NextIcon />
+        </div>
       </div>
 
       <div className="logo">{props.projectTitle}</div>

@@ -154,9 +154,14 @@ const GET_PROJECT_BY_ID = gql`
         department
         role
       }
+      department
+      createdDate
+      description
+      numOfApplications
     }
   }
 `;
+
 const GET_UPDATE_BY_ID = gql`
   query GetUpdateById($id: String!) {
     getUpdateById(_id: $id) {
@@ -504,48 +509,23 @@ const ADD_APPLICATION = gql`
 const EDIT_USER = gql`
   mutation EditUser(
     $id: String!
-    $firstName: String
     $lastName: String
-    $email: String
-    $role: Role
+    $firstName: String
     $department: Department
     $bio: String
-    $projectEditId: String
-    $applicationRemovalId: String
-    $applicationEditId: String
-  ) {
+    $role: Role
+    $email: String) 
+  {
     editUser(
       _id: $id
-      firstName: $firstName
       lastName: $lastName
-      email: $email
-      role: $role
+      firstName: $firstName
       department: $department
       bio: $bio
-      projectEditId: $projectEditId
-      applicationRemovalId: $applicationRemovalId
-      applicationEditId: $applicationEditId
-    ) {
+      role: $role
+      email: $email) 
+    {
       _id
-      firstName
-      lastName
-      email
-      role
-      department
-      bio
-      applications {
-        _id
-        applicantId
-        projectId
-        status
-      }
-      projects {
-        _id
-        title
-        department
-      }
-      numOfApplications
-      numOfProjects
     }
   }
 `;
@@ -618,25 +598,13 @@ const EDIT_UPDATE = gql`
 const EDIT_APPLICATION = gql`
   mutation EditApplication(
     $id: String!
-    $applicantId: String
-    $projectId: String
-    $lastUpdatedDate: String
-    $status: ApplicationStatus
-  ) {
+    $projectId: String) 
+  {
     editApplication(
       _id: $id
-      applicantId: $applicantId
-      projectId: $projectId
-      lastUpdatedDate: $lastUpdatedDate
-      status: $status
-    ) {
+      projectId: $projectId) 
+    {
       _id
-      applicantId
-      projectId
-      applicationDate
-      lastUpdatedDate
-      status
-      comments
     }
   }
 `;
