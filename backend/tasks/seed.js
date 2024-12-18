@@ -238,7 +238,7 @@ const projectsSeed = [
     title: "AI-Powered Drug Discovery",
     createdDate: "2024-12-16T22:11:49.301Z",
     description:
-      "This project focuses on utilizing artificial intelligence and machine learning to accelerate the drug discovery process. By analyzing massive datasets of chemical compounds, biological interactions, and clinical trials, the system identifies potential drug candidates and predicts their efficacy. The project incorporates predictive analytics, natural language processing for analyzing research papers, and computer vision for studying molecular structures. The outcomes aim to reduce the time and cost of bringing new drugs to market while ensuring precision and safety in treatments.",
+      "<p>This project focuses on utilizing <strong>artificial intelligence</strong> and machine learning to accelerate the drug discovery process. By analyzing massive datasets of chemical compounds, biological interactions, and clinical trials, the system identifies potential drug candidates and predicts their efficacy. The project incorporates predictive analytics, natural language processing for analyzing research papers, and computer vision for studying molecular structures. The outcomes aim to reduce the time and cost of bringing new drugs to market while ensuring precision and safety in treatments.</p>",
     department: "BIOMEDICAL_ENGINEERING",
     professors: ["000000000000000000000001"],
     students: [],
@@ -248,7 +248,7 @@ const projectsSeed = [
     title: "Renewable Energy Optimization",
     createdDate: "2024-12-16T22:15:49.301Z",
     description:
-      "This project explores the optimization of renewable energy systems, focusing on wind and solar power. It includes designing algorithms for dynamic energy management and predictive maintenance of renewable energy farms. The team integrates IoT-enabled devices for real-time data collection and develops machine learning models to forecast energy output based on weather patterns. The ultimate goal is to maximize energy efficiency and support sustainable power generation.",
+      "<p>This project explores the optimization of renewable energy systems, focusing on wind and solar power. It includes designing algorithms for <strong>dynamic energy management</strong> and predictive maintenance of renewable energy farms. The team integrates IoT-enabled devices for real-time data collection and develops machine learning models to forecast energy output based on weather patterns. The ultimate goal is to maximize energy efficiency and support sustainable power generation.</p>",
     department: "CHEMICAL_ENGINEERING_AND_MATERIALS_SCIENCE",
     professors: ["000000000000000000000002"],
     students: [],
@@ -258,7 +258,7 @@ const projectsSeed = [
     title: "Quantum Computing for Cryptography",
     createdDate: "2024-12-16T22:20:49.301Z",
     description:
-      "This project aims to harness quantum computing capabilities for creating unbreakable encryption methods. By leveraging quantum algorithms like Shor's and Grover's, the project focuses on developing next-generation cryptographic protocols that can withstand attacks from classical and quantum computers. The research also explores post-quantum cryptography solutions, ensuring data security in a quantum future.",
+      "<p>This project aims to harness <strong>quantum computing capabilities</strong> for creating unbreakable encryption methods. By leveraging quantum algorithms like Shor's and Grover's, the project focuses on developing next-generation cryptographic protocols that can withstand attacks from classical and quantum computers. The research also explores post-quantum cryptography solutions, ensuring data security in a quantum future.</p>",
     department: "CHEMISTRY_AND_CHEMICAL_BIOLOGY",
     professors: ["000000000000000000000003"],
     students: [],
@@ -268,7 +268,7 @@ const projectsSeed = [
     title: "Smart City Infrastructure",
     createdDate: "2024-12-16T22:25:49.301Z",
     description:
-      "This project focuses on creating a comprehensive framework for smart city infrastructure. It includes developing IoT-based systems for real-time monitoring of utilities, traffic, and waste management. The project aims to design predictive analytics to optimize resource allocation and enhance urban sustainability. It also incorporates citizen engagement through mobile apps and dashboards to provide real-time insights and feedback mechanisms.",
+      "<p>This project focuses on creating a comprehensive framework for <strong>smart city infrastructure</strong>. It includes developing IoT-based systems for real-time monitoring of utilities, traffic, and waste management. The project aims to design predictive analytics to optimize resource allocation and enhance urban sustainability. It also incorporates citizen engagement through mobile apps and dashboards to provide real-time insights and feedback mechanisms.</p>",
     department: "MATHEMATICAL_SCIENCES",
     professors: ["000000000000000000000004"],
     students: [],
@@ -278,7 +278,7 @@ const projectsSeed = [
     title: "Advanced Robotics for Healthcare",
     createdDate: "2024-12-16T22:30:49.301Z",
     description:
-      "This project investigates the application of advanced robotics in healthcare settings, focusing on surgical assistance, patient care, and rehabilitation. The team develops autonomous robotic systems that can perform precise and minimally invasive surgeries. Additionally, the project explores assistive robots for patient mobility and recovery. The research incorporates AI for real-time decision-making and feedback.",
+      "<p>This project investigates the application of advanced <strong>robotics in healthcare</strong> settings, focusing on surgical assistance, patient care, and rehabilitation. The team develops autonomous robotic systems that can perform precise and minimally invasive surgeries. Additionally, the project explores assistive robots for patient mobility and recovery. The research incorporates AI for real-time decision-making and feedback.</p>",
     department: "MECHANICAL_ENGINEERING",
     professors: ["000000000000000000000005"],
     students: [],
@@ -288,7 +288,7 @@ const projectsSeed = [
     title: "Blockchain for Supply Chain Management",
     createdDate: "2024-12-16T22:35:49.301Z",
     description:
-      "This project delves into using blockchain technology to enhance supply chain transparency and security. The team develops decentralized applications (dApps) to track goods from origin to destination, ensuring authenticity and quality. The project also explores smart contracts for automating transactions and reducing administrative overheads. By integrating IoT devices for real-time data collection, the system ensures seamless traceability and efficiency.",
+      "<p>This project delves into using <strong>blockchain technology</strong> to enhance supply chain transparency and security. The team develops decentralized applications (dApps) to track goods from origin to destination, ensuring authenticity and quality. The project also explores smart contracts for automating transactions and reducing administrative overheads. By integrating IoT devices for real-time data collection, the system ensures seamless traceability and efficiency.</p>",
     department: "SYSTEMS_AND_ENTERPRISES",
     professors: ["000000000000000000000006"],
     students: [],
@@ -298,7 +298,7 @@ const projectsSeed = [
     title: "Augmented Reality for Education",
     createdDate: "2024-12-16T22:40:49.301Z",
     description:
-      "This project investigates the application of augmented reality (AR) in educational environments. The team develops immersive AR tools for interactive learning, focusing on STEM subjects. By leveraging AR, the project aims to create engaging and personalized learning experiences for students. The system incorporates real-time feedback and adaptive learning paths to enhance educational outcomes.",
+      "<p>This project investigates the application of <strong>augmented reality (AR)</strong> in educational environments. The team develops immersive AR tools for interactive learning, focusing on STEM subjects. By leveraging AR, the project aims to create engaging and personalized learning experiences for students. The system incorporates real-time feedback and adaptive learning paths to enhance educational outcomes.</p>",
     department: "BIOMEDICAL_ENGINEERING",
     professors: ["000000000000000000000007"],
     students: [],
@@ -308,7 +308,7 @@ const projectsSeed = [
     title: "AI-Driven Wildlife Conservation",
     createdDate: "2024-12-16T22:45:49.301Z",
     description:
-      "This project focuses on using AI and machine learning to support wildlife conservation efforts. The team develops computer vision algorithms to monitor animal populations and detect poaching activities using drone-captured images and videos. The project also explores predictive models to understand migration patterns and habitat changes due to climate change. The ultimate goal is to provide actionable insights for conservation planning.",
+      "<p>This project focuses on using AI and machine learning to support <strong>wildlife conservation</strong> efforts. The team develops computer vision algorithms to monitor animal populations and detect poaching activities using drone-captured images and videos. The project also explores predictive models to understand migration patterns and habitat changes due to climate change. The ultimate goal is to provide actionable insights for conservation planning.</p>",
     department: "BIOMEDICAL_ENGINEERING",
     professors: ["000000000000000000000008"],
     students: [],
@@ -318,7 +318,7 @@ const projectsSeed = [
     title: "Cybersecurity in IoT Networks",
     createdDate: "2024-12-16T22:50:49.301Z",
     description:
-      "This project addresses the growing concerns of cybersecurity in IoT networks. The team focuses on developing robust encryption techniques and intrusion detection systems tailored for IoT devices. The research also explores vulnerability assessment tools to identify and mitigate potential risks. By ensuring secure communication and data integrity, the project aims to establish trust in IoT-based applications.",
+      "<p>This project addresses the growing concerns of <strong>cybersecurity in IoT networks</strong>. The team focuses on developing robust encryption techniques and intrusion detection systems tailored for IoT devices. The research also explores vulnerability assessment tools to identify and mitigate potential risks. By ensuring secure communication and data integrity, the project aims to establish trust in IoT-based applications.</p>",
     department: "ELECTRICAL_AND_COMPUTER_ENGINEERING",
     professors: ["000000000000000000000009"],
     students: [],
@@ -328,7 +328,7 @@ const projectsSeed = [
     title: "Next-Generation Bioinformatics Tools",
     createdDate: "2024-12-16T22:55:49.301Z",
     description:
-      "This project aims to develop next-generation bioinformatics tools for analyzing genomic and proteomic data. The team integrates AI-driven analytics to identify biomarkers and genetic patterns. The research also focuses on creating visualization tools to make complex biological data accessible and interpretable for researchers and clinicians. By advancing bioinformatics technology, the project supports personalized medicine and precision healthcare.",
+      "<p>This project aims to develop next-generation <strong>bioinformatics tools</strong> for analyzing genomic and proteomic data. The team integrates AI-driven analytics to identify biomarkers and genetic patterns. The research also focuses on creating visualization tools to make complex biological data accessible and interpretable for researchers and clinicians. By advancing bioinformatics technology, the project supports personalized medicine and precision healthcare.</p>",
     department: "ELECTRICAL_AND_COMPUTER_ENGINEERING",
     professors: ["000000000000000000000010"],
     students: [],
