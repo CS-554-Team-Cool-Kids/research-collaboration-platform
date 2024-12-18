@@ -38,7 +38,8 @@ function ApplicationList() {
     );
     if (confirmDeletion) {
         try {
-            await removeApplication({ variables: { id: selectedApplication._id } });
+            let id = selectedApplication._id;
+            await removeApplication({ variables: { id: id } });
             await refetch();
         } catch (error) {
             alert(`Deletion Failed: ${error}`)

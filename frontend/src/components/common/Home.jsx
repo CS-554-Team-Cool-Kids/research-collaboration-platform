@@ -8,7 +8,7 @@ import noImage from "../../assets/images/no_image.png";
 
 const Home = () => {
   return (
-    <main>
+    <main className="home-page">
       <div className="container">
 
         {/* Header */}
