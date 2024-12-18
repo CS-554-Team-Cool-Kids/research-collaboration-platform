@@ -76,16 +76,19 @@ const Navbar = () => {
                     Dashboard
                   </Link>
                 </li>
-                <li className="nav-item">
-                  <Link
-                    className={`nav-link ${
-                      isActive("/allprojects") ? "active" : ""
-                    }`}
-                    to="/allprojects"
-                  >
-                    Project Database
-                  </Link>
-                </li>
+                {/* Show links based on user role */}
+                {authState.user.role === "STUDENT" && (
+                  <li className="nav-item">
+                    <Link
+                      className={`nav-link ${
+                        isActive("/allprojects") ? "active" : ""
+                      }`}
+                      to="/allprojects"
+                    >
+                      Project Database
+                    </Link>
+                  </li>
+                )}
                 <li className="nav-item">
                   <Link
                     className={`nav-link ${
@@ -96,16 +99,19 @@ const Navbar = () => {
                     My Projects
                   </Link>
                 </li>
-                <li className="nav-item">
-                  <Link
-                    className={`nav-link ${
-                      isActive("/application") ? "active" : ""
-                    }`}
-                    to="/application"
-                  >
-                    Application Status
-                  </Link>
-                </li>
+                {authState.user.role === "STUDENT" && (
+                  <li className="nav-item">
+                    <Link
+                      className={`nav-link ${
+                        isActive("/application") ? "active" : ""
+                      }`}
+                      to="/application"
+                    >
+                      Application Status
+                    </Link>
+                  </li>
+                )}
+
                 <li className="nav-item ms-5">
                   <button
                     type="button"

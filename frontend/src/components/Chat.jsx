@@ -81,6 +81,7 @@ function Chat() {
   };
 
   const handleSendMessage = () => {
+    if (!message.trim()) alert("Please enter a message");
     if (socket && message.trim() && selectedChannel) {
       // Emit the message to the specific channel
       socket.emit("chat_message", {
