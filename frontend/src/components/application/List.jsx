@@ -5,17 +5,17 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 function ApplicationList() {
-  const { authState } = useAuth();
-  const id = authState.user.id;
-  const userRole = authState.user.role;
 
-  const { loading, error, data, refetch } = useQuery(queries.GET_USER_BY_ID, {
+    const { authState } = useAuth();
+    const id = authState.user.id;
+    const userRole = authState.user.role;
+
+    const { loading, error, data, refetch } = useQuery(queries.GET_USER_BY_ID, {
     variables: { id },
     fetchPolicy: "network-only",
-  });
+    });
 
-  const [applications, setApplications] = useState([]);
-  const [selectedApplication, setSelectedApplication] = useState(null);
+    const [selectedApplication, setSelectedApplication] = useState(null);
 
   // Mutation to remove an application
   const [removeApplication] = useMutation(queries.REMOVE_APPLICATION);
@@ -30,29 +30,29 @@ function ApplicationList() {
     }
   };
 
-  const handleDelete = async () => {
-    console.log("selectedApplication: ", selectedApplication);
+    const handleDelete = async () => {
     if (!selectedApplication?._id) return;
+    
     const confirmDeletion = window.confirm(
-      `Are you sure you want to delete the application?`
+        `Are you sure you want to delete the project "${selectedApplication.project.title}"?`
     );
     if (confirmDeletion) {
-      try {
-        await removeApplication({
-          variables: { id: selectedApplication._id },
-        });
-        await refetch();
-      } catch (error) {
-        console.error("Deletion failed: ", error);
-      }
+        try {
+            let id = selectedApplication._id;
+            await removeApplication({ variables: { id: id } });
+            await refetch();
+        } catch (error) {
+            alert(`Deletion Failed: ${error}`)
+            console.error("Deletion failed: ", error);
+        }
     }
-  };
+    };
 
-  useEffect(() => {
+    useEffect(() => {
     if (data) {
-      setSelectedApplication(null);
+        setSelectedApplication(null); //Reset selected application when data changes
     }
-  }, [data]);
+    }, [data]);
 
   if (loading) {
     return <p className="loader">Loading...</p>;

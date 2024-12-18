@@ -58,7 +58,7 @@ const UserDashboard = () => {
                     <div className="d-column">
 
                         {/* PROJECTS CARD */}
-                        <div className="d-card">
+                        <div className="d-card glassEffect">
                             <div className="d-card-header">
                                 <h2>Project List</h2>
                                 <Link className="card-header-link" to="/project">
@@ -92,7 +92,7 @@ const UserDashboard = () => {
                         </div>
 
                         {/* APPLICATIONS CARD */}
-                        <div className="d-card">
+                        <div className="d-card glassEffect">
                             <div className="d-card-header">
                                 <h2>Applications List</h2>
                                 <Link className="card-header-link" to="/application">
@@ -130,7 +130,7 @@ const UserDashboard = () => {
                     <div className="d-column">
 
                         {/* USER INFORMATION */}
-                        <div className="d-card">
+                        <div className="d-card glassEffect">
                             <div className="d-card-header">
                                 <h2>User Information</h2>
                                 <Link
@@ -169,7 +169,7 @@ const UserDashboard = () => {
                         </div>
 
                         {/* NEWS FEED CARD */}
-                        <div className="d-card">
+                        <div className="d-card glassEffect">
                             <div className="d-card-header">
                                 <h2>News Feed</h2>
                                 <Link className="card-header-link" to="/newsfeed/">View All</Link>
