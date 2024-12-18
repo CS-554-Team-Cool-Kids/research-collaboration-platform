@@ -8,6 +8,7 @@ import admin from "firebase-admin";
 import { ObjectId } from "mongodb";
 import { dbConnection, closeConnection } from "../config/mongoConnection.js";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 const serviceAccount = {
@@ -335,7 +336,6 @@ const projectsSeed = [
 ];
 
 const seedUsers = async () => {
-  const db = await dbConnection();
   const userCollection = await users();
 
   for (let professor of professors) {
@@ -365,9 +365,12 @@ const seedUsers = async () => {
       console.log(`Created new user: ${userRecord.email}`);
 
       // Save user details to the database
-      await userCollection.insertOne({
-        professor,
-      });
+      // Insert the student directly into the database
+      await userCollection.updateOne(
+        { _id: professor._id }, // Ensure upsert is based on _id
+        { $set: professor },
+        { upsert: true } // Insert if not already present
+      );
     } catch (err) {
       console.error(`Error creating user for email: ${professor.email}`);
       throw err; // Stop further execution if there's an error creating the user
@@ -579,7 +582,6 @@ const students = [
 ];
 
 const seedStudents = async () => {
-  const db = await dbConnection();
   const userCollection = await users();
 
   for (let student of students) {
@@ -641,176 +643,172 @@ const seedStudents = async () => {
 // seedUsers();
 // console.log(professors.length);
 
-// const seedProjects = async () => {
-//   for (let project of projectsSeed) {
-//     project._id = new ObjectId();
-//   }
-//   const db = await dbConnection();
-//   await db.dropCollection("projects");
-//   const projectCollection = await projects();
-//   await projectCollection.insertMany(projectsSeed);
-//   console.log("Projects added successfully");
-//   closeConnection();
-// };
+const seedProjects = async () => {
+  for (let project of projectsSeed) {
+    project._id = new ObjectId();
+  }
+  const db = await dbConnection();
+  await db.dropCollection("projects");
+  const projectCollection = await projects();
+  await projectCollection.insertMany(projectsSeed);
+  console.log("Projects added successfully");
+};
 
 // seedProjects();
 
-// const applicationsList = JSON.parse(`[
-//     {
-//       "_id": "6761d5f3b77a090274003324",
-//       "applicantId": "6761d1dab77a0902740032f1",
-//       "projectId": "6761d45bb77a09027400330b",
-//       "applicationDate": "2024-12-17T19:50:11.968Z",
-//       "lastUpdatedDate": "2024-12-17T19:50:11.968Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id": "6761d5f4b77a090274003325",
-//       "applicantId": "6761d265b77a0902740032f2",
-//       "projectId": "6761d4cab77a09027400331c",
-//       "applicationDate": "2024-12-17T19:50:12.004Z",
-//       "lastUpdatedDate": "2024-12-17T19:50:12.004Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id": "6761d5f4b77a090274003326",
-//       "applicantId": "6761d19e16b463e457017144",
-//       "projectId": "6761d45bb77a09027400330c",
-//       "applicationDate": "2024-12-17T19:50:12.011Z",
-//       "lastUpdatedDate": "2024-12-17T19:50:12.011Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id": "6761d5f4b77a090274003327",
-//       "applicantId": "6761d38fb77a0902740032fd",
-//       "projectId": "6761d4cab77a09027400331a",
-//       "applicationDate": "2024-12-17T19:50:12.018Z",
-//       "lastUpdatedDate": "2024-12-17T19:50:12.018Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id": "6761d5f4b77a090274003328",
-//       "applicantId": "6761d19f16b463e457017145",
-//       "projectId": "6761d4cab77a090274003316",
-//       "applicationDate": "2024-12-17T19:50:12.022Z",
-//       "lastUpdatedDate": "2024-12-17T19:50:12.023Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id": "6761d5f4b77a090274003329",
-//       "applicantId": "6761d266b77a0902740032f4",
-//       "projectId": "6761d563b77a090274003321",
-//       "applicationDate": "2024-12-17T19:50:12.029Z",
-//       "lastUpdatedDate": "2024-12-17T19:50:12.029Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id": "6761d5f4b77a09027400332a",
-//       "applicantId": "6761d19f16b463e457017146",
-//       "projectId": "6761d45bb77a09027400330f",
-//       "applicationDate": "2024-12-17T19:50:12.034Z",
-//       "lastUpdatedDate": "2024-12-17T19:50:12.034Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id": "6761d5f4b77a09027400332b",
-//       "applicantId": "6761d267b77a0902740032f5",
-//       "projectId": "6761d4cab77a090274003318",
-//       "applicationDate": "2024-12-17T19:50:12.038Z",
-//       "lastUpdatedDate": "2024-12-17T19:50:12.038Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id": "6761d5f4b77a09027400332c",
-//       "applicantId": "6761d1a016b463e457017147",
-//       "projectId": "6761d45bb77a09027400330e",
-//       "applicationDate": "2024-12-17T19:50:12.044Z",
-//       "lastUpdatedDate": "2024-12-17T19:50:12.044Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id": "6761d5f4b77a09027400332d",
-//       "applicantId": "6761d267b77a0902740032f6",
-//       "projectId": "6761d4cab77a09027400331d",
-//       "applicationDate": "2024-12-17T19:50:12.050Z",
-//       "lastUpdatedDate": "2024-12-17T19:50:12.050Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id": "6761d65fb77a09027400332e",
-//       "applicantId": "6761d38eb77a0902740032fc",
-//       "projectId": "6761d45bb77a09027400330b",
-//       "applicationDate": "2024-12-17T19:51:59.318Z",
-//       "lastUpdatedDate": "2024-12-17T19:51:59.318Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id": "6761d65fb77a09027400332f",
-//       "applicantId": "6761d38fb77a0902740032fd",
-//       "projectId": "6761d45bb77a09027400330c",
-//       "applicationDate": "2024-12-17T19:51:59.323Z",
-//       "lastUpdatedDate": "2024-12-17T19:51:59.323Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id":"6761d65fb77a090274003330",
-//       "applicantId": "6761d19f16b463e457017145",
-//       "projectId": "6761d563b77a090274003321",
-//       "applicationDate": "2024-12-17T19:51:59.330Z",
-//       "lastUpdatedDate": "2024-12-17T19:51:59.330Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id": "6761d65fb77a090274003331"
-//       ,
-//       "applicantId": "6761d266b77a0902740032f4",
-//       "projectId": "6761d4cab77a090274003316",
-//       "applicationDate": "2024-12-17T19:51:59.334Z",
-//       "lastUpdatedDate": "2024-12-17T19:51:59.334Z",
-//       "status": "PENDING"
-//     },
-//     {
-//       "_id": "6761d65fb77a090274003332"
-//       ,
-//       "applicantId": "6761d1a016b463e457017147",
-//       "projectId": "6761d4cab77a09027400331d",
-//       "applicationDate": "2024-12-17T19:51:59.337Z",
-//       "lastUpdatedDate": "2024-12-17T19:51:59.337Z",
-//       "status": "PENDING"
-//     }
-//   ]`);
+const applicationsList = JSON.parse(`[
+    {
+      "_id": "6761d5f3b77a090274003324",
+      "applicantId": "6761d1dab77a0902740032f1",
+      "projectId": "6761d45bb77a09027400330b",
+      "applicationDate": "2024-12-17T19:50:11.968Z",
+      "lastUpdatedDate": "2024-12-17T19:50:11.968Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a090274003325",
+      "applicantId": "6761d265b77a0902740032f2",
+      "projectId": "6761d4cab77a09027400331c",
+      "applicationDate": "2024-12-17T19:50:12.004Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.004Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a090274003326",
+      "applicantId": "6761d19e16b463e457017144",
+      "projectId": "6761d45bb77a09027400330c",
+      "applicationDate": "2024-12-17T19:50:12.011Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.011Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a090274003327",
+      "applicantId": "6761d38fb77a0902740032fd",
+      "projectId": "6761d4cab77a09027400331a",
+      "applicationDate": "2024-12-17T19:50:12.018Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.018Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a090274003328",
+      "applicantId": "6761d19f16b463e457017145",
+      "projectId": "6761d4cab77a090274003316",
+      "applicationDate": "2024-12-17T19:50:12.022Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.023Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a090274003329",
+      "applicantId": "6761d266b77a0902740032f4",
+      "projectId": "6761d563b77a090274003321",
+      "applicationDate": "2024-12-17T19:50:12.029Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.029Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a09027400332a",
+      "applicantId": "6761d19f16b463e457017146",
+      "projectId": "6761d45bb77a09027400330f",
+      "applicationDate": "2024-12-17T19:50:12.034Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.034Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a09027400332b",
+      "applicantId": "6761d267b77a0902740032f5",
+      "projectId": "6761d4cab77a090274003318",
+      "applicationDate": "2024-12-17T19:50:12.038Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.038Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a09027400332c",
+      "applicantId": "6761d1a016b463e457017147",
+      "projectId": "6761d45bb77a09027400330e",
+      "applicationDate": "2024-12-17T19:50:12.044Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.044Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a09027400332d",
+      "applicantId": "6761d267b77a0902740032f6",
+      "projectId": "6761d4cab77a09027400331d",
+      "applicationDate": "2024-12-17T19:50:12.050Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.050Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d65fb77a09027400332e",
+      "applicantId": "6761d38eb77a0902740032fc",
+      "projectId": "6761d45bb77a09027400330b",
+      "applicationDate": "2024-12-17T19:51:59.318Z",
+      "lastUpdatedDate": "2024-12-17T19:51:59.318Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d65fb77a09027400332f",
+      "applicantId": "6761d38fb77a0902740032fd",
+      "projectId": "6761d45bb77a09027400330c",
+      "applicationDate": "2024-12-17T19:51:59.323Z",
+      "lastUpdatedDate": "2024-12-17T19:51:59.323Z",
+      "status": "PENDING"
+    },
+    {
+      "_id":"6761d65fb77a090274003330",
+      "applicantId": "6761d19f16b463e457017145",
+      "projectId": "6761d563b77a090274003321",
+      "applicationDate": "2024-12-17T19:51:59.330Z",
+      "lastUpdatedDate": "2024-12-17T19:51:59.330Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d65fb77a090274003331"
+      ,
+      "applicantId": "6761d266b77a0902740032f4",
+      "projectId": "6761d4cab77a090274003316",
+      "applicationDate": "2024-12-17T19:51:59.334Z",
+      "lastUpdatedDate": "2024-12-17T19:51:59.334Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d65fb77a090274003332"
+      ,
+      "applicantId": "6761d1a016b463e457017147",
+      "projectId": "6761d4cab77a09027400331d",
+      "applicationDate": "2024-12-17T19:51:59.337Z",
+      "lastUpdatedDate": "2024-12-17T19:51:59.337Z",
+      "status": "PENDING"
+    }
+  ]`);
 
 // // console.log(applications);
 
-// const seedApplications = async () => {
-//   const db = await dbConnection();
-//   await db.dropCollection("applications");
-//   const applicationCollection = await applications();
-//   const usersCollection = await users();
-//   const projectsCollection = await projects();
-//   const students = await usersCollection
-//     .find({
-//       role: "STUDENT",
-//     })
-//     .toArray();
-//   const projectList = await projectsCollection.find().toArray();
+const seedApplications = async () => {
+  const applicationCollection = await applications();
+  const usersCollection = await users();
+  const projectsCollection = await projects();
+  const students = await usersCollection
+    .find({
+      role: "STUDENT",
+    })
+    .toArray();
+  const projectList = await projectsCollection.find().toArray();
 
-//   for (let application of applicationsList) {
-//     application._id = new ObjectId(application._id);
-//     const randomStudent = students[Math.floor(Math.random() * students.length)];
-//     const randomProject =
-//       projectList[Math.floor(Math.random() * projectList.length)];
-//     application.applicantId = randomStudent._id.toString();
-//     application.projectId = randomProject._id.toString();
-//     application.applicationDate = new Date();
-//     application.lastUpdatedDate = new Date();
-//     application.satus = "PENDING";
-//   }
-//   await applicationCollection.insertMany(applicationsList);
-//   console.log(applicationsList);
-//   console.log("Applications added successfully");
-//   closeConnection();
-// };
+  for (let application of applicationsList) {
+    application._id = new ObjectId(application._id);
+    const randomStudent = students[Math.floor(Math.random() * students.length)];
+    const randomProject =
+      projectList[Math.floor(Math.random() * projectList.length)];
+    application.applicantId = randomStudent._id.toString();
+    application.projectId = randomProject._id.toString();
+    application.applicationDate = new Date();
+    application.lastUpdatedDate = new Date();
+    application.status = "PENDING";
+  }
+  await applicationCollection.insertMany(applicationsList);
+  console.log(applicationsList);
+  console.log("Applications added successfully");
+};
 
 // seedApplications();
 
@@ -1012,3 +1010,15 @@ const seedStudents = async () => {
 
 // seedUpdates();
 //#endregion
+
+const main = async () => {
+  const db = await dbConnection();
+  await db.dropDatabase();
+  await seedUsers();
+  await seedProjects();
+  await seedStudents();
+  await seedApplications();
+  closeConnection();
+};
+
+main();
