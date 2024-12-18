@@ -56,10 +56,10 @@ const AllProjectList = () => {
     }
   }, [projectsData]);
 
-  if (projectsLoading || userLoading) return <p>Loading projects...</p>;
+  if (projectsLoading || userLoading) return <p className="loader">Loading projects...</p>;
   if (projectsError)
     return <p>Error loading projects: {projectsError.message}</p>;
-  if (userError) return <p>Error loading user data: {userError.message}</p>;
+  if (userError) return <p className="error-message">Error loading user data: {userError.message}</p>;
 
   const projects = projectsData?.projects || [];
   const userApplications = userData?.getUserById?.applications || [];

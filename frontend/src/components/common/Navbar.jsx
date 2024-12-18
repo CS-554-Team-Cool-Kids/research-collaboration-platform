@@ -1,14 +1,18 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom"; // Import useLocation
 import { useAuth } from "../../context/AuthContext"; // Import your AuthContext
 import DarkMode from "../../assets/svg/DarkMode";
 import LightMode from "../../assets/svg/LightMode";
 
 const Navbar = () => {
   const { authState, logout } = useAuth(); // Use the AuthContext to get authState and logout function
+  const location = useLocation(); // Get the current location
+
+  // Helper function to determine active route
+  const isActive = (path) => location.pathname === path;
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+    <nav className="navbar navbar-expand-md sticky-top glassEffect">
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">
           RCP_LOGO
@@ -28,7 +32,10 @@ const Navbar = () => {
           <ul className="navbar-nav">
             {/* Always show Home */}
             <li className="nav-item">
-              <Link className="nav-link" to="/">
+              <Link
+                className={`nav-link ${isActive("/") ? "active" : ""}`}
+                to="/"
+              >
                 Home
               </Link>
             </li>
@@ -37,12 +44,22 @@ const Navbar = () => {
             {!authState.isAuthenticated ? (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/auth/login">
+                  <Link
+                    className={`nav-link ${
+                      isActive("/auth/login") ? "active" : ""
+                    }`}
+                    to="/auth/login"
+                  >
                     Login
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/auth/register">
+                  <Link
+                    className={`nav-link ${
+                      isActive("/auth/register") ? "active" : ""
+                    }`}
+                    to="/auth/register"
+                  >
                     Register
                   </Link>
                 </li>
@@ -50,27 +67,51 @@ const Navbar = () => {
             ) : (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/dashboard">
+                  <Link
+                    className={`nav-link ${
+                      isActive("/dashboard") ? "active" : ""
+                    }`}
+                    to="/dashboard"
+                  >
                     Dashboard
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/allprojects">
+                  <Link
+                    className={`nav-link ${
+                      isActive("/allprojects") ? "active" : ""
+                    }`}
+                    to="/allprojects"
+                  >
                     Project Database
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/project">
+                  <Link
+                    className={`nav-link ${
+                      isActive("/project") ? "active" : ""
+                    }`}
+                    to="/project"
+                  >
                     My Projects
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/application">
+                  <Link
+                    className={`nav-link ${
+                      isActive("/application") ? "active" : ""
+                    }`}
+                    to="/application"
+                  >
                     Application Status
                   </Link>
                 </li>
-                <li className="nav-item">
-                  <button className="nav-link btn btn-link" onClick={logout}>
+                <li className="nav-item ms-5">
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={logout}
+                  >
                     Logout
                   </button>
                 </li>
@@ -80,17 +121,17 @@ const Navbar = () => {
             {/* Theme toggle */}
             <li className="ms-5">
               <div className="d-flex">
-                <div className="my-auto ms-auto">
+                <div className="my-auto ms-auto iconSwitch">
                   <LightMode />
                 </div>
                 <div>
                   <a href="#" className="p-0">
                     <div id="switch" className="m-4">
-                      <div id="circle"></div>
+                      <div id="circle" className="iconSwitch"></div>
                     </div>
                   </a>
                 </div>
-                <div className="my-auto me-auto">
+                <div className="my-auto me-auto iconSwitch">
                   <DarkMode />
                 </div>
               </div>

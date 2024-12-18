@@ -1,66 +1,65 @@
-import React from "react";
-import { useParams } from "react-router-dom";
-import ActionBar from "./ActionBar_2";
+import React, { useState, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import queries from "../../../queries";
 
 const Team = () => {
-  const { id: projectId } = useParams(); // Extract projectId from the URL
+  const { refetch } = useOutletContext(); // Get refetch function from Outlet context
+  const [data, setData] = useState();
 
-  const { data, loading, error } = useQuery(queries.GET_PROJECT_BY_ID, {
-    variables: { id: projectId },
-    fetchPolicy: "network-only",
-  });
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  useEffect(() => {
+    const reloadData = async () => {
+      const { data: refetchedData } = await refetch();
+      if (refetchedData !== data) {
+        // Only update if data has changed
+        setData(refetchedData);
+      }
+    };
+    reloadData();
+  }, [refetch, data]); // Only re-run when refetch or data changes
+  const formatDepartment = (department) => {
+    return department
+      .split("_") // Split by underscores
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" "); // Join the words back with spaces
+  };
 
   return (
-    <main className="dashboard">
-      <ActionBar
-        projectId={projectId}
-        projectTitle={data.getProjectById.title}
-      />
-      <div className="container-fluid my-3">
-        <div className="d-card glassEffect">
-          <div className="d-card-header">
-            <h2>Members</h2>
-          </div>
-          <div className="d-card-body">
-            {loading ? (
-              <p>Loading...</p>
-            ) : error ? (
-              <p>Error loading team members: {error.message}</p>
-            ) : (
-              <div className="col-12">
-                <div className="mb-4">
-                  <h4 className="fw-bold">Professor</h4>
-                  {/* Professors */}
-                  {data.getProjectById.professors.map((professor) => (
-                    <div key={professor.email} className="row mt-3">
-                      <div className="col-4">{`${professor.firstName} ${professor.lastName}`}</div>
-                      <div className="col-4">{professor.email}</div>
-                      <div className="col-4">{professor.department}</div>
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <h4 className="fw-bold">Student</h4>
-                  {/* Students */}
-                  {data.getProjectById.students.map((student) => (
-                    <div key={student.email} className="row mt-3">
-                      <div className="col-4">{`${student.firstName} ${student.lastName}`}</div>
-                      <div className="col-4">{student.email}</div>
-                      <div className="col-4">{student.department}</div>
-                    </div>
-                  ))}
+    <div className="d-card glassEffect transition-fade-in-out fade-in">
+      <div className="d-card-header">
+        <h2>Members</h2>
+      </div>
+      <div className="d-card-body">
+        <div className="col-12">
+          <div className="mb-4">
+            <h4 className="fw-bold">Professor</h4>
+            {/* Professors */}
+            {data?.getProjectById.professors.map((professor) => (
+              <div key={professor.email} className="row mt-3">
+                <div className="col-4">{`${professor.firstName} ${professor.lastName}`}</div>
+                <div className="col-4">{professor.email}</div>
+                <div className="col-4">
+                  {formatDepartment(professor.department)}
                 </div>
               </div>
-            )}
+            ))}
+          </div>
+          <div>
+            <h4 className="fw-bold">Student</h4>
+            {/* Students */}
+            {data?.getProjectById.students.map((student) => (
+              <div key={student.email} className="row mt-3">
+                <div className="col-4">{`${student.firstName} ${student.lastName}`}</div>
+                <div className="col-4">{student.email}</div>
+                <div className="col-4">
+                  {formatDepartment(student.department)}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 };
 
