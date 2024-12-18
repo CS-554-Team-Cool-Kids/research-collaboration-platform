@@ -18,7 +18,6 @@ const Newsfeed = () => {
 
   const [newComment, setNewComment] = useState(""); // New comment input
   const [activeUpdateId, setActiveUpdateId] = useState(null); // Active update for comments
-
   const [addComment] = useMutation(queries.ADD_COMMENT);
   const [removeComment] = useMutation(queries.REMOVE_COMMENT);
   const [addUpdate] = useMutation(queries.ADD_UPDATE);
@@ -124,6 +123,120 @@ const Newsfeed = () => {
   );
 
   // Render individual update
+  // const renderUpdate = (update) => (
+  //   <div key={update._id} className="news-card">
+  //     <div className="news-header">
+  //       <div className="user-avatar">{update.posterUser.firstName[0]}</div>
+  //       <div>
+  //         <h3>
+  //           {update.posterUser.firstName} {update.posterUser.lastName}
+  //         </h3>
+  //         <p className="news-meta">
+  //           {update.posterUser.role} · {update.posterUser.department}
+  //         </p>
+  //       </div>
+  //     </div>
+  //     <div className="news-body">
+  //       <h4>{update.subject.replace(/_/g, " ")}</h4>
+  //       <p>{update.content}</p>
+  //       <p>
+  //         <strong>Project:</strong> {update.project.title}
+  //       </p>
+  //     </div>
+  //     <div className="news-footer">
+  //       <p className="news-date">
+  //         {new Date(update.postedDate).toLocaleDateString()}
+  //       </p>
+  //       <button
+  //         className="btn-view-comments"
+  //         onClick={() =>
+  //           setActiveUpdateId((prev) =>
+  //             prev === update._id ? null : update._id
+  //           )
+  //         }
+  //       >
+  //         {activeUpdateId === update._id ? "Hide Comments" : "View Comments"}
+  //       </button>
+  //     </div>
+  //   </div>
+  // );
+
+  const handleAddComment = async (updateId) => {
+    if (!newComment.trim()) return alert("Comment cannot be empty!");
+    try {
+      await addComment({
+        variables: {
+          destinationId: updateId,
+          commenterId: userId,
+          content: newComment,
+        },
+      });
+      setNewComment(""); // Clear comment input
+      refetch(); // Refresh the data
+    } catch (err) {
+      console.error("Error adding comment:", err);
+    }
+  };
+
+  // Handle removing a comment
+  const handleRemoveComment = async (commentId, updateId) => {
+    try {
+      await removeComment({
+        variables: {
+          id: commentId,
+        },
+      });
+      refetch();
+    } catch (err) {
+      console.error("Error removing comment:", err);
+    }
+  };
+
+  const renderComments = (comments, updateId) => {
+    return (
+      <div className="comments-section">
+        {comments.length > 0 ? (
+          <div>
+            <h5>Comments</h5>
+            <ul className="comments-list">
+              {comments.map((comment) => (
+                <li key={comment._id} className="comment">
+                  <p>
+                    <strong>
+                      {comment.commenter
+                        ? `${comment.commenter.firstName} ${comment.commenter.lastName}`
+                        : "Unknown User"}
+                    </strong>
+                    : {comment.content}
+                  </p>
+                  <button
+                    onClick={() => handleRemoveComment(comment._id)}
+                    className="btn-remove"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <p>No comments yet. Be the first to comment!</p>
+        )}
+        <input
+          type="text"
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+        />
+        <button
+          onClick={() => handleAddComment(updateId)}
+          className="btn-view-comments"
+        >
+          Add
+        </button>
+      </div>
+    );
+  };
+
   const renderUpdate = (update) => (
     <div key={update._id} className="news-card">
       <div className="news-header">
@@ -159,6 +272,8 @@ const Newsfeed = () => {
           {activeUpdateId === update._id ? "Hide Comments" : "View Comments"}
         </button>
       </div>
+      {activeUpdateId === update._id &&
+        renderComments(update.comments, update._id)}
     </div>
   );
 
