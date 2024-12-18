@@ -127,4 +127,12 @@ body {
 
 .sidebar nav ul li svg {
   overflow: visible;
+}/* Adjustments for Newsfeed in Sidebar Context */
+.sidebar .newsfeed-container {
+  margin-left: 20px;
+}
+
+/* Sidebar-specific updates list spacing */
+.sidebar .updates-list {
+  padding-left: 10px;
 }
