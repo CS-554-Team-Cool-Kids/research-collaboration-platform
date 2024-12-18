@@ -45,6 +45,7 @@ const App = () => {
       stripeTableColor: getCSSVariable("--stripeTableColor1"),
       gradientColor: getCSSVariable("--lightGradient1"),
       accentColor: getCSSVariable("--purple2"),
+      activeAccentGradient: getCSSVariable("--purpleGradient1"),
     },
     dark: {
       textColor: getCSSVariable("--white1"),
@@ -53,7 +54,8 @@ const App = () => {
       shadowColor: getCSSVariable("--shadow2"),
       stripeTableColor: getCSSVariable("--stripeTableColor2"),
       gradientColor: getCSSVariable("--darkGradient1"),
-      accentColor: getCSSVariable("--purple3"),
+      accentColor: getCSSVariable("--red2"),
+      activeAccentGradient: getCSSVariable("--redGradient1"),
     },
   };
 
@@ -87,6 +89,10 @@ const App = () => {
     document.documentElement.style.setProperty(
       "--activeAccentColor",
       theme.accentColor
+    );
+    document.documentElement.style.setProperty(
+      "--activeAccentGradient",
+      theme.activeAccentGradient
     );
 
     document.body.classList.toggle("dark", isDarkMode);

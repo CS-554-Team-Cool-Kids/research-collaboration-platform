@@ -1,13 +1,22 @@
 import React, { useState } from "react";
 import KeyIcon from "../../assets/svg/KeyIcon.jsx";
+import { doSendPasswordResetEmail } from "../../firebase/firebaseFunctions";
 
 const ResetPasswordRequest = () => {
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    //Reset Password Logic
+    try {
+      if (!email) throw new Error("Please enter your email address.");
+      await doSendPasswordResetEmail(email);
+      setMessage(
+        "Password reset email sent! Please check your inbox (or spam folder)."
+      );
+    } catch (error) {
+      setMessage(error.message);
+    }
   };
 
   return (
@@ -46,6 +55,7 @@ const ResetPasswordRequest = () => {
             </div>
           </div>
         </form>
+        {message && <div className="alert alert-info mt-3">{message}</div>}
       </div>
     </div>
   );

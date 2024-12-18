@@ -22,8 +22,13 @@ const ChangePassword = () => {
       if (newPassword.value !== confirmPassword.value) {
         throw new Error("Passwords do not match");
       }
-      await doChangePassword(currentPassword.value, newPassword.value);
+      await doChangePassword(
+        authState.user.email,
+        currentPassword.value,
+        newPassword.value
+      );
       logout();
+      alert("Password changed successfully. Please login again.");
       navigate("/auth/login");
     } catch (error) {
       alert(error.message);

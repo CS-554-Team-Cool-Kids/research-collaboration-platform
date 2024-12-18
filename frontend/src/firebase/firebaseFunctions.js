@@ -23,6 +23,7 @@ async function doSignInWithEmailAndPassword(email, password) {
 }
 
 async function doChangePassword(email, oldPassword, newPassword) {
+  console.log(email);
   const auth = getAuth();
   let credential = EmailAuthProvider.credential(email, oldPassword);
   console.log(credential);
@@ -37,4 +38,13 @@ async function doSignOut() {
   await signOut(auth);
 }
 
-export { doSignInWithEmailAndPassword, doChangePassword };
+async function doSendPasswordResetEmail(email) {
+  const auth = getAuth();
+  await sendPasswordResetEmail(auth, email);
+}
+
+export {
+  doSignInWithEmailAndPassword,
+  doChangePassword,
+  doSendPasswordResetEmail,
+};

@@ -80,7 +80,8 @@ body {
 }
 
 .sidebar nav .nav-item.active {
-  background: var(--activeAccentColor) !important;
+  background: var(--activeAccentGradient) !important;
+  color: var(--white1) !important;
 }
 
 .sidebar nav .nav-item:hover {
