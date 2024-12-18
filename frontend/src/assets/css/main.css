@@ -896,3 +896,64 @@ footer {
 .btn-remove:hover {
   background-color: #4a148c;
 }
+
+/* Button to toggle the Add Post form */
+.btn-new-post {
+  background-color: var(--purple1);
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+.btn-new-post:hover {
+  background-color: #4a148c;
+}
+
+/* Add Post Form */
+.add-post-form {
+  background-color: var(--white1);
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px var(--shadow1);
+}
+
+.add-post-form h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.add-post-form input,
+.add-post-form textarea,
+.add-post-form select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid var(--fadeGrey);
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.add-post-form textarea {
+  resize: vertical;
+  height: 100px;
+}
+
+.btn-add {
+  background-color: var(--green1);
+  color: #fff;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.btn-add:hover {
+  background-color: #4caf50;
+}
