@@ -186,12 +186,12 @@ select:-webkit-autofill:focus {
   box-shadow: 0px 10px 30px var(--activeShadowColor) !important;
   -webkit-backdrop-filter: blur(10px) !important;
   backdrop-filter: blur(10px) !important;
-  border: 1px solid var(--activeStripeTableColor) !important;
+  border: 2px solid var(--activeStripeTableColor) !important;
   transition: all var(--transitionDuration) linear;
 }
 
 .glassEffect:hover {
-  border: 1px solid var(--purple1) !important;
+  border: 2px solid var(--purple1) !important;
 }
 
 .glassEffect > .d-card-header {
@@ -323,14 +323,14 @@ nav .navbar-collapse {
 
 .nav-item .nav-link,
 .navbar-brand {
-  color: var(--activeTextColor);
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  color: var(--activeTextColor) !important;
 }
 
 .nav-item .nav-link.active {
   border-radius: var(--activeBorderRadius);
   background-color: var(--activeAccentColor);
-  padding-left: 20px;
-  padding-right: 20px;
   @media (min-width: 992px) {
     .nav-link.btn.btn-link {
       margin-left: 1.5em;
