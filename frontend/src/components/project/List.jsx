@@ -102,7 +102,7 @@ const ProjectList = () => {
               </div>
             </div>
           </div>
-          <div className="d-card-body p-0">
+          <div className="d-card-body mb-3 p-0">
             <div className="row">
               {/* Left Side: Project List */}
               <div className="col-md-4 pe-0">
