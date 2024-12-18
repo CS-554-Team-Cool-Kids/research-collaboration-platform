@@ -47,82 +47,85 @@ const ProjectDetails = () => {
   if (data?.getProjectById) {
     formattedDepartment = formatDepartment(data?.getProjectById.department);
   }
-
-  return (
-    <div className="transition-fade-in-out fade-in">
-      <div className="row">
-        <div className="col-6 col-md-3">
-          <div className="d-card glassEffect">
-            <div className="d-card-body text-center p-4">
-              <div className="text-truncate">
-                <span className="fs-4 fw-bold d-block">Department</span>
-                <span className="fs-6" title={formattedDepartment}>
-                  {formattedDepartment}
-                </span>
+  if (data) {
+    return (
+      <div className="transition-fade-in-out fade-in">
+        <div className="row">
+          <div className="col-6 col-md-3">
+            <div className="d-card glassEffect">
+              <div className="d-card-body text-center p-4">
+                <div className="text-truncate">
+                  <span className="fs-4 fw-bold d-block">Department</span>
+                  <span className="fs-6" title={formattedDepartment}>
+                    {formattedDepartment}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="col-6 col-md-3">
-          <div className="d-card glassEffect">
-            <div className="d-card-body text-center p-4">
-              <div className="text-truncate">
-                <span className="fs-4 fw-bold d-block">Project Initiated</span>
-                <span className="fs-6" title={formattedDate}>
-                  {formattedDate}
-                </span>
+          <div className="col-6 col-md-3">
+            <div className="d-card glassEffect">
+              <div className="d-card-body text-center p-4">
+                <div className="text-truncate">
+                  <span className="fs-4 fw-bold d-block">
+                    Project Initiated
+                  </span>
+                  <span className="fs-6" title={formattedDate}>
+                    {formattedDate}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="col-6 col-md-3">
-          <div className="d-card glassEffect">
-            <div className="d-card-body text-center p-4">
-              <div className="text-truncate">
-                <span className="fs-4 fw-bold">Team Count</span>
-                <span
-                  className="ms-3 fs-1 fw-light"
-                  title={
-                    data?.getProjectById.students.length +
-                    data?.getProjectById.professors.length
-                  }
-                >
-                  {data?.getProjectById.students.length +
-                    data?.getProjectById.professors.length}
-                </span>
+          <div className="col-6 col-md-3">
+            <div className="d-card glassEffect">
+              <div className="d-card-body text-center p-4">
+                <div className="text-truncate">
+                  <span className="fs-4 fw-bold">Team Count</span>
+                  <span
+                    className="ms-3 fs-1"
+                    title={
+                      data?.getProjectById.students.length +
+                      data?.getProjectById.professors.length
+                    }
+                  >
+                    {data?.getProjectById.students.length +
+                      data?.getProjectById.professors.length}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="col-6 col-md-3">
-          <div className="d-card glassEffect">
-            <div className="d-card-body text-center p-4">
-              <div>
-                <span className="fs-4 fw-bold">Application Count</span>
-                <span
-                  className="ms-3 fs-1 fw-regular"
-                  title={data?.getProjectById.numOfApplications}
-                >
-                  {data?.getProjectById.numOfApplications}
-                </span>
+          <div className="col-6 col-md-3">
+            <div className="d-card glassEffect">
+              <div className="d-card-body text-center p-4">
+                <div>
+                  <span className="fs-4 fw-bold">Application Count</span>
+                  <span
+                    className="ms-3 fs-1 fw-regular"
+                    title={data?.getProjectById.numOfApplications}
+                  >
+                    {data?.getProjectById.numOfApplications}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="col-12">
-          <div className="d-card glassEffect">
-            <div className="d-card-body">
-              {data?.getProjectById.description}
+          <div className="col-12">
+            <div className="d-card glassEffect">
+              <div className="d-card-body">
+                {data?.getProjectById.description}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 };
 
 export default ProjectDetails;

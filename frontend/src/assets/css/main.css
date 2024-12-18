@@ -47,7 +47,7 @@
   --activeBorderRadius: var(--borderRadius1);
 
   --transitionDuration: 0.2s;
-  --borderRadius1: 20px;
+  --borderRadius1: 30px;
 }
 
 /* General Styles
@@ -196,6 +196,11 @@ select:-webkit-autofill:focus {
 
 .glassEffect > .d-card-header {
   box-shadow: 0 5px 5px var(--activeShadowColor) !important;
+  font-family: "Samsung1";
+}
+
+.fw-bold {
+  font-family: "Samsung1";
 }
 
 a,
@@ -254,47 +259,55 @@ a:focus {
 
 /* Error Message Styles
 ================================================== */
-.error-message::before{
-  content:'Error';
-  display:block;
-  font-weight:900;
-  font-family:Arial, Helvetica, sans-serif;
-  font-size:2.5em;
+.error-message::before {
+  content: "Error";
+  display: block;
+  font-weight: 900;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 2.5em;
 }
-.error-message{
-  margin-top:10%;
-  text-align:center;
+.error-message {
+  margin-top: 10%;
+  text-align: center;
 }
 
 /* Loader Styles
 ================================================== */
 .loader::before {
-  content: '';
+  content: "";
   border: 8px solid #ededed;
   border-radius: 50%;
   border-top: 8px solid #7446b9;
   width: 80px;
   height: 80px;
-  display:block;
-  margin-left:auto;
-  margin-right:auto;
-  margin-bottom:2em;
-  margin-top:15%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 2em;
+  margin-top: 15%;
   -webkit-animation: spin 2s linear infinite; /* Safari */
   animation: spin 2s linear infinite;
 }
-.loader{
-	text-align:center;
+.loader {
+  text-align: center;
 }
 /* Safari */
 @-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Navbar Styles
@@ -318,8 +331,11 @@ nav .navbar-collapse {
   background-color: var(--activeAccentColor);
   padding-left: 20px;
   padding-right: 20px;
-@media(min-width:992px){
-  .nav-link.btn.btn-link{margin-left:1.5em;}
+  @media (min-width: 992px) {
+    .nav-link.btn.btn-link {
+      margin-left: 1.5em;
+    }
+  }
 }
 
 /* ActionBar Styles
@@ -353,9 +369,9 @@ nav .navbar-collapse {
 }
 .action-link:hover,
 .action-link:active,
-.action-link:focus{
-  color:#fff;
-  text-decoration:underline;
+.action-link:focus {
+  color: #fff;
+  text-decoration: underline;
 }
 .action-link svg {
   width: 35px;
@@ -864,6 +880,12 @@ footer {
 
 /* Not Found Styles
 ================================================== */
-.not-found{margin-top:15%;}
-.not-found h1{text-align:center;}
-.not-found p{text-align:center;}
+.not-found {
+  margin-top: 15%;
+}
+.not-found h1 {
+  text-align: center;
+}
+.not-found p {
+  text-align: center;
+}
