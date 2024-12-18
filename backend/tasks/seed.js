@@ -363,12 +363,13 @@ const seedUsers = async () => {
         displayName: `${professor.firstName} ${professor.lastName}`,
       });
       console.log(`Created new user: ${userRecord.email}`);
+      const { password, ...professorData } = professor;
 
       // Save user details to the database
       // Insert the student directly into the database
       await userCollection.updateOne(
         { _id: professor._id }, // Ensure upsert is based on _id
-        { $set: professor },
+        { $set: professorData },
         { upsert: true } // Insert if not already present
       );
     } catch (err) {
@@ -616,10 +617,11 @@ const seedStudents = async () => {
     }
 
     try {
+      const { password, ...studentData } = student;
       // Insert the student directly into the database
       await userCollection.updateOne(
         { _id: student._id }, // Ensure upsert is based on _id
-        { $set: student },
+        { $set: studentData },
         { upsert: true } // Insert if not already present
       );
       console.log(`Inserted/updated student: ${student.email}`);
