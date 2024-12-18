@@ -6,11 +6,13 @@
   --white1: #fff;
   --purple1: #7446b9;
   --purple2: #ac9cdb;
-  --purple3: #52355b;
+  --purpleGradient1: linear-gradient(-10deg, #4474ce 0%, #a458d6 100%);
+  --redGradient1: linear-gradient(-10deg, #52355b 0%, #a85757 100%);
   --yellow1: #fff176;
   --green1: #6bd485;
   --blue1: #6cc8ec;
   --red1: #ff7474;
+  --red2: #a85757;
   --fadeGrey: #a1a1a147;
   --lightGrey1: #ededed;
   --glass1: #ffffff40;
@@ -37,6 +39,7 @@
   --activeGlassColor: var(--glass1);
   --activeGradientColor: var(--lightGradient1);
   --activeAccentColor: var(--purple2);
+  --activeAccentGradient: var(--purpleGradient1);
   --activeFont: "Apple1";
   --activeBorderRadius: var(--borderRadius1);
 
@@ -92,7 +95,7 @@ h3 {
 }
 
 .border-start {
-  border-color: var(--activeTextColor) !important;
+  border-color: var(--activeStripeTableColor) !important;
 }
 
 input,
@@ -180,12 +183,11 @@ select:-webkit-autofill:focus {
   box-shadow: 0px 10px 30px var(--activeShadowColor) !important;
   -webkit-backdrop-filter: blur(10px) !important;
   backdrop-filter: blur(10px) !important;
-  border: 2px solid var(--activeStripeTableColor) !important;
-  transition: all var(--transitionDuration) linear;
+  border: 1px solid var(--fadeGrey);
 }
 
 .glassEffect:hover {
-  border: 2px solid var(--purple1) !important;
+  border: 1px solid var(--activeAccentColor);
 }
 
 .glassEffect > .d-card-header {
@@ -211,9 +213,9 @@ a:focus {
 }
 
 .btn.btn-primary {
-  background: var(--purple1) !important;
+  background: var(--activeAccentGradient) !important;
   color: #fff !important;
-  border: 1px solid var(--purple1) !important;
+  border: 0px;
 }
 
 .btn-success {
@@ -324,7 +326,8 @@ nav .navbar-collapse {
 
 .nav-item .nav-link.active {
   border-radius: var(--activeBorderRadius);
-  background-color: var(--activeAccentColor);
+  background: var(--activeAccentGradient);
+  color: var(--white1) !important;
   @media (min-width: 992px) {
     .nav-link.btn.btn-link {
       margin-left: 1.5em;
@@ -552,13 +555,12 @@ footer {
 .d-card {
   color: var(--activeTextColor);
   border-radius: var(--borderRadius1);
-  border: 1px solid var(--lightGrey1);
   margin-bottom: 1em;
 }
 
 .d-card-header {
   padding: 1em 1em;
-  border-bottom: 1px solid var(--purple1);
+  border-bottom: 1px solid var(--activeAccentColor);
   display: flex;
   justify-content: space-between;
   text-align: left;
@@ -626,11 +628,12 @@ footer {
 }
 .chat-list li {
   padding: 0.8em;
-  border-top: 1px solid var(--fadeGrey);
-  border-bottom: 1px solid var(--fadeGrey);
-  border-left: 8px solid var(--transparent);
   cursor: pointer;
   transition: all var(--transitionDuration) linear;
+  border-image: linear-gradient(-10deg, #00000000 0%, #00000000 100%);
+  border-width: 8px;
+  border-image-slice: 1 0 1 500;
+  border-style: solid;
 }
 
 .chat-list li:hover {
@@ -639,7 +642,11 @@ footer {
 
 .chat-list li.active {
   background-color: var(--fadeGrey);
-  border-left: 8px solid var(--purple1);
+  /* border-left: 8px solid var(--activeAccentColor); */
+  border-image-source: var(--activeAccentGradient);
+  border-width: 8px;
+  border-image-slice: 1 0 1 500;
+  border-style: solid;
 }
 
 .chat-list-header {
