@@ -3,7 +3,6 @@ import { useMutation, useQuery } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 import queries from "../../queries";
 import { useAuth } from "../../context/AuthContext.jsx";
-import { use } from "react";
 
 const AddApplication = () => {
   const { authState } = useAuth();
@@ -14,7 +13,6 @@ const AddApplication = () => {
   const projectsData = useQuery(queries.GET_PROJECTS, {
     fetchPolicy: "network-only",
   });
-  console.log("projectsData: ", projectsData);
 
   const [addApplicationMutation] = useMutation(queries.ADD_APPLICATION);
   const navigate = useNavigate();

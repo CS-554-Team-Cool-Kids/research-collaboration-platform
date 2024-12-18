@@ -5,19 +5,6 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 function ApplicationList() {
-  /* 
-        Note: The props will be passing one of two things: user id (either professor or student) or the array of applications that will be displayed. Need to investigate and confirm the instances in which either would be passed.
-
-        This component will display:
-        1. List of applications associated with user
-            a. Student: List of applications student applied to
-            b. Professor: List of applications associated to professor
-        2. The list would consist of the following:
-            a. project name
-            b. application status
-            c. button to view the details, which would redirect to the application/detail page.
-            Note: the queries file was updated to ensure the necessary pieces of data are passed.
-    */
 
   const { authState } = useAuth();
   const id = authState.user.id;

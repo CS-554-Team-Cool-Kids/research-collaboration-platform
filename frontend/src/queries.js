@@ -573,25 +573,13 @@ const EDIT_UPDATE = gql`
 const EDIT_APPLICATION = gql`
   mutation EditApplication(
     $id: String!
-    $applicantId: String
-    $projectId: String
-    $lastUpdatedDate: String
-    $status: ApplicationStatus
-  ) {
+    $projectId: String) 
+  {
     editApplication(
       _id: $id
-      applicantId: $applicantId
-      projectId: $projectId
-      lastUpdatedDate: $lastUpdatedDate
-      status: $status
-    ) {
+      projectId: $projectId) 
+    {
       _id
-      applicantId
-      projectId
-      applicationDate
-      lastUpdatedDate
-      status
-      comments
     }
   }
 `;
