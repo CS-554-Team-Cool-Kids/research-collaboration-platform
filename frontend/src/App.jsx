@@ -31,7 +31,7 @@ import ResetPasswordRequest from "./components/auth/ResetPasswordRequest";
 import ChangePassword from "./components/auth/ChangePassword";
 
 const App = () => {
-  //Theming
+  // Theming
   const getCSSVariable = (variable) =>
     getComputedStyle(document.documentElement).getPropertyValue(variable);
 
@@ -52,7 +52,7 @@ const App = () => {
       shadowColor: getCSSVariable("--shadow2"),
       stripeTableColor: getCSSVariable("--stripeTableColor2"),
       gradientColor: getCSSVariable("--darkGradient1"),
-      accentColor: getCSSVariable("--purple1"),
+      accentColor: getCSSVariable("--purple3"),
     },
   };
 
@@ -107,13 +107,13 @@ const App = () => {
     const isDarkMode = document.body.classList.contains("dark");
     const newMode = !isDarkMode;
 
-    window._isDarkMode = newMode ? 1 : 0;
+    localStorage.setItem("isDarkMode", newMode ? 1 : 0);
     applyTheme(newMode);
   };
 
   useEffect(() => {
-    // Initialize theme
-    const isDarkMode = window._isDarkMode === 1;
+    // Initialize theme from localStorage
+    const isDarkMode = localStorage.getItem("isDarkMode") === "1";
     applyTheme(isDarkMode);
 
     // Add event listener for theme switch
@@ -157,7 +157,7 @@ const App = () => {
           }
         />
 
-        <Route 
+        <Route
           path="/edituser"
           element={
             <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>

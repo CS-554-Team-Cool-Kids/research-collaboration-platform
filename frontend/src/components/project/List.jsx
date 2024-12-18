@@ -64,9 +64,12 @@ const ProjectList = () => {
                         className="nav-link"
                         to={`/project/${selectedProject._id}`}
                       >
-                        <button className="btn btn-info ms-2">Details</button>
+                        <button type="button" className="btn btn-info ms-2">
+                          Details
+                        </button>
                       </Link>
                       <button
+                        type="button"
                         className="btn btn-danger ms-2"
                         onClick={handleDelete}
                       >
@@ -75,17 +78,25 @@ const ProjectList = () => {
                     </div>
                   ) : (
                     <div className="d-flex">
-                      <button className="btn btn-info ms-2 invisible">
+                      <button
+                        type="button"
+                        className="btn btn-info ms-2 invisible"
+                      >
                         Details
                       </button>
-                      <button className="btn btn-danger ms-2 invisible">
+                      <button
+                        type="button"
+                        className="btn btn-danger ms-2 invisible"
+                      >
                         Delete
                       </button>
                     </div>
                   )}
 
                   <Link className="nav-link" to="/project/add">
-                    <button className="btn btn-success ms-2">Add</button>
+                    <button type="button" className="btn btn-success ms-2">
+                      Add
+                    </button>
                   </Link>
                 </div>
               </div>

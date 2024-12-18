@@ -5,7 +5,8 @@
   --black1: #14151a;
   --white1: #fff;
   --purple1: #7446b9;
-  --purple2: #e2d8f2;
+  --purple2: #ac9cdb;
+  --purple3: #52355b;
   --yellow1: #fff176;
   --green1: #6bd485;
   --blue1: #6cc8ec;
@@ -22,18 +23,11 @@
   --lightGradient1: linear-gradient(
     to top,
     #dad4ec 0%,
-    #dad4ec 1%,
-    #f3e7e9 100%
+    #b1abc1 1%,
+    #9da1f29e 100%
   );
 
-  --darkGradient1: linear-gradient(
-    to top,
-    #0b0b0c 0%,
-    #2b263b 1%,
-    #131111 100%
-  );
-
-  --darkGradient2: linear-gradient(-20deg, #2b5876 0%, #4e4376 100%);
+  --darkGradient1: linear-gradient(-10deg, #3e3d40 0%, #18161d 100%);
 
   /* theming */
   --activeShadowColor: var(--shadow1);

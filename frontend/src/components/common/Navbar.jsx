@@ -109,7 +109,7 @@ const Navbar = () => {
                 <li className="nav-item ms-5">
                   <button
                     type="button"
-                    className="btn btn-primary nav-link btn btn-link"
+                    className="btn btn-primary"
                     onClick={logout}
                   >
                     Logout
