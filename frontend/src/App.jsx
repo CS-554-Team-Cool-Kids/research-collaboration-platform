@@ -20,6 +20,7 @@ import ProjectLayout from "./components/project/[id]/ProjectWrapper";
 import ProjectAdd from "./components/project/Add";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Chat from "./components/Chat";
+import Newsfeed from "./components/Newsfeed";
 
 import ApplicationList from "./components/application/List";
 import ApplicationDetails from "./components/application/[id]/Details";
@@ -153,6 +154,9 @@ const App = () => {
           element={<ResetPasswordRequest />}
         />
         <Route path="/auth/changepassword" element={<ChangePassword />} />
+
+        <Route path="/user/:id" element={<UserDashboard />} />
+        <Route path="/newsfeed" element={<Newsfeed />} />
 
         {/* Protected routes */}
         <Route
