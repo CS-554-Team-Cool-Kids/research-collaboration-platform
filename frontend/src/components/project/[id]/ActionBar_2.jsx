@@ -42,7 +42,7 @@ const ActionBar = (props) => {
         </div>
       </div>
 
-      <div className="logo">{props.projectTitle}</div>
+      <div className="logo fw-bold">{props.projectTitle}</div>
 
       <nav>
         <div className="nav-title">Management</div>

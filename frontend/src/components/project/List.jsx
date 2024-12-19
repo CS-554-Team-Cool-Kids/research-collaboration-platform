@@ -68,13 +68,15 @@ const ProjectList = () => {
                           Details
                         </button>
                       </Link>
-                      <button
-                        type="button"
-                        className="btn btn-danger ms-2"
-                        onClick={handleDelete}
-                      >
-                        Delete
-                      </button>
+                      {authState.user.role === "PROFESSOR" && (
+                        <button
+                          type="button"
+                          className="btn btn-danger ms-2"
+                          onClick={handleDelete}
+                        >
+                          Delete
+                        </button>
+                      )}
                     </div>
                   ) : (
                     <div className="d-flex">
@@ -92,12 +94,13 @@ const ProjectList = () => {
                       </button>
                     </div>
                   )}
-
-                  <Link className="nav-link" to="/project/add">
-                    <button type="button" className="btn btn-success ms-2">
-                      Add
-                    </button>
-                  </Link>
+                  {authState.user.role === "PROFESSOR" && (
+                    <Link className="nav-link" to="/project/add">
+                      <button type="button" className="btn btn-success ms-2">
+                        Add
+                      </button>
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>

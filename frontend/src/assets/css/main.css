@@ -88,9 +88,9 @@ h2,
 h3 {
   font-weight: 800;
 }
-p strong{
-  font-family:Arial, Helvetica, sans-serif;
-  font-weight:900;
+p strong {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
 }
 
 .card-header {
@@ -460,9 +460,9 @@ footer {
 
 /* Home Page Styles
 ================================================== */
-main.home-page{
-  background-color:#fff;
-  color:#000;
+main.home-page {
+  background-color: #fff;
+  color: #000;
 }
 /* Header */
 .text-img-flex {
@@ -555,8 +555,6 @@ main.home-page{
     padding-bottom: 100px;
   }
 }
-
-
 
 /* User Dashboard Styles
 ================================================== */
@@ -766,9 +764,9 @@ main.home-page{
   display: flex;
   flex-direction: column;
   padding: 20px;
-  margin:1em;
-  background-color:rgba(255,255,255,0.1);
-  border-radius:15px;
+  margin: 1em;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
 }
 .chat-container h2 {
   text-align: center;
@@ -777,10 +775,10 @@ main.home-page{
   font-family: Arial, Helvetica, sans-serif;
   letter-spacing: -1px;
 }
-.chat-container .channels{
-  margin-bottom:2em;
-  padding:1em;
-  border-radius:15px;
+.chat-container .channels {
+  margin-bottom: 2em;
+  padding: 1em;
+  border-radius: 15px;
 }
 .channels h3 {
   font-size: 1.3em;
@@ -825,12 +823,12 @@ main.home-page{
   margin-bottom: 10px;
 } */
 
-.messages h4{
-  font-family:Arial, Helvetica, sans-serif;
-  font-weight:900;
-  padding-bottom:12px;
-  border-bottom:1px solid var(--purple1);
-  margin-bottom:2em;
+.messages h4 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--purple1);
+  margin-bottom: 2em;
 }
 
 .message {
@@ -920,10 +918,10 @@ main.home-page{
   max-width: 800px;
 }
 
-.newsfeed-header{
-  display:flex;
-  justify-content:space-between;
-  padding:1em 0;
+.newsfeed-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1em 0;
 }
 
 /* News Card */
@@ -936,13 +934,12 @@ main.home-page{
   transition: transform 0.3s ease;
 }
 
-
 /* News Header */
 .news-header {
   display: flex;
   align-items: center;
-  padding:1em;
-  border-bottom:2px solid var(--purple1);
+  padding: 1em;
+  border-bottom: 2px solid var(--purple1);
 }
 
 .user-avatar {
@@ -968,29 +965,29 @@ main.home-page{
 .news-meta {
   font-size: 12px;
   color: var(--activeTextColor);
-  margin-bottom:0;
+  margin-bottom: 0;
 }
 
 /* News Body */
-.news-body{
-  padding:2em 1em;
-  padding-left:2em;
+.news-body {
+  padding: 2em 1em;
+  padding-left: 2em;
 }
 
 .news-body h4 {
   font-size: 16px;
   color: var(--bs-heading-color);
   margin-bottom: 10px;
-  font-family:Arial, Helvetica, sans-serif;
-  font-weight:900;
-  letter-spacing:-1px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+  letter-spacing: -1px;
 }
 
 .news-body p {
   font-size: 14px;
   color: var(--activeTextColor);
   line-height: 1.5;
-  margin-bottom:4px;
+  margin-bottom: 4px;
 }
 
 /* News Footer */
@@ -999,7 +996,7 @@ main.home-page{
   justify-content: space-between;
   align-items: center;
   margin-top: 15px;
-  padding:0 1em 1em;
+  padding: 0 1em 1em;
 }
 
 .news-date {
@@ -1007,23 +1004,23 @@ main.home-page{
   color: var(--activeTextColor);
 }
 
-.add-comment-section{
-  margin-top:2em;
+.add-comment-section {
+  margin-top: 2em;
 }
-.add-comment-section input{
-  width:calc(100% - 70px);
-  height:40px;
+.add-comment-section input {
+  width: calc(100% - 70px);
+  height: 40px;
   border: 1px solid var(--purple1) !important;
-  border-radius:5px !important;
+  border-radius: 5px !important;
   margin-right: 12px;
-  padding-left:8px;
-  background-color:var(--activeGlassColor);
+  padding-left: 8px;
+  background-color: var(--activeGlassColor);
 }
 .add-comment-section input:focus,
-.add-comment-section input:focus-visible{
-  outline:none;
-  border-left:8px solid var(--purple1) !important;
-  border-color:var(--purple1) !important;
+.add-comment-section input:focus-visible {
+  outline: none;
+  border-left: 8px solid var(--purple1) !important;
+  border-color: var(--purple1) !important;
 }
 
 .btn-view-comments {
@@ -1045,25 +1042,25 @@ main.home-page{
   border-top: 1px solid var(--activeAccentColor);
 }
 
-.comments-section h5{
-  font-family:Arial, Helvetica, sans-serif;
-  font-weight:900;
-  font-size:1.2em;
-  margin-bottom:2em;
+.comments-section h5 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
+  font-size: 1.2em;
+  margin-bottom: 2em;
 }
 
-.comments-list{
-  padding:0;
+.comments-list {
+  padding: 0;
 }
 
 .comment {
   display: flex;
   justify-content: space-between;
-  align-items:flex-end;
+  align-items: flex-end;
   margin-bottom: 10px;
-  padding:2px;
-  padding-left:32px;
-  border-bottom:1px dotted var(--lightGrey1);
+  padding: 2px;
+  padding-left: 32px;
+  border-bottom: 1px dotted var(--lightGrey1);
 }
 
 .comment p {
@@ -1071,13 +1068,13 @@ main.home-page{
   color: var(--activeTextColor);
 }
 
-.comment p strong{
-  font-family:Arial, Helvetica, sans-serif;
-  font-weight:900;
+.comment p strong {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 900;
 }
 
-.comment .btn-remove{
-  margin-left:8px;
+.comment .btn-remove {
+  margin-left: 8px;
 }
 
 .add-comment {
@@ -1167,53 +1164,53 @@ main.home-page{
 
 .btn-add:hover {
   background-color: #4caf50;
-  /* Transition of components */
+}
+/* Transition of components */
 
-  .fade-in {
+.fade-in {
+  animation: fadeIn 1s forwards;
+}
+
+.fade-out {
+  animation: fadeOut 1s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.transition-fade-in-out {
+  &.fade-in {
     animation: fadeIn 1s forwards;
   }
 
-  .fade-out {
+  &.fade-out {
     animation: fadeOut 1s forwards;
   }
+}
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes fadeOut {
-    from {
-      opacity: 1;
-    }
-    to {
-      opacity: 0;
-    }
-  }
-
-  .transition-fade-in-out {
-    &.fade-in {
-      animation: fadeIn 1s forwards;
-    }
-
-    &.fade-out {
-      animation: fadeOut 1s forwards;
-    }
-  }
-
-  /* Not Found Styles
+/* Not Found Styles
 ================================================== */
-  .not-found {
-    margin-top: 15%;
-  }
-  .not-found h1 {
-    text-align: center;
-  }
-  .not-found p {
-    text-align: center;
-  }
+.not-found {
+  margin-top: 15%;
+}
+.not-found h1 {
+  text-align: center;
+}
+.not-found p {
+  text-align: center;
 }

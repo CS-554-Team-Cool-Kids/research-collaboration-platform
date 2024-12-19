@@ -21,19 +21,18 @@ body {
 
 .sidebar .logo {
   width: 100%;
-  height: 80px;
   display: grid;
   align-items: center;
   justify-items: center;
-
   color: var(--activeTextColor);
-  font-size: 36px;
-  font-variant: small-caps;
+  font-size: 25px;
   pointer-events: none;
   scale: 0;
   opacity: 0;
-  margin-top: 3rem;
-  margin-bottom: 1rem;
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 .sidebar.open .logo {
@@ -47,6 +46,9 @@ body {
   color: var(--activeTextColor);
   pointer-events: none;
   opacity: 0;
+  font-family: "Samsung1";
+  font-size: 20px;
+  text-decoration: underline;
 }
 
 .sidebar.open .nav-title {
@@ -127,7 +129,7 @@ body {
 
 .sidebar nav ul li svg {
   overflow: visible;
-}/* Adjustments for Newsfeed in Sidebar Context */
+} /* Adjustments for Newsfeed in Sidebar Context */
 .sidebar .newsfeed-container {
   margin-left: 20px;
 }

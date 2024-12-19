@@ -2,7 +2,6 @@ import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import queries from "../../../queries";
-import ActionBar from "../../project/[id]/ActionBar_2";
 
 const ApplicationDetails = () => {
   /* 
@@ -33,7 +32,6 @@ const ApplicationDetails = () => {
   if (loading) {
     return (
       <main className="dashboard">
-        <ActionBar />
         <div className="container-fluid my-3">
           <div className="d-card glassEffect">
             <div className="d-card-header">Application Details</div>
@@ -46,8 +44,7 @@ const ApplicationDetails = () => {
   if (error) {
     return (
       <main className="dashboard">
-        <ActionBar />
-        <div className="container-fluid my-3">
+        <div className="container my-3">
           <div className="d-card glassEffect">
             <div className="d-card-header">Application Details</div>
             <div className="d-card-body">error.message</div>
@@ -59,14 +56,10 @@ const ApplicationDetails = () => {
   const application = data?.getApplicationById || [];
   return (
     <main className="dashboard">
-      <ActionBar />
-      <div className="container-fluid my-3">
+      <div className="container my-3">
         <div className="d-card glassEffect">
           <div className="d-card-header">
-            <p>Application Details</p>
-            <Link className="card-header-link" to={"/application/edit/" + id}>
-              Edit
-            </Link>
+            <h2>Application Details</h2>
           </div>
           <div className="d-card-body">
             <dl className="desc-list">

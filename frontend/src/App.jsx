@@ -26,8 +26,6 @@ import Newsfeed from "./components/Newsfeed";
 
 import ApplicationList from "./components/application/List";
 import ApplicationDetails from "./components/application/[id]/Details";
-import ApplicationAdd from "./components/application/Add";
-import ApplicationEdit from "./components/application/[id]/Edit";
 
 import AllProjectList from "./components/all_projects/List";
 
@@ -299,22 +297,6 @@ const App = () => {
           element={
             <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
               <ApplicationDetails />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/application/add"
-          element={
-            <ProtectedRoute allowedRoles={["STUDENT"]}>
-              <ApplicationAdd />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/application/edit/:id"
-          element={
-            <ProtectedRoute allowedRoles={["STUDENT", "PROFESSOR", "ADMIN"]}>
-              <ApplicationEdit />
             </ProtectedRoute>
           }
         />
