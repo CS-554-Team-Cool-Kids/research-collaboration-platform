@@ -1,0 +1,1061 @@
+{
+  "applications": [
+    {
+      "_id": "6761d5f3b77a090274003324",
+      "applicantId": "6761d1dab77a0902740032f1",
+      "projectId": "6761d45bb77a09027400330b",
+      "applicationDate": "2024-12-17T19:50:11.968Z",
+      "lastUpdatedDate": "2024-12-17T19:50:11.968Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a090274003325",
+      "applicantId": "6761d265b77a0902740032f2",
+      "projectId": "6761d4cab77a09027400331c",
+      "applicationDate": "2024-12-17T19:50:12.004Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.004Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a090274003326",
+      "applicantId": "6761d19e16b463e457017144",
+      "projectId": "6761d45bb77a09027400330c",
+      "applicationDate": "2024-12-17T19:50:12.011Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.011Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a090274003327",
+      "applicantId": "6761d38fb77a0902740032fd",
+      "projectId": "6761d4cab77a09027400331a",
+      "applicationDate": "2024-12-17T19:50:12.018Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.018Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a090274003328",
+      "applicantId": "6761d19f16b463e457017145",
+      "projectId": "6761d4cab77a090274003316",
+      "applicationDate": "2024-12-17T19:50:12.022Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.023Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a090274003329",
+      "applicantId": "6761d266b77a0902740032f4",
+      "projectId": "6761d563b77a090274003321",
+      "applicationDate": "2024-12-17T19:50:12.029Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.029Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a09027400332a",
+      "applicantId": "6761d19f16b463e457017146",
+      "projectId": "6761d45bb77a09027400330f",
+      "applicationDate": "2024-12-17T19:50:12.034Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.034Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a09027400332b",
+      "applicantId": "6761d267b77a0902740032f5",
+      "projectId": "6761d4cab77a090274003318",
+      "applicationDate": "2024-12-17T19:50:12.038Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.038Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a09027400332c",
+      "applicantId": "6761d1a016b463e457017147",
+      "projectId": "6761d45bb77a09027400330e",
+      "applicationDate": "2024-12-17T19:50:12.044Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.044Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d5f4b77a09027400332d",
+      "applicantId": "6761d267b77a0902740032f6",
+      "projectId": "6761d4cab77a09027400331d",
+      "applicationDate": "2024-12-17T19:50:12.050Z",
+      "lastUpdatedDate": "2024-12-17T19:50:12.050Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d65fb77a09027400332e",
+      "applicantId": "6761d38eb77a0902740032fc",
+      "projectId": "6761d45bb77a09027400330b",
+      "applicationDate": "2024-12-17T19:51:59.318Z",
+      "lastUpdatedDate": "2024-12-17T19:51:59.318Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d65fb77a09027400332f",
+      "applicantId": "6761d38fb77a0902740032fd",
+      "projectId": "6761d45bb77a09027400330c",
+      "applicationDate": "2024-12-17T19:51:59.323Z",
+      "lastUpdatedDate": "2024-12-17T19:51:59.323Z",
+      "status": "PENDING"
+    },
+    {
+      "_id":"6761d65fb77a090274003330",
+      "applicantId": "6761d19f16b463e457017145",
+      "projectId": "6761d563b77a090274003321",
+      "applicationDate": "2024-12-17T19:51:59.330Z",
+      "lastUpdatedDate": "2024-12-17T19:51:59.330Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d65fb77a090274003331"
+      ,
+      "applicantId": "6761d266b77a0902740032f4",
+      "projectId": "6761d4cab77a090274003316",
+      "applicationDate": "2024-12-17T19:51:59.334Z",
+      "lastUpdatedDate": "2024-12-17T19:51:59.334Z",
+      "status": "PENDING"
+    },
+    {
+      "_id": "6761d65fb77a090274003332"
+      ,
+      "applicantId": "6761d1a016b463e457017147",
+      "projectId": "6761d4cab77a09027400331d",
+      "applicationDate": "2024-12-17T19:51:59.337Z",
+      "lastUpdatedDate": "2024-12-17T19:51:59.337Z",
+      "status": "PENDING"
+    }
+  ],
+  "comments": [
+    {
+      "_id": "6761d713b77a090274003333",
+      "commenterId": "6761d2aab77a0902740032f7",
+      "content": "Reviewing your application. Your background aligns well with this project.",
+      "postedDate": "2024-12-17T19:54:59.573Z",
+      "destinationId": "6761d5f3b77a090274003324"
+    },
+    {
+      "_id": "6761d713b77a090274003334",
+      "commenterId": "6761d393b77a090274003302",
+      "content": "Your experience in mechanical systems is impressive. Let's discuss further.",
+      "postedDate": "2024-12-17T19:54:59.596Z",
+      "destinationId": "6761d5f4b77a090274003326"
+    },
+    {
+      "_id": "6761d713b77a090274003335",
+      "commenterId": "6761d2abb77a0902740032f9",
+      "content": "We are excited about your expertise in circuits. This project would benefit from it.",
+      "postedDate": "2024-12-17T19:54:59.600Z",
+      "destinationId": "6761d5f4b77a090274003328"
+    },
+    {
+      "_id": "6761d713b77a090274003336",
+      "commenterId": "6761d394b77a090274003304",
+      "content": "Your research interests align perfectly with our goals for this project.",
+      "postedDate": "2024-12-17T19:54:59.605Z",
+      "destinationId": "6761d5f4b77a09027400332a"
+    },
+    {
+      "_id": "6761d713b77a090274003337",
+      "commenterId": "6761d395b77a090274003305",
+      "content": "Impressive application! We look forward to your contributions to sustainability.",
+      "postedDate": "2024-12-17T19:54:59.610Z",
+      "destinationId": "6761d5f4b77a09027400332c"
+    },
+    {
+      "_id": "6761d713b77a090274003338",
+      "commenterId": "6761d392b77a090274003301",
+      "content": "Thank you for your application. We will follow up soon.",
+      "postedDate": "2024-12-17T19:54:59.614Z",
+      "destinationId": "6761d65fb77a09027400332e"
+    },
+    {
+      "_id": "6761d713b77a090274003339",
+      "commenterId": "6761d393b77a090274003303",
+      "content": "Looking forward to discussing your innovative ideas for this project.",
+      "postedDate": "2024-12-17T19:54:59.618Z",
+      "destinationId": "6761d65fb77a090274003330"
+    },
+    {
+      "_id": "6761d920b77a09027400334e",
+      "commenterId": "6761d1dab77a0902740032f1",
+      "content": "I'd love to join this project! How can I contribute?",
+      "postedDate": "2024-12-17T20:03:44.462Z",
+      "destinationId": "6761d82cb77a09027400333a"
+    },
+    {
+      "_id": "6761d920b77a09027400334f",
+      "commenterId": "6761d2aab77a0902740032f7",
+      "content": "Great initiative! Reach out for mentorship opportunities.",
+      "postedDate": "2024-12-17T20:03:44.466Z",
+      "destinationId": "6761d82cb77a09027400333a"
+    },
+    {
+      "_id": "6761d920b77a090274003350",
+      "commenterId": "6761d38fb77a0902740032fd",
+      "content": "Excited to see how the new team members perform!",
+      "postedDate": "2024-12-17T20:03:44.473Z",
+      "destinationId": "6761d82cb77a09027400333b"
+    },
+    {
+      "_id": "6761d920b77a090274003351",
+      "commenterId": "6761d395b77a090274003305",
+      "content": "Congratulations on launching the robotics project!",
+      "postedDate": "2024-12-17T20:03:44.476Z",
+      "destinationId": "6761d82cb77a09027400333c"
+    },
+    {
+      "_id": "6761d920b77a090274003352",
+      "commenterId": "6761d266b77a0902740032f4",
+      "content": "The prototype test must have been exciting. Well done!",
+      "postedDate": "2024-12-17T20:03:44.479Z",
+      "destinationId": "6761d82cb77a09027400333d"
+    },
+    {
+      "_id": "6761d920b77a090274003353",
+      "commenterId": "6761d2acb77a0902740032fa",
+      "content": "Completing circuit design is a huge step. Keep it up!",
+      "postedDate": "2024-12-17T20:03:44.484Z",
+      "destinationId": "6761d82cb77a09027400333e"
+    },
+    {
+      "_id": "6761d920b77a090274003354",
+      "commenterId": "6761d267b77a0902740032f5",
+      "content": "A deadline extension will help polish the final presentation.",
+      "postedDate": "2024-12-17T20:03:44.488Z",
+      "destinationId": "6761d82cb77a09027400333f"
+    },
+    {
+      "_id": "6761d920b77a090274003355",
+      "commenterId": "6761d38eb77a0902740032fc",
+      "content": "I have a few ideas for the prosthetics design. Can I share them?",
+      "postedDate": "2024-12-17T20:03:44.493Z",
+      "destinationId": "6761d82cb77a090274003340"
+    },
+    {
+      "_id": "6761d920b77a090274003356",
+      "commenterId": "6761d392b77a090274003301",
+      "content": "Securing funding is a great achievement. Keep pushing forward!",
+      "postedDate": "2024-12-17T20:03:44.498Z",
+      "destinationId": "6761d82cb77a090274003341"
+    },
+    {
+      "_id": "6761d920b77a090274003357",
+      "commenterId": "6761d2abb77a0902740032f9",
+      "content": "The seminar topic is critical for sustainability efforts.",
+      "postedDate": "2024-12-17T20:03:44.502Z",
+      "destinationId": "6761d82cb77a090274003342"
+    },
+    {
+      "_id": "6761d920b77a090274003358",
+      "commenterId": "6761d2aab77a0902740032f8",
+      "content": "I'll encourage my students to attend the seminar.",
+      "postedDate": "2024-12-17T20:03:44.505Z",
+      "destinationId": "6761d82cb77a090274003342"
+    },
+    {
+      "_id": "6761d920b77a090274003359",
+      "commenterId": "6761d1a016b463e457017147",
+      "content": "Are there any plans to address the simulation issues?",
+      "postedDate": "2024-12-17T20:03:44.511Z",
+      "destinationId": "6761d82cb77a090274003343"
+    },
+    {
+      "_id": "6761d920b77a09027400335a",
+      "commenterId": "6761d38fb77a0902740032fd",
+      "content": "Congratulations on the publication! That's a major milestone.",
+      "postedDate": "2024-12-17T20:03:44.514Z",
+      "destinationId": "6761d82cb77a090274003344"
+    },
+    {
+      "_id": "6761d920b77a09027400335b",
+      "commenterId": "6761d393b77a090274003303",
+      "content": "The demo results look promising. Excited for the next steps.",
+      "postedDate": "2024-12-17T20:03:44.519Z",
+      "destinationId": "6761d82cb77a090274003345"
+    },
+    {
+      "_id": "6761d920b77a09027400335c",
+      "commenterId": "6761d267b77a0902740032f6",
+      "content": "It's great to see the water management project completed!",
+      "postedDate": "2024-12-17T20:03:44.522Z",
+      "destinationId": "6761d82cb77a090274003346"
+    },
+    {
+      "_id": "6761d920b77a09027400335d",
+      "commenterId": "6761d395b77a090274003305",
+      "content": "Expanding the team will speed up progress. Well done!",
+      "postedDate": "2024-12-17T20:03:44.531Z",
+      "destinationId": "6761d82cb77a090274003347"
+    },
+    {
+      "_id": "6761d920b77a09027400335e",
+      "commenterId": "6761d19f16b463e457017145",
+      "content": "Looking forward to attending the webinar. Great work!",
+      "postedDate": "2024-12-17T20:03:44.537Z",
+      "destinationId": "6761d867b77a09027400334d"
+    }
+  ],
+  "projects": [
+    {
+      "_id": "6761d45bb77a09027400330b",
+      "title": "Quantum Computing Research",
+      "createdDate": "2024-12-17T19:43:23.798Z",
+      "description": "Researching optimization techniques for quantum algorithms.",
+      "department": "COMPUTER_SCIENCE",
+      "professors": [
+        "6761d2aab77a0902740032f7"
+      ],
+      "students": [
+        "6761d19e16b463e457017144",
+        "6761d19f16b463e457017145"
+      ]
+    },
+    {
+      "_id": "6761d45bb77a09027400330c",
+      "title": "Advanced Robotics Design",
+      "createdDate": "2024-12-17T19:43:23.824Z",
+      "description": "Design and development of next-gen robotic systems.",
+      "department": "MECHANICAL_ENGINEERING",
+      "professors": [
+        "6761d2aab77a0902740032f8",
+        "6761d2acb77a0902740032fa"
+      ],
+      "students": []
+    },
+    {
+      "_id": "6761d45bb77a09027400330d",
+      "title": "Renewable Energy Grid",
+      "createdDate": "2024-12-17T19:43:23.827Z",
+      "description": "Developing a smart grid for renewable energy integration.",
+      "department": "ELECTRICAL_AND_COMPUTER_ENGINEERING",
+      "professors": [
+        "6761d393b77a090274003302"
+      ],
+      "students": [
+        "6761d38eb77a0902740032fc",
+        "6761d38fb77a0902740032fd",
+        "6761d390b77a0902740032fe"
+      ]
+    },
+    {
+      "_id": "6761d45bb77a09027400330e",
+      "title": "Water Resource Optimization",
+      "createdDate": "2024-12-17T19:43:23.830Z",
+      "description": "Improving water management systems for sustainability.",
+      "department": "CIVIL_ENVIRONMENTAL_AND_OCEAN_ENGINEERING",
+      "professors": [],
+      "students": [
+        "6761d391b77a0902740032ff"
+      ]
+    },
+    {
+      "_id": "6761d45bb77a09027400330f",
+      "title": "AI in Medical Diagnostics",
+      "createdDate": "2024-12-17T19:43:23.832Z",
+      "description": "Using AI to improve accuracy in medical imaging diagnostics.",
+      "department": "BIOMEDICAL_ENGINEERING",
+      "professors": [
+        "6761d395b77a090274003305"
+      ],
+      "students": [
+        "6761d1dab77a0902740032f1"
+      ]
+    },
+    {
+      "_id": "6761d45bb77a090274003310",
+      "title": "Statistical Modeling of Ecosystems",
+      "createdDate": "2024-12-17T19:43:23.833Z",
+      "description": "Building models to predict ecological patterns and changes.",
+      "department": "MATHEMATICAL_SCIENCES",
+      "professors": [
+        "6761d394b77a090274003304"
+      ],
+      "students": [
+        "6761d1a016b463e457017147",
+        "6761d267b77a0902740032f5"
+      ]
+    },
+    {
+      "_id": "6761d45bb77a090274003311",
+      "title": "Oceanographic Data Analysis",
+      "createdDate": "2024-12-17T19:43:23.835Z",
+      "description": "Analyzing oceanic data for environmental insights.",
+      "department": "CIVIL_ENVIRONMENTAL_AND_OCEAN_ENGINEERING",
+      "professors": [
+        "6761d393b77a090274003303"
+      ],
+      "students": []
+    },
+    {
+      "_id": "6761d45bb77a090274003312",
+      "title": "Machine Learning for Robotics",
+      "createdDate": "2024-12-17T19:43:23.836Z",
+      "description": "Integrating machine learning algorithms for robotic control.",
+      "department": "MECHANICAL_ENGINEERING",
+      "professors": [],
+      "students": [
+        "6761d265b77a0902740032f3",
+        "6761d265b77a0902740032f2"
+      ]
+    },
+    {
+      "_id": "6761d45bb77a090274003313",
+      "title": "Bioengineering Prosthetic Limbs",
+      "createdDate": "2024-12-17T19:43:23.837Z",
+      "description": "Researching advanced prosthetics using bioengineering techniques.",
+      "department": "BIOMEDICAL_ENGINEERING",
+      "professors": [
+        "6761d2acb77a0902740032fb"
+      ],
+      "students": [
+        "6761d266b77a0902740032f4",
+        "6761d267b77a0902740032f6"
+      ]
+    },
+    {
+      "_id": "6761d45bb77a090274003314",
+      "title": "Physics of Renewable Energy Sources",
+      "createdDate": "2024-12-17T19:43:23.838Z",
+      "description": "Exploring the physics behind efficient renewable energy sources.",
+      "department": "PHYSICS",
+      "professors": [
+        "6761d2aab77a0902740032f9"
+      ],
+      "students": [
+        "6761d392b77a090274003301",
+        "6761d1a016b463e457017147"
+      ]
+    },
+    {
+      "_id": "6761d4cab77a090274003315",
+      "title": "Deep Learning for Image Recognition",
+      "createdDate": "2024-12-17T19:45:14.684Z",
+      "description": "Implementing advanced deep learning models to improve image recognition accuracy.",
+      "department": "COMPUTER_SCIENCE",
+      "professors": [
+        "6761d393b77a090274003303"
+      ],
+      "students": [
+        "6761d19f16b463e457017145",
+        "6761d391b77a090274003300"
+      ]
+    },
+    {
+      "_id": "6761d4cab77a090274003316",
+      "title": "Smart Grid Implementation",
+      "createdDate": "2024-12-17T19:45:14.687Z",
+      "description": "Designing a resilient smart grid to optimize energy distribution.",
+      "department": "ELECTRICAL_AND_COMPUTER_ENGINEERING",
+      "professors": [
+        "6761d2acb77a0902740032fa",
+        "6761d2aab77a0902740032f8"
+      ],
+      "students": [
+        "6761d267b77a0902740032f5"
+      ]
+    },
+    {
+      "_id": "6761d4cab77a090274003317",
+      "title": "Renewable Energy for Rural Areas",
+      "createdDate": "2024-12-17T19:45:14.689Z",
+      "description": "Investigating physics-based solutions for renewable energy access in rural areas.",
+      "department": "PHYSICS",
+      "professors": [
+        "6761d2aab77a0902740032f7"
+      ],
+      "students": [
+        "6761d19e16b463e457017144"
+      ]
+    },
+    {
+      "_id": "6761d4cab77a090274003318",
+      "title": "Biomechanics in Sports Performance",
+      "createdDate": "2024-12-17T19:45:14.691Z",
+      "description": "Analyzing biomechanics to improve athlete performance and reduce injuries.",
+      "department": "BIOMEDICAL_ENGINEERING",
+      "professors": [
+        "6761d395b77a090274003305"
+      ],
+      "students": [
+        "6761d2aab77a0902740032f7",
+        "6761d38eb77a0902740032fc"
+      ]
+    },
+    {
+      "_id": "6761d4cab77a090274003319",
+      "title": "Predicting Climate Change Patterns",
+      "createdDate": "2024-12-17T19:45:14.693Z",
+      "description": "Using statistical models to predict climate change trends globally.",
+      "department": "MATHEMATICAL_SCIENCES",
+      "professors": [],
+      "students": [
+        "6761d266b77a0902740032f4",
+        "6761d38fb77a0902740032fd"
+      ]
+    },
+    {
+      "_id": "6761d4cab77a09027400331a",
+      "title": "Autonomous Vehicle Systems",
+      "createdDate": "2024-12-17T19:45:14.694Z",
+      "description": "Developing autonomous systems for self-driving vehicles.",
+      "department": "MECHANICAL_ENGINEERING",
+      "professors": [
+        "6761d2acb77a0902740032fb"
+      ],
+      "students": [
+        "6761d19f16b463e457017146",
+        "6761d267b77a0902740032f6"
+      ]
+    },
+    {
+      "_id": "6761d4cab77a09027400331b",
+      "title": "Ocean Pollution Monitoring",
+      "createdDate": "2024-12-17T19:45:14.695Z",
+      "description": "Creating systems to monitor and address ocean pollution levels.",
+      "department": "CIVIL_ENVIRONMENTAL_AND_OCEAN_ENGINEERING",
+      "professors": [
+        "6761d393b77a090274003302"
+      ],
+      "students": [
+        "6761d1dab77a0902740032f1"
+      ]
+    },
+    {
+      "_id": "6761d4cab77a09027400331c",
+      "title": "AI-Powered Tutoring Systems",
+      "createdDate": "2024-12-17T19:45:14.696Z",
+      "description": "Building intelligent tutoring systems to improve educational outcomes.",
+      "department": "COMPUTER_SCIENCE",
+      "professors": [],
+      "students": [
+        "6761d267b77a0902740032f5",
+        "6761d265b77a0902740032f3"
+      ]
+    },
+    {
+      "_id": "6761d4cab77a09027400331d",
+      "title": "Sustainable Building Materials",
+      "createdDate": "2024-12-17T19:45:14.697Z",
+      "description": "Researching eco-friendly materials for sustainable construction.",
+      "department": "CIVIL_ENVIRONMENTAL_AND_OCEAN_ENGINEERING",
+      "professors": [
+        "6761d394b77a090274003304"
+      ],
+      "students": []
+    },
+    {
+      "_id": "6761d4cab77a09027400331e",
+      "title": "Wearable Health Monitoring Devices",
+      "createdDate": "2024-12-17T19:45:14.698Z",
+      "description": "Designing wearable devices to monitor patient health in real-time.",
+      "department": "BIOMEDICAL_ENGINEERING",
+      "professors": [
+        "6761d395b77a090274003305"
+      ],
+      "students": [
+        "6761d19e16b463e457017144",
+        "6761d19f16b463e457017145"
+      ]
+    },
+    {
+      "_id": "6761d563b77a09027400331f",
+      "title": "AI-Powered Code Review Platform",
+      "createdDate": "2024-12-17T19:47:47.812Z",
+      "description": "Building an AI tool to automate code reviews and identify bugs.",
+      "department": "COMPUTER_SCIENCE",
+      "professors": [
+        "6761d2aab77a0902740032f7",
+        "6761d393b77a090274003302"
+      ],
+      "students": [
+        "6761d19e16b463e457017144",
+        "6761d19f16b463e457017145"
+      ]
+    },
+    {
+      "_id": "6761d563b77a090274003320",
+      "title": "Blockchain for Secure Voting",
+      "createdDate": "2024-12-17T19:47:47.817Z",
+      "description": "Developing a secure, decentralized voting platform using blockchain.",
+      "department": "COMPUTER_SCIENCE",
+      "professors": [
+        "6761d392b77a090274003301"
+      ],
+      "students": [
+        "6761d38eb77a0902740032fc"
+      ]
+    },
+    {
+      "_id": "6761d563b77a090274003321",
+      "title": "Smart Traffic Management System",
+      "createdDate": "2024-12-17T19:47:47.820Z",
+      "description": "Designing an IoT-based solution for smart city traffic control.",
+      "department": "ELECTRICAL_AND_COMPUTER_ENGINEERING",
+      "professors": [
+        "6761d394b77a090274003304"
+      ],
+      "students": [
+        "6761d1dab77a0902740032f1",
+        "6761d266b77a0902740032f4"
+      ]
+    },
+    {
+      "_id": "6761d563b77a090274003322",
+      "title": "Virtual Labs for Physics Education",
+      "createdDate": "2024-12-17T19:47:47.821Z",
+      "description": "Creating virtual simulations for enhanced physics learning.",
+      "department": "PHYSICS",
+      "professors": [],
+      "students": [
+        "6761d391b77a0902740032ff",
+        "6761d267b77a0902740032f5"
+      ]
+    },
+    {
+      "_id": "6761d563b77a090274003323",
+      "title": "Cybersecurity Threat Detection",
+      "createdDate": "2024-12-17T19:47:47.822Z",
+      "description": "Developing tools to detect and mitigate cybersecurity attacks.",
+      "department": "COMPUTER_SCIENCE",
+      "professors": [
+        "6761d2aab77a0902740032f9"
+      ],
+      "students": [
+        "6761d265b77a0902740032f3",
+        "6761d38fb77a0902740032fd"
+      ]
+    }
+  ],
+  "updates": [
+    {
+      "_id": "6761d82cb77a09027400333a",
+      "posterUserId": "6761d1dab77a0902740032f1",
+      "projectId": "6761d45bb77a09027400330b",
+      "subject": "CALL_FOR_APPLICANTS",
+      "content": "We are looking for team members to join our AI-powered code review project.",
+      "postedDate": "2024-12-17T19:59:40.601Z"
+    },
+    {
+      "_id": "6761d82cb77a09027400333b",
+      "posterUserId": "6761d2aab77a0902740032f7",
+      "projectId": "6761d45bb77a09027400330b",
+      "subject": "TEAM_UPDATE",
+      "content": "We have added two new team members to the project team.",
+      "postedDate": "2024-12-17T19:59:40.624Z"
+    },
+    {
+      "_id": "6761d82cb77a09027400333c",
+      "posterUserId": "6761d38fb77a0902740032fd",
+      "projectId": "6761d45bb77a09027400330c",
+      "subject": "PROJECT_LAUNCH",
+      "content": "Our robotics design project has officially kicked off!",
+      "postedDate": "2024-12-17T19:59:40.627Z"
+    },
+    {
+      "_id": "6761d82cb77a09027400333d",
+      "posterUserId": "6761d393b77a090274003302",
+      "projectId": "6761d45bb77a09027400330c",
+      "subject": "MILESTONE_REACHED",
+      "content": "We successfully tested the first robotic prototype.",
+      "postedDate": "2024-12-17T19:59:40.630Z"
+    },
+    {
+      "_id": "6761d82cb77a09027400333e",
+      "posterUserId": "6761d266b77a0902740032f4",
+      "projectId": "6761d45bb77a09027400330d",
+      "subject": "PROGRESS_REPORT",
+      "content": "Our team has completed the circuit design for the energy grid project.",
+      "postedDate": "2024-12-17T19:59:40.634Z"
+    },
+    {
+      "_id": "6761d82cb77a09027400333f",
+      "posterUserId": "6761d393b77a090274003303",
+      "projectId": "6761d45bb77a09027400330d",
+      "subject": "DEADLINE_UPDATE",
+      "content": "The final presentation deadline has been pushed back by one week.",
+      "postedDate": "2024-12-17T19:59:40.639Z"
+    },
+    {
+      "_id": "6761d82cb77a090274003340",
+      "posterUserId": "6761d19f16b463e457017146",
+      "projectId": "6761d45bb77a09027400330f",
+      "subject": "REQUEST_FOR_FEEDBACK",
+      "content": "We need input on our latest design for the prosthetics project.",
+      "postedDate": "2024-12-17T19:59:40.644Z"
+    },
+    {
+      "_id": "6761d82cb77a090274003341",
+      "posterUserId": "6761d394b77a090274003304",
+      "projectId": "6761d45bb77a09027400330f",
+      "subject": "FUNDING_UPDATE",
+      "content": "We received new grant funding to advance the prosthetics project.",
+      "postedDate": "2024-12-17T19:59:40.648Z"
+    },
+    {
+      "_id": "6761d82cb77a090274003342",
+      "posterUserId": "6761d267b77a0902740032f6",
+      "projectId": "6761d4cab77a09027400331d",
+      "subject": "EVENT_ANNOUNCEMENT",
+      "content": "Join us for a seminar on sustainable water management.",
+      "postedDate": "2024-12-17T19:59:40.651Z"
+    },
+    {
+      "_id": "6761d82cb77a090274003343",
+      "posterUserId": "6761d395b77a090274003305",
+      "projectId": "6761d4cab77a09027400331d",
+      "subject": "ISSUE_REPORTED",
+      "content": "We've encountered delays due to water flow simulation issues.",
+      "postedDate": "2024-12-17T19:59:40.656Z"
+    },
+    {
+      "_id": "6761d82cb77a090274003344",
+      "posterUserId": "6761d38eb77a0902740032fc",
+      "projectId": "6761d45bb77a09027400330b",
+      "subject": "PUBLISHED_ANNOUNCEMENT",
+      "content": "Our paper on AI code review was published in a leading journal.",
+      "postedDate": "2024-12-17T19:59:40.660Z"
+    },
+    {
+      "_id": "6761d82cb77a090274003345",
+      "posterUserId": "6761d392b77a090274003301",
+      "projectId": "6761d45bb77a09027400330b",
+      "subject": "FINAL_RESULTS",
+      "content": "We successfully demonstrated the AI-powered code review tool.",
+      "postedDate": "2024-12-17T19:59:40.663Z"
+    },
+    {
+      "_id": "6761d82cb77a090274003346",
+      "posterUserId": "6761d1a016b463e457017147",
+      "projectId": "6761d4cab77a09027400331d",
+      "subject": "PROJECT_COMPLETION",
+      "content": "The sustainable water management project has been completed.",
+      "postedDate": "2024-12-17T19:59:40.666Z"
+    },
+    {
+      "_id": "6761d82cb77a090274003347",
+      "posterUserId": "6761d395b77a090274003305",
+      "projectId": "6761d45bb77a09027400330f",
+      "subject": "TEAM_UPDATE",
+      "content": "We have expanded the team with two new researchers.",
+      "postedDate": "2024-12-17T19:59:40.670Z"
+    },
+    {
+      "_id": "6761d82cb77a090274003348",
+      "posterUserId": "6761d19f16b463e457017145",
+      "projectId": "6761d563b77a090274003321",
+      "subject": "PROGRESS_REPORT",
+      "content": "We've completed phase 1 of the smart grid integration project.",
+      "postedDate": "2024-12-17T19:59:40.674Z"
+    },
+    {
+      "_id": "6761d867b77a090274003349",
+      "posterUserId": "6761d2aab77a0902740032f7",
+      "projectId": "6761d45bb77a09027400330b",
+      "subject": "FUNDING_UPDATE",
+      "content": "We secured additional funding to enhance the AI-powered code review system.",
+      "postedDate": "2024-12-17T20:00:39.577Z"
+    },
+    {
+      "_id": "6761d867b77a09027400334a",
+      "posterUserId": "6761d393b77a090274003302",
+      "projectId": "6761d45bb77a09027400330c",
+      "subject": "CALL_FOR_APPLICANTS",
+      "content": "We are looking for skilled contributors to join the robotics design team.",
+      "postedDate": "2024-12-17T20:00:39.661Z"
+    },
+    {
+      "_id": "6761d867b77a09027400334b",
+      "posterUserId": "6761d267b77a0902740032f6",
+      "projectId": "6761d4cab77a09027400331d",
+      "subject": "DEADLINE_UPDATE",
+      "content": "The team has extended the submission deadline for the water management project.",
+      "postedDate": "2024-12-17T20:00:39.667Z"
+    },
+    {
+      "_id": "6761d867b77a09027400334c",
+      "posterUserId": "6761d2acb77a0902740032fa",
+      "projectId": "6761d45bb77a09027400330f",
+      "subject": "MILESTONE_REACHED",
+      "content": "The team successfully completed the first prototype for the prosthetic limb.",
+      "postedDate": "2024-12-17T20:00:39.671Z"
+    },
+    {
+      "_id": "6761d867b77a09027400334d",
+      "posterUserId": "6761d1dab77a0902740032f1",
+      "projectId": "6761d45bb77a09027400330b",
+      "subject": "EVENT_ANNOUNCEMENT",
+      "content": "Join us for a webinar showcasing the AI-powered code review system.",
+      "postedDate": "2024-12-17T20:00:39.676Z"
+    }
+  ],
+  "users": [
+    {
+      "_id": "6761d19e16b463e457017144",
+      "firstName": "Isla",
+      "lastName": "MacKenzie",
+      "email": "isla.mackenzie@example.com",
+      "role": "STUDENT",
+      "department": "MECHANICAL_ENGINEERING",
+      "bio": "Enthusiastic about robotics and automation."
+    },
+    {
+      "_id": "6761d19f16b463e457017145",
+      "firstName": "Alasdair",
+      "lastName": "Stewart",
+      "email": "alasdair.stewart@example.com",
+      "role": "STUDENT",
+      "department": "ELECTRICAL_AND_COMPUTER_ENGINEERING",
+      "bio": "Focused on IoT and embedded systems."
+    },
+    {
+      "_id": "6761d19f16b463e457017146",
+      "firstName": "Fiona",
+      "lastName": "Campbell",
+      "email": "fiona.campbell@example.com",
+      "role": "STUDENT",
+      "department": "BIOMEDICAL_ENGINEERING",
+      "bio": "Passionate about biomedical research and healthcare tech."
+    },
+    {
+      "_id": "6761d1a016b463e457017147",
+      "firstName": "Hamish",
+      "lastName": "Graham",
+      "email": "hamish.graham@example.com",
+      "role": "STUDENT",
+      "department": "CIVIL_ENVIRONMENTAL_AND_OCEAN_ENGINEERING",
+      "bio": "Interested in sustainable infrastructure and climate impact."
+    },
+    {
+      "_id": "6761d1dab77a0902740032f1",
+      "firstName": "Ewan",
+      "lastName": "MacGregor",
+      "email": "ewan2.macgregor@example.com",
+      "role": "STUDENT",
+      "department": "COMPUTER_SCIENCE",
+      "bio": "Passionate about software engineering."
+    },
+    {
+      "_id": "6761d265b77a0902740032f2",
+      "firstName": "Liam",
+      "lastName": "Lefebvre",
+      "email": "liam.lefebvre@example.ca",
+      "role": "STUDENT",
+      "department": "COMPUTER_SCIENCE",
+      "bio": "Passionate about AI and software engineering."
+    },
+    {
+      "_id": "6761d265b77a0902740032f3",
+      "firstName": "Ava",
+      "lastName": "Beaudoin",
+      "email": "ava.beaudoin@example.ca",
+      "role": "STUDENT",
+      "department": "MECHANICAL_ENGINEERING",
+      "bio": "Enthusiastic about robotics and design automation."
+    },
+    {
+      "_id": "6761d266b77a0902740032f4",
+      "firstName": "Noah",
+      "lastName": "Dubois",
+      "email": "noah.dubois@example.ca",
+      "role": "STUDENT",
+      "department": "ELECTRICAL_AND_COMPUTER_ENGINEERING",
+      "bio": "Focused on IoT technologies and embedded systems."
+    },
+    {
+      "_id": "6761d267b77a0902740032f5",
+      "firstName": "Sophie",
+      "lastName": "Boucher",
+      "email": "sophie.boucher@example.ca",
+      "role": "STUDENT",
+      "department": "BIOMEDICAL_ENGINEERING",
+      "bio": "Interested in healthcare technology and medical devices."
+    },
+    {
+      "_id": "6761d267b77a0902740032f6",
+      "firstName": "Oliver",
+      "lastName": "Tremblay",
+      "email": "oliver.tremblay@example.ca",
+      "role": "STUDENT",
+      "department": "CIVIL_ENVIRONMENTAL_AND_OCEAN_ENGINEERING",
+      "bio": "Passionate about sustainable infrastructure and urban planning."
+    },
+    {
+      "_id": "6761d2aab77a0902740032f7",
+      "firstName": "Chijioke",
+      "lastName": "Okonkwo",
+      "email": "chijioke.okonkwo@example.ng",
+      "role": "PROFESSOR",
+      "department": "COMPUTER_SCIENCE",
+      "bio": "Professor specializing in artificial intelligence and machine learning."
+    },
+    {
+      "_id": "6761d2aab77a0902740032f8",
+      "firstName": "Ngozi",
+      "lastName": "Olawale",
+      "email": "ngozi.olawale@example.ng",
+      "role": "PROFESSOR",
+      "department": "MECHANICAL_ENGINEERING",
+      "bio": "Expert in thermodynamics and mechanical system optimization."
+    },
+    {
+      "_id": "6761d2abb77a0902740032f9",
+      "firstName": "Emeka",
+      "lastName": "Adesanya",
+      "email": "emeka.adesanya@example.ng",
+      "role": "PROFESSOR",
+      "department": "ELECTRICAL_AND_COMPUTER_ENGINEERING",
+      "bio": "Focused on renewable energy systems and smart grids."
+    },
+    {
+      "_id": "6761d2acb77a0902740032fa",
+      "firstName": "Amina",
+      "lastName": "Bello",
+      "email": "amina.bello@example.ng",
+      "role": "PROFESSOR",
+      "department": "BIOMEDICAL_ENGINEERING",
+      "bio": "Researcher in medical imaging and biomedical devices."
+    },
+    {
+      "_id": "6761d2acb77a0902740032fb",
+      "firstName": "Tunde",
+      "lastName": "Ibrahim",
+      "email": "tunde.ibrahim@example.ng",
+      "role": "PROFESSOR",
+      "department": "CIVIL_ENVIRONMENTAL_AND_OCEAN_ENGINEERING",
+      "bio": "Specialist in sustainable construction and environmental engineering."
+    },
+    {
+      "_id": "6761d38eb77a0902740032fc",
+      "firstName": "Elsa",
+      "lastName": "Lindström",
+      "email": "elsa.lindstrom@example.se",
+      "role": "STUDENT",
+      "department": "COMPUTER_SCIENCE",
+      "bio": "Passionate about software development and problem-solving."
+    },
+    {
+      "_id": "6761d38fb77a0902740032fd",
+      "firstName": "Oskar",
+      "lastName": "Sundqvist",
+      "email": "oskar.sundqvist@example.se",
+      "role": "STUDENT",
+      "department": "MECHANICAL_ENGINEERING",
+      "bio": "Focused on robotics and advanced systems design."
+    },
+    {
+      "_id": "6761d390b77a0902740032fe",
+      "firstName": "Budi",
+      "lastName": "Santoso",
+      "email": "budi.santoso@example.id",
+      "role": "STUDENT",
+      "department": "ELECTRICAL_AND_COMPUTER_ENGINEERING",
+      "bio": "Aspiring electrical engineer with a focus on embedded systems."
+    },
+    {
+      "_id": "6761d391b77a0902740032ff",
+      "firstName": "Aylin",
+      "lastName": "Demir",
+      "email": "aylin.demir@example.tr",
+      "role": "STUDENT",
+      "department": "MATHEMATICAL_SCIENCES",
+      "bio": "Enjoys solving complex problems and exploring applied mathematics."
+    },
+    {
+      "_id": "6761d391b77a090274003300",
+      "firstName": "Mateo",
+      "lastName": "Quispe",
+      "email": "mateo.quispe@example.pe",
+      "role": "STUDENT",
+      "department": "PHYSICS",
+      "bio": "Interested in quantum mechanics and theoretical physics."
+    },
+    {
+      "_id": "6761d392b77a090274003301",
+      "firstName": "Ingrid",
+      "lastName": "Johansson",
+      "email": "ingrid.johansson@example.se",
+      "role": "PROFESSOR",
+      "department": "COMPUTER_SCIENCE",
+      "bio": "Specializes in artificial intelligence and distributed systems."
+    },
+    {
+      "_id": "6761d393b77a090274003302",
+      "firstName": "Rahmat",
+      "lastName": "Hidayat",
+      "email": "rahmat.hidayat@example.id",
+      "role": "PROFESSOR",
+      "department": "MECHANICAL_ENGINEERING",
+      "bio": "Expert in thermodynamics and mechanical system optimization."
+    },
+    {
+      "_id": "6761d393b77a090274003303",
+      "firstName": "Selim",
+      "lastName": "Kaya",
+      "email": "selim.kaya@example.tr",
+      "role": "PROFESSOR",
+      "department": "ELECTRICAL_AND_COMPUTER_ENGINEERING",
+      "bio": "Focused on renewable energy systems and smart grids."
+    },
+    {
+      "_id": "6761d394b77a090274003304",
+      "firstName": "Rosa",
+      "lastName": "Torres",
+      "email": "rosa.torres@example.pe",
+      "role": "PROFESSOR",
+      "department": "BIOMEDICAL_ENGINEERING",
+      "bio": "Researcher in prosthetic technology and medical devices."
+    },
+    {
+      "_id": "6761d395b77a090274003305",
+      "firstName": "Anders",
+      "lastName": "Bergman",
+      "email": "anders.bergman@example.se",
+      "role": "PROFESSOR",
+      "department": "CIVIL_ENVIRONMENTAL_AND_OCEAN_ENGINEERING",
+      "bio": "Specialist in sustainable construction and water management."
+    },
+    {
+      "_id": "6761d395b77a090274003306",
+      "firstName": "Karin",
+      "lastName": "Nilsson",
+      "email": "karin.nilsson@example.se",
+      "role": "ADMIN",
+      "department": "COMPUTER_SCIENCE",
+      "bio": "Dedicated to managing and improving digital systems."
+    },
+    {
+      "_id": "6761d396b77a090274003307",
+      "firstName": "Putri",
+      "lastName": "Wijaya",
+      "email": "putri.wijaya@example.id",
+      "role": "ADMIN",
+      "department": "ELECTRICAL_AND_COMPUTER_ENGINEERING",
+      "bio": "Ensures smooth operations and system organization."
+    },
+    {
+      "_id": "6761d397b77a090274003308",
+      "firstName": "Emre",
+      "lastName": "Yilmaz",
+      "email": "emre.yilmaz@example.tr",
+      "role": "ADMIN",
+      "department": "MATHEMATICAL_SCIENCES",
+      "bio": "Focused on administration and supporting departmental projects."
+    },
+    {
+      "_id": "6761d397b77a090274003309",
+      "firstName": "Lucia",
+      "lastName": "Garcia",
+      "email": "lucia.garcia@example.pe",
+      "role": "ADMIN",
+      "department": "MECHANICAL_ENGINEERING",
+      "bio": "Organizes project workflows and academic resources."
+    },
+    {
+      "_id": "6761d398b77a09027400330a",
+      "firstName": "Erik",
+      "lastName": "Svensson",
+      "email": "erik.svensson@example.se",
+      "role": "ADMIN",
+      "department": "CIVIL_ENVIRONMENTAL_AND_OCEAN_ENGINEERING",
+      "bio": "Manages infrastructure and operational efficiency."
+    }
+  ]
+}
