@@ -40,14 +40,6 @@ const Navbar = () => {
               </Link>
             </li>
 
-            {/* Add Newsfeed as News */}
-
-            <li className="nav-item">
-              <Link className="nav-link" to="/newsfeed">
-                News
-              </Link>
-            </li>
-
             {/* Show links based on authentication */}
             {!authState.isAuthenticated ? (
               <>
@@ -82,6 +74,16 @@ const Navbar = () => {
                     to="/dashboard"
                   >
                     Dashboard
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className={`nav-link ${
+                      isActive("/newsfeed") ? "active" : ""
+                    }`}
+                    to="/newsfeed"
+                  >
+                    News
                   </Link>
                 </li>
                 {/* Show links based on user role */}

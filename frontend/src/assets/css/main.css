@@ -461,7 +461,7 @@ main.home-page{
 .img-flex {
   display: block;
   width: 100%;
-  max-width: 200px;
+  max-width: 400px;
   margin-bottom: 2em;
 }
 .text-img-flex .btn {
@@ -475,6 +475,13 @@ main.home-page{
   .text-wrapper {
     width: 60%;
     margin-right: 1em;
+  }
+  .img-wrapper{
+    width:40%;
+  }
+  .img-wrapper img{
+    display:block;
+    margin:0 auto;
   }
   .text-img-flex .btn {
     display: inline-block;
@@ -522,8 +529,17 @@ main.home-page{
 .tile-section {
   padding: 3em;
 }
+.tile-text{
+  margin-bottom:1.5em;
+}
 .tile-text p {
   margin: 1.5em 0;
+}
+.tile-img img{
+  width:100%;
+  max-width:260px;
+  display:block;
+  margin:0 auto;
 }
 @media (min-width: 992px) {
   .tile-section {
@@ -531,13 +547,17 @@ main.home-page{
   }
   .tile-wrapper {
     display: flex;
+    justify-content:space-around;
     margin-bottom: 2em;
   }
   .tile-wrapper:nth-child(2) {
     flex-direction: row-reverse;
   }
-  .tile-img img {
-    width: 300px;
+  .tile-text{
+    width:60%;
+  }
+  .tile-img{
+    width:30%;
   }
 }
 
@@ -1131,6 +1151,7 @@ main.home-page{
   border: 1px solid var(--fadeGrey);
   border-radius: 5px;
   font-size: 14px;
+  background-color:var(--transparent);
 }
 
 .add-post-form textarea {
@@ -1188,15 +1209,17 @@ main.home-page{
     }
   }
 
+
+}
+
   /* Not Found Styles
 ================================================== */
-  .not-found {
-    margin-top: 15%;
-  }
-  .not-found h1 {
-    text-align: center;
-  }
-  .not-found p {
-    text-align: center;
-  }
+.not-found {
+  margin-top: 15%;
+}
+.not-found h1 {
+  text-align: center;
+}
+.not-found p {
+  text-align: center;
 }

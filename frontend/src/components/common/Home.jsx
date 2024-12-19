@@ -4,7 +4,7 @@ import headerImage from "../../assets/images/collab_home_image.png";
 import collabIcon from "../../assets/images/collab_icon.png";
 import chatIcon from "../../assets/images/chat_icon.png";
 import newsfeedIcon from "../../assets/images/newsfeed_icon.png";
-import noImage from "../../assets/images/no_image.png";
+import jigsawPieces from "../../assets/images/jigsaw-puzzle-pieces.png"
 
 const Home = () => {
   return (
@@ -19,7 +19,7 @@ const Home = () => {
             <Link className="btn btn-primary" to="/Auth/Register">Register</Link>
           </div>
           <div className="img-wrapper">
-            <img src={headerImage} className="img-flex"/>
+            <img src={headerImage} className="img-flex" alt="Header Image"/>
           </div>
         </header>
 
@@ -64,7 +64,7 @@ const Home = () => {
               <Link className="btn btn-primary" to="../auth/register">Sign Up</Link>
             </div>
             <div className="tile-img">
-              <img src={noImage} alt="Professor Profile Sample" />
+              <img src={jigsawPieces} alt="Abstract Collaboration Image" />
             </div>
           </div>
 
@@ -75,7 +75,7 @@ const Home = () => {
               <Link className="btn btn-primary" to="../auth/register">Sign Up</Link>
             </div>
             <div className="tile-img">
-              <img src={noImage} alt="Student Profile Sample"/>
+              <img src={jigsawPieces} alt="Abstract Collaboration Image"/>
             </div>
           </div>
         </section>

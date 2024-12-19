@@ -23,8 +23,8 @@ function ApplicationList() {
     const addButton = () => {
         if(userRole === "STUDENT"){
             return(
-                <Link className="nav-link" to="/application/add">
-                    <button className="btn btn-success ms-2">Add</button>
+                <Link className="btn btn-success ms-2" to="/application/add">
+                    Add
                 </Link>
             );
         }
