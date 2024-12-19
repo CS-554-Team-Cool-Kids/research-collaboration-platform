@@ -101,16 +101,6 @@ const Navbar = () => {
                     Dashboard
                   </Link>
                 </li>
-                <li className="nav-item">
-                  <Link
-                    className={`nav-link ${
-                      isActive("/newsfeed") ? "active" : ""
-                    }`}
-                    to="/newsfeed"
-                  >
-                    News
-                  </Link>
-                </li>
                 {/* Show links based on user role */}
                 <li className="nav-item">
                   <Link
