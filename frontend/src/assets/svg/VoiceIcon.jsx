@@ -7,13 +7,13 @@ const VoiceIcon = () => {
       xmlns="http://www.w3.org/2000/svg"
       fill="#000000"
     >
-      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+      <g id="VoiceIcon_bgCarrier" strokeWidth="0"></g>
       <g
-        id="SVGRepo_tracerCarrier"
+        id="VoiceIcon_tracerCarrier"
         strokeLinecap="round"
         strokeLinejoin="round"
       ></g>
-      <g id="SVGRepo_iconCarrier">
+      <g id="VoiceIcon_iconCarrier">
         <defs>
           <style>
             {`.a { fill: none; stroke: #000000; stroke-linecap: round; stroke-linejoin: round; }`}

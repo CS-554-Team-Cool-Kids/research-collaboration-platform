@@ -11,15 +11,15 @@ function KeyIcon() {
       xmlns="http://www.w3.org/2000/svg"
       fill="#000000"
     >
-      <g id="SVGRepo_bgCarrier" strokeWidth="0" />
+      <g id="KeyIcon_bgCarrier" strokeWidth="0" />
 
       <g
-        id="SVGRepo_tracerCarrier"
+        id="KeyIcon_tracerCarrier"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
 
-      <g id="SVGRepo_iconCarrier">
+      <g id="KeyIcon_iconCarrier">
         <path
           d="M709.404444 769.706667c0 12.151467-1.797689 24.2688-5.358933 35.9424-0.443733 1.479111-0.932978 2.946844-1.422222 4.414577a123.733333 123.733333 0 0 1-116.929422 83.1488H256.170667a123.676444 123.676444 0 0 1-118.351645-87.563377 123.471644 123.471644 0 0 1-4.118755-53.327645l65.080889-455.998578a99.885511 99.885511 0 0 1 98.929777-85.663288h135.975823L699.960889 694.704356v0.022755l8.214755 57.605689c0.796444 5.757156 1.2288 11.582578 1.2288 17.373867z"
           fill="#DD852C"

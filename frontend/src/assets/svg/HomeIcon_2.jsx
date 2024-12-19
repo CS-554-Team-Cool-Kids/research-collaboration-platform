@@ -7,13 +7,13 @@ const HomeIcon = () => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+      <g id="LightMode_bgCarrier" strokeWidth="0"></g>
       <g
-        id="SVGRepo_tracerCarrier"
+        id="LightMode_tracerCarrier"
         strokeLinecap="round"
         strokeLinejoin="round"
       ></g>
-      <g id="SVGRepo_iconCarrier">
+      <g id="LightMode_iconCarrier">
         <path
           d="M22 22L2 22"
           stroke="#000000"

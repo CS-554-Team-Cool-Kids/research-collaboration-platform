@@ -42,7 +42,6 @@ function ActionBar(props){
                         <span>Project</span>
                     </Link>
                 </li>
-                {roleCondition(props.role)}
             </ul>
         </aside>
     );

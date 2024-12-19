@@ -77,7 +77,7 @@ const Newsfeed = () => {
 
   // Render Add Post Form
   const renderAddPostForm = () => (
-    <div className="add-post-form">
+    <div className="add-post-form glassEffect">
       <h3>Create New Post</h3>
 
       {/* Subject Dropdown */}
