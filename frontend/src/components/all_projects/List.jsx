@@ -110,6 +110,13 @@ const AllProjectList = () => {
     return isInApplications || isInProjects;
   };
 
+  const formatDepartment = (department) => {
+    return department
+      .split("_") // Split by underscores
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" "); // Join the words back with spaces
+  };
+
   return (
     <main className="dashboard">
       <div className="container my-3">
@@ -211,7 +218,7 @@ const AllProjectList = () => {
                 {selectedProject ? (
                   <div>
                     <h2>{selectedProject.title}</h2>
-                    <p>{selectedProject.department}</p>
+                    <p>{formatDepartment(selectedProject.department)}</p>
                     <p
                       dangerouslySetInnerHTML={{
                         __html: selectedProject.description,
