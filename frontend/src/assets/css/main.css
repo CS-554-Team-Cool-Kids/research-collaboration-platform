@@ -1214,3 +1214,10 @@ main.home-page {
 .not-found p {
   text-align: center;
 }
+
+.not-found .btn {
+  display: flex;
+  justify-content: center;
+  max-width: fit-content;
+  margin: 0 auto;
+}

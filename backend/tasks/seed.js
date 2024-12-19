@@ -237,8 +237,19 @@ const projectsSeed = [
     _id: { $oid: "6760a5a56a057dfdb2ff7dab" },
     title: "AI-Powered Drug Discovery",
     createdDate: "2024-12-16T22:11:49.301Z",
-    description:
-      "<p>This project focuses on utilizing <strong>artificial intelligence</strong> and machine learning to accelerate the drug discovery process. By analyzing massive datasets of chemical compounds, biological interactions, and clinical trials, the system identifies potential drug candidates and predicts their efficacy. The project incorporates predictive analytics, natural language processing for analyzing research papers, and computer vision for studying molecular structures. The outcomes aim to reduce the time and cost of bringing new drugs to market while ensuring precision and safety in treatments.</p>",
+    description: `
+      <h2>Project Overview</h2>
+      <p>This project utilizes <strong>artificial intelligence</strong> and machine learning to revolutionize the drug discovery process.</p>
+      <h3>Key Features</h3>
+      <ul>
+        <li>Analysis of large datasets of chemical compounds, biological interactions, and clinical trials.</li>
+        <li>Predictive analytics for identifying potential drug candidates.</li>
+        <li>Natural Language Processing for understanding research papers.</li>
+        <li>Computer vision techniques for studying molecular structures.</li>
+      </ul>
+      <h3>Expected Outcomes</h3>
+      <p>Reduced time and cost of bringing new drugs to market while ensuring precision and safety in treatments.</p>
+    `,
     department: "BIOMEDICAL_ENGINEERING",
     professors: ["000000000000000000000001"],
     students: [],
@@ -247,8 +258,19 @@ const projectsSeed = [
     _id: { $oid: "6760a5a56a057dfdb2ff7dac" },
     title: "Renewable Energy Optimization",
     createdDate: "2024-12-16T22:15:49.301Z",
-    description:
-      "<p>This project explores the optimization of renewable energy systems, focusing on wind and solar power. It includes designing algorithms for <strong>dynamic energy management</strong> and predictive maintenance of renewable energy farms. The team integrates IoT-enabled devices for real-time data collection and develops machine learning models to forecast energy output based on weather patterns. The ultimate goal is to maximize energy efficiency and support sustainable power generation.</p>",
+    description: `
+      <h2>Project Focus</h2>
+      <p>Optimizing renewable energy systems, particularly wind and solar power.</p>
+      <h3>Key Objectives</h3>
+      <ul>
+        <li>Design algorithms for <strong>dynamic energy management</strong>.</li>
+        <li>Develop predictive maintenance systems for renewable energy farms.</li>
+        <li>Integrate IoT-enabled devices for real-time data collection.</li>
+        <li>Create machine learning models to forecast energy output based on weather patterns.</li>
+      </ul>
+      <h3>Goal</h3>
+      <p>Maximize energy efficiency and support sustainable power generation.</p>
+    `,
     department: "CHEMICAL_ENGINEERING_AND_MATERIALS_SCIENCE",
     professors: ["000000000000000000000002"],
     students: [],
@@ -257,8 +279,18 @@ const projectsSeed = [
     _id: { $oid: "6760a5a56a057dfdb2ff7dad" },
     title: "Quantum Computing for Cryptography",
     createdDate: "2024-12-16T22:20:49.301Z",
-    description:
-      "<p>This project aims to harness <strong>quantum computing capabilities</strong> for creating unbreakable encryption methods. By leveraging quantum algorithms like Shor's and Grover's, the project focuses on developing next-generation cryptographic protocols that can withstand attacks from classical and quantum computers. The research also explores post-quantum cryptography solutions, ensuring data security in a quantum future.</p>",
+    description: `
+      <h2>Project Scope</h2>
+      <p>Utilize <strong>quantum computing</strong> for creating robust cryptographic protocols.</p>
+      <h3>Research Areas</h3>
+      <ul>
+        <li>Implementing quantum algorithms like Shor's and Grover's.</li>
+        <li>Developing encryption methods resistant to classical and quantum attacks.</li>
+        <li>Exploring post-quantum cryptography solutions for future-proof security.</li>
+      </ul>
+      <h3>Impact</h3>
+      <p>Ensure data security in a quantum computing era.</p>
+    `,
     department: "CHEMISTRY_AND_CHEMICAL_BIOLOGY",
     professors: ["000000000000000000000003"],
     students: [],
@@ -267,8 +299,18 @@ const projectsSeed = [
     _id: { $oid: "6760a5a56a057dfdb2ff7dae" },
     title: "Smart City Infrastructure",
     createdDate: "2024-12-16T22:25:49.301Z",
-    description:
-      "<p>This project focuses on creating a comprehensive framework for <strong>smart city infrastructure</strong>. It includes developing IoT-based systems for real-time monitoring of utilities, traffic, and waste management. The project aims to design predictive analytics to optimize resource allocation and enhance urban sustainability. It also incorporates citizen engagement through mobile apps and dashboards to provide real-time insights and feedback mechanisms.</p>",
+    description: `
+      <h2>Objective</h2>
+      <p>Develop a framework for <strong>smart city infrastructure</strong> using IoT and predictive analytics.</p>
+      <h3>Main Components</h3>
+      <ul>
+        <li>IoT-based systems for monitoring utilities, traffic, and waste management.</li>
+        <li>Predictive analytics for optimizing resource allocation.</li>
+        <li>Citizen engagement through mobile apps and real-time dashboards.</li>
+      </ul>
+      <h3>Goal</h3>
+      <p>Enhance urban sustainability and resource management.</p>
+    `,
     department: "MATHEMATICAL_SCIENCES",
     professors: ["000000000000000000000004"],
     students: [],
@@ -277,8 +319,18 @@ const projectsSeed = [
     _id: { $oid: "6760a5a56a057dfdb2ff7daf" },
     title: "Advanced Robotics for Healthcare",
     createdDate: "2024-12-16T22:30:49.301Z",
-    description:
-      "<p>This project investigates the application of advanced <strong>robotics in healthcare</strong> settings, focusing on surgical assistance, patient care, and rehabilitation. The team develops autonomous robotic systems that can perform precise and minimally invasive surgeries. Additionally, the project explores assistive robots for patient mobility and recovery. The research incorporates AI for real-time decision-making and feedback.</p>",
+    description: `
+      <h2>Overview</h2>
+      <p>Exploring the application of <strong>advanced robotics</strong> in healthcare for surgical assistance and rehabilitation.</p>
+      <h3>Features</h3>
+      <ul>
+        <li>Develop autonomous robotic systems for minimally invasive surgeries.</li>
+        <li>Create assistive robots for patient mobility and recovery.</li>
+        <li>Incorporate AI for real-time decision-making.</li>
+      </ul>
+      <h3>Outcome</h3>
+      <p>Improved precision and efficiency in healthcare delivery.</p>
+    `,
     department: "MECHANICAL_ENGINEERING",
     professors: ["000000000000000000000005"],
     students: [],
@@ -287,8 +339,18 @@ const projectsSeed = [
     _id: { $oid: "6760a5a56a057dfdb2ff7db0" },
     title: "Blockchain for Supply Chain Management",
     createdDate: "2024-12-16T22:35:49.301Z",
-    description:
-      "<p>This project delves into using <strong>blockchain technology</strong> to enhance supply chain transparency and security. The team develops decentralized applications (dApps) to track goods from origin to destination, ensuring authenticity and quality. The project also explores smart contracts for automating transactions and reducing administrative overheads. By integrating IoT devices for real-time data collection, the system ensures seamless traceability and efficiency.</p>",
+    description: `
+      <h2>Project Goal</h2>
+      <p>Enhance supply chain transparency and security using <strong>blockchain technology</strong>.</p>
+      <h3>Key Components</h3>
+      <ul>
+        <li>Develop decentralized applications (dApps) for tracking goods.</li>
+        <li>Implement smart contracts to automate transactions.</li>
+        <li>Integrate IoT devices for real-time data collection.</li>
+      </ul>
+      <h3>Objective</h3>
+      <p>Ensure seamless traceability and efficiency in supply chains.</p>
+    `,
     department: "SYSTEMS_AND_ENTERPRISES",
     professors: ["000000000000000000000006"],
     students: [],
@@ -297,8 +359,18 @@ const projectsSeed = [
     _id: { $oid: "6760a5a56a057dfdb2ff7db1" },
     title: "Augmented Reality for Education",
     createdDate: "2024-12-16T22:40:49.301Z",
-    description:
-      "<p>This project investigates the application of <strong>augmented reality (AR)</strong> in educational environments. The team develops immersive AR tools for interactive learning, focusing on STEM subjects. By leveraging AR, the project aims to create engaging and personalized learning experiences for students. The system incorporates real-time feedback and adaptive learning paths to enhance educational outcomes.</p>",
+    description: `
+      <h2>Focus</h2>
+      <p>Leverage <strong>augmented reality (AR)</strong> to enhance educational experiences.</p>
+      <h3>Key Features</h3>
+      <ul>
+        <li>Develop immersive AR tools for interactive STEM learning.</li>
+        <li>Create real-time feedback systems for adaptive learning paths.</li>
+        <li>Personalize learning experiences to improve outcomes.</li>
+      </ul>
+      <h3>Goal</h3>
+      <p>Transform traditional education through innovative AR technologies.</p>
+    `,
     department: "BIOMEDICAL_ENGINEERING",
     professors: ["000000000000000000000007"],
     students: [],
@@ -307,8 +379,18 @@ const projectsSeed = [
     _id: { $oid: "6760a5a56a057dfdb2ff7db2" },
     title: "AI-Driven Wildlife Conservation",
     createdDate: "2024-12-16T22:45:49.301Z",
-    description:
-      "<p>This project focuses on using AI and machine learning to support <strong>wildlife conservation</strong> efforts. The team develops computer vision algorithms to monitor animal populations and detect poaching activities using drone-captured images and videos. The project also explores predictive models to understand migration patterns and habitat changes due to climate change. The ultimate goal is to provide actionable insights for conservation planning.</p>",
+    description: `
+      <h2>Objective</h2>
+      <p>Utilize AI to support <strong>wildlife conservation</strong> efforts.</p>
+      <h3>Focus Areas</h3>
+      <ul>
+        <li>Develop computer vision algorithms for monitoring animal populations.</li>
+        <li>Detect poaching activities using drone-captured imagery.</li>
+        <li>Create predictive models for migration patterns and habitat changes.</li>
+      </ul>
+      <h3>Outcome</h3>
+      <p>Provide actionable insights for effective conservation planning.</p>
+    `,
     department: "BIOMEDICAL_ENGINEERING",
     professors: ["000000000000000000000008"],
     students: [],
@@ -317,8 +399,18 @@ const projectsSeed = [
     _id: { $oid: "6760a5a56a057dfdb2ff7db3" },
     title: "Cybersecurity in IoT Networks",
     createdDate: "2024-12-16T22:50:49.301Z",
-    description:
-      "<p>This project addresses the growing concerns of <strong>cybersecurity in IoT networks</strong>. The team focuses on developing robust encryption techniques and intrusion detection systems tailored for IoT devices. The research also explores vulnerability assessment tools to identify and mitigate potential risks. By ensuring secure communication and data integrity, the project aims to establish trust in IoT-based applications.</p>",
+    description: `
+      <h2>Focus</h2>
+      <p>Address the challenges of <strong>cybersecurity</strong> in IoT networks.</p>
+      <h3>Key Features</h3>
+      <ul>
+        <li>Develop robust encryption techniques for IoT devices.</li>
+        <li>Create intrusion detection systems tailored for IoT networks.</li>
+        <li>Design vulnerability assessment tools to mitigate risks.</li>
+      </ul>
+      <h3>Impact</h3>
+      <p>Establish trust and security in IoT-based applications.</p>
+    `,
     department: "ELECTRICAL_AND_COMPUTER_ENGINEERING",
     professors: ["000000000000000000000009"],
     students: [],
@@ -327,8 +419,18 @@ const projectsSeed = [
     _id: { $oid: "6760a5a56a057dfdb2ff7db4" },
     title: "Next-Generation Bioinformatics Tools",
     createdDate: "2024-12-16T22:55:49.301Z",
-    description:
-      "<p>This project aims to develop next-generation <strong>bioinformatics tools</strong> for analyzing genomic and proteomic data. The team integrates AI-driven analytics to identify biomarkers and genetic patterns. The research also focuses on creating visualization tools to make complex biological data accessible and interpretable for researchers and clinicians. By advancing bioinformatics technology, the project supports personalized medicine and precision healthcare.</p>",
+    description: `
+      <h2>Goal</h2>
+      <p>Create advanced <strong>bioinformatics tools</strong> for genomic and proteomic analysis.</p>
+      <h3>Features</h3>
+      <ul>
+        <li>Integrate AI-driven analytics to identify biomarkers.</li>
+        <li>Analyze genetic patterns for personalized medicine.</li>
+        <li>Develop visualization tools for complex biological data.</li>
+      </ul>
+      <h3>Impact</h3>
+      <p>Support precision healthcare through cutting-edge bioinformatics technologies.</p>
+    `,
     department: "ELECTRICAL_AND_COMPUTER_ENGINEERING",
     professors: ["000000000000000000000010"],
     students: [],
