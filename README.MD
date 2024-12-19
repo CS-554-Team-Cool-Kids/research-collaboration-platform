@@ -121,7 +121,7 @@ Registered Users to use for direct login:
 
 ### Deployed Project
 
-View the deployed project here: **http://9.169.245.205:8080/**
+View the deployed project here: **http://react.ahh7angxctcngae0.eastus2.azurecontainer.io:8080/**
 
 ---
 
