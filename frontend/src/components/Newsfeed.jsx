@@ -240,7 +240,7 @@ const Newsfeed = () => {
   };
 
   const renderUpdate = (update) => (
-    <div key={update._id} className="news-card">
+    <div key={update._id} className="news-card glassEffect">
       <div className="news-header">
         <div className="user-avatar">{update.posterUser.firstName[0]}</div>
         <div>
