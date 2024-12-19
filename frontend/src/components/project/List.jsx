@@ -61,12 +61,10 @@ const ProjectList = () => {
                   {selectedProject?._id ? (
                     <div className="d-flex">
                       <Link
-                        className="nav-link"
+                        className="btn btn-info ms-2"
                         to={`/project/${selectedProject._id}`}
                       >
-                        <button type="button" className="btn btn-info ms-2">
                           Details
-                        </button>
                       </Link>
                       <button
                         type="button"
@@ -93,10 +91,8 @@ const ProjectList = () => {
                     </div>
                   )}
 
-                  <Link className="nav-link" to="/project/add">
-                    <button type="button" className="btn btn-success ms-2">
-                      Add
-                    </button>
+                  <Link className="btn btn-success ms-2" to="/project/add">
+                    Add
                   </Link>
                 </div>
               </div>

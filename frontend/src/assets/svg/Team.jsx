@@ -9,13 +9,13 @@ const Team = () => {
       viewBox="0 0 512 512"
       fill="#000000"
     >
-      <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+      <g id="Team_bgCarrier" strokeWidth="0"></g>
       <g
-        id="SVGRepo_tracerCarrier"
+        id="Team_tracerCarrier"
         strokeLinecap="round"
         strokeLinejoin="round"
       ></g>
-      <g id="SVGRepo_iconCarrier">
+      <g id="Team_iconCarrier">
         {" "}
         <style type="text/css"></style>{" "}
         <g>

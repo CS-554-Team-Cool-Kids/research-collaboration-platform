@@ -57,7 +57,6 @@ const ApplicationEdit = () => {
                         <div className="form-floating mb-3">
                             <select
                                 className="form-control"
-                                type="text"
                                 id="project"
                                 name="project"
                                 value={projectId}
@@ -75,7 +74,7 @@ const ApplicationEdit = () => {
                                     )
                                 })}
                             </select>
-                            <label htmlFor="department">Project:</label>
+                            <label htmlFor="project">Project:</label>
                         </div>
                         <div className="row">
                             <div className="offset-4 col-4 mt-3">

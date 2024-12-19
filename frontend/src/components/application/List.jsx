@@ -20,15 +20,15 @@ function ApplicationList() {
   // Mutation to remove an application
   const [removeApplication] = useMutation(queries.REMOVE_APPLICATION);
 
-  const addButton = () => {
-    if (userRole === "STUDENT") {
-      return (
-        <Link className="nav-link" to="/application/add">
-          <button className="btn btn-success ms-2">Add</button>
-        </Link>
-      );
+    const addButton = () => {
+        if(userRole === "STUDENT"){
+            return(
+                <Link className="btn btn-success ms-2" to="/application/add">
+                    Add
+                </Link>
+            );
+        }
     }
-  };
 
     const handleDelete = async () => {
     if (!selectedApplication?._id) return;

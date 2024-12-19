@@ -12,7 +12,7 @@ function TeamIcon(){
             height="50"
         >
             <g 
-                id="SVGRepo_iconCarrier" 
+                id="TeamIcon_iconCarrier" 
                 fill="#fff"
             >
                 <g 
