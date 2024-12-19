@@ -55,7 +55,7 @@ npm install
 npm run dev
 ```
 
-Frontend runs on **http://localhost:5173**
+Frontend runs on **http://localhost:8080**
 
 #### 3. **Set Up the Backend**
 
@@ -121,7 +121,7 @@ Registered Users to use for direct login:
 
 ### Deployed Project
 
-View the deployed project here: http://9.169.245.205:8080/
+View the deployed project here: **http://9.169.245.205:8080/**
 
 ---
 
