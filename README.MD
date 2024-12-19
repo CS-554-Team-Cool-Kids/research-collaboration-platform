@@ -101,10 +101,21 @@ Redis runs on port **6379**.
 
 | Service              | Port   |
 | -------------------- | ------ |
-| **React App**        | `5173` |
+| **React App**        | `8080` |
 | **Apollo Server**    | `4000` |
 | **Socket.io Server** | `4001` |
 | **Redis Server**     | `6379` |
+
+---
+
+---
+Registered Users to use for direct login:
+
+1. email: amsith@stevens.edu, password: Alice@2023, role: "PROFESSOR"
+2. email: jode@stevens.edu, password: John@2023, role: "STUDENT"
+3. email: bjohnson@stevens.edu, password: Bob#1987, role: "PROFESSOR"
+4. email: ljohnson@stevens.edu, password: Liam2023@, role: "STUDENT"
+
 
 ---
 
