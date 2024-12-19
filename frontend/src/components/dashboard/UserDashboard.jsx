@@ -4,6 +4,7 @@ import {useQuery} from '@apollo/client';
 import queries from '../../queries';
 import ActionBar from '../common/ActionBar';
 import { useAuth } from "../../context/AuthContext";
+import moment from 'moment';
 
 const UserDashboard = () => {
 
@@ -34,7 +35,8 @@ const UserDashboard = () => {
       month: "2-digit",
       day: "2-digit",
     });
-    return formattedDate;
+    // return formattedDate;
+    return moment(formattedDate).format("MMM Do, YYYY");
   };
 
   // If loading
@@ -58,7 +60,7 @@ const UserDashboard = () => {
                     <div className="d-column">
 
                         {/* PROJECTS CARD */}
-                        <div className="d-card">
+                        <div className="d-card glassEffect">
                             <div className="d-card-header">
                                 <h2>Project List</h2>
                                 <Link className="card-header-link" to="/project">
@@ -92,7 +94,7 @@ const UserDashboard = () => {
                         </div>
 
                         {/* APPLICATIONS CARD */}
-                        <div className="d-card">
+                        <div className="d-card glassEffect">
                             <div className="d-card-header">
                                 <h2>Applications List</h2>
                                 <Link className="card-header-link" to="/application">
@@ -130,7 +132,7 @@ const UserDashboard = () => {
                     <div className="d-column">
 
                         {/* USER INFORMATION */}
-                        <div className="d-card">
+                        <div className="d-card glassEffect">
                             <div className="d-card-header">
                                 <h2>User Information</h2>
                                 <Link
@@ -169,7 +171,7 @@ const UserDashboard = () => {
                         </div>
 
                         {/* NEWS FEED CARD */}
-                        <div className="d-card">
+                        <div className="d-card glassEffect">
                             <div className="d-card-header">
                                 <h2>News Feed</h2>
                                 <Link className="card-header-link" to="/newsfeed/">View All</Link>
@@ -180,7 +182,7 @@ const UserDashboard = () => {
                                         return(
                                             <li key={update._id}>
                                                 <div className="news-text">
-                                                    <p className="news-list-header">{update.subject}</p>
+                                                    <p className="news-list-header">{update.subject.replace("_", " ")}</p>
                                                     <p>{update.content}</p>
                                                 </div>
                                                 <p>{formatDate(update.postedDate)}</p>

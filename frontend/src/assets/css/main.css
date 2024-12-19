@@ -88,6 +88,10 @@ h2,
 h3 {
   font-weight: 800;
 }
+p strong{
+  font-family:Arial, Helvetica, sans-serif;
+  font-weight:900;
+}
 
 .card-header {
   font-size: 20px;
@@ -456,6 +460,10 @@ footer {
 
 /* Home Page Styles
 ================================================== */
+main.home-page{
+  background-color:#fff;
+  color:#000;
+}
 /* Header */
 .text-img-flex {
   display: flex;
@@ -758,9 +766,9 @@ footer {
   display: flex;
   flex-direction: column;
   padding: 20px;
-  margin: 1em;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
+  margin:1em;
+  background-color:rgba(255,255,255,0.1);
+  border-radius:15px;
 }
 .chat-container h2 {
   text-align: center;
@@ -769,11 +777,10 @@ footer {
   font-family: Arial, Helvetica, sans-serif;
   letter-spacing: -1px;
 }
-.chat-container .channels {
-  margin-bottom: 2em;
-  padding: 1em;
-  border: 2px solid #fff;
-  border-radius: 15px;
+.chat-container .channels{
+  margin-bottom:2em;
+  padding:1em;
+  border-radius:15px;
 }
 .channels h3 {
   font-size: 1.3em;
@@ -818,9 +825,12 @@ footer {
   margin-bottom: 10px;
 } */
 
-.messages h4 {
-  font-family: Arial, Helvetica, sans-serif;
-  font-weight: 900;
+.messages h4{
+  font-family:Arial, Helvetica, sans-serif;
+  font-weight:900;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--purple1);
+  margin-bottom:2em;
 }
 
 .message {
@@ -910,25 +920,29 @@ footer {
   max-width: 800px;
 }
 
+.newsfeed-header{
+  display:flex;
+  justify-content:space-between;
+  padding:1em 0;
+}
+
 /* News Card */
 .news-card {
   background-color: #ffffff;
   border-radius: 10px;
   margin-bottom: 20px;
-  padding: 15px;
+  padding: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
 }
 
-.news-card:hover {
-  transform: scale(1.02);
-}
 
 /* News Header */
 .news-header {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  padding:1em;
+  border-bottom:2px solid var(--purple1);
 }
 
 .user-avatar {
@@ -948,25 +962,35 @@ footer {
 .news-header h3 {
   margin: 0;
   font-size: 16px;
-  color: #333;
+  color: var(--bs-heading-color);
 }
 
 .news-meta {
   font-size: 12px;
-  color: #777;
+  color: var(--activeTextColor);
+  margin-bottom:0;
 }
 
 /* News Body */
+.news-body{
+  padding:2em 1em;
+  padding-left:2em;
+}
+
 .news-body h4 {
   font-size: 16px;
-  color: #333;
+  color: var(--bs-heading-color);
   margin-bottom: 10px;
+  font-family:Arial, Helvetica, sans-serif;
+  font-weight:900;
+  letter-spacing:-1px;
 }
 
 .news-body p {
   font-size: 14px;
-  color: #555;
+  color: var(--activeTextColor);
   line-height: 1.5;
+  margin-bottom:4px;
 }
 
 /* News Footer */
@@ -975,11 +999,31 @@ footer {
   justify-content: space-between;
   align-items: center;
   margin-top: 15px;
+  padding:0 1em 1em;
 }
 
 .news-date {
-  font-size: 12px;
-  color: #888;
+  font-size: 14px;
+  color: var(--activeTextColor);
+}
+
+.add-comment-section{
+  margin-top:2em;
+}
+.add-comment-section input{
+  width:calc(100% - 70px);
+  height:40px;
+  border: 1px solid var(--purple1) !important;
+  border-radius:5px !important;
+  margin-right: 12px;
+  padding-left:8px;
+  background-color:var(--activeGlassColor);
+}
+.add-comment-section input:focus,
+.add-comment-section input:focus-visible{
+  outline:none;
+  border-left:8px solid var(--purple1) !important;
+  border-color:var(--purple1) !important;
 }
 
 .btn-view-comments {
@@ -998,18 +1042,42 @@ footer {
 .comments-section {
   margin-top: 15px;
   padding: 10px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--activeAccentColor);
+}
+
+.comments-section h5{
+  font-family:Arial, Helvetica, sans-serif;
+  font-weight:900;
+  font-size:1.2em;
+  margin-bottom:2em;
+}
+
+.comments-list{
+  padding:0;
 }
 
 .comment {
   display: flex;
   justify-content: space-between;
+  align-items:flex-end;
   margin-bottom: 10px;
+  padding:2px;
+  padding-left:32px;
+  border-bottom:1px dotted var(--lightGrey1);
 }
 
 .comment p {
   margin: 0;
-  color: #555;
+  color: var(--activeTextColor);
+}
+
+.comment p strong{
+  font-family:Arial, Helvetica, sans-serif;
+  font-weight:900;
+}
+
+.comment .btn-remove{
+  margin-left:8px;
 }
 
 .add-comment {

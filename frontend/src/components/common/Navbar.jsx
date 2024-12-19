@@ -4,13 +4,21 @@ import { useAuth } from "../../context/AuthContext"; // Import your AuthContext
 import DarkMode from "../../assets/svg/DarkMode";
 import LightMode from "../../assets/svg/LightMode";
 import logo from "../../assets/images/logo.png";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const { authState, logout } = useAuth(); // Use the AuthContext to get authState and logout function
   const location = useLocation(); // Get the current location
 
+  const navigate = useNavigate();
+
   // Helper function to determine active route
   const isActive = (path) => location.pathname === path;
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <nav className="navbar navbar-expand-md sticky-top glassEffect">
@@ -33,24 +41,30 @@ const Navbar = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav">
-            {/* Always show Home */}
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${isActive("/") ? "active" : ""}`}
-                to="/"
-              >
-                Home
-              </Link>
-            </li>
+            {!authState.isAuthenticated && (
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${isActive("/") ? "active" : ""}`}
+                  to="/"
+                >
+                  Home
+                </Link>
+              </li>
+            )}
 
             {/* Add Newsfeed as News */}
-
-            <li className="nav-item">
-              <Link className="nav-link" to="/newsfeed">
-                News
-              </Link>
-            </li>
-
+            {authState.isAuthenticated && (
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${
+                    isActive("/newsfeed") ? "active" : ""
+                  }`}
+                  to="/newsfeed"
+                >
+                  News
+                </Link>
+              </li>
+            )}
             {/* Show links based on authentication */}
             {!authState.isAuthenticated ? (
               <>
@@ -126,7 +140,7 @@ const Navbar = () => {
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={logout}
+                    onClick={handleLogout}
                   >
                     Logout
                   </button>

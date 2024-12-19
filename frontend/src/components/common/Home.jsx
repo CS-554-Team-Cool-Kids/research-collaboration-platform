@@ -10,7 +10,7 @@ import students from "../../assets/images/students.png";
 
 const Home = () => {
   return (
-    <main>
+    <main className="home-page">
       <div className="container">
         {/* Header */}
         <header className="text-img-flex">

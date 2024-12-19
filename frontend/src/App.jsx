@@ -18,7 +18,9 @@ import Team from "./components/project/[id]/Team";
 import ProjectLayout from "./components/project/[id]/ProjectWrapper";
 
 import ProjectAdd from "./components/project/Add";
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute, {
+  RedirectIfAuthenticated,
+} from "./components/ProtectedRoute";
 import Chat from "./components/Chat";
 import Newsfeed from "./components/Newsfeed";
 
@@ -146,17 +148,58 @@ const App = () => {
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/auth/login" element={<Login />} />
-        <Route path="/auth/register" element={<Register />} />
+        {/* <Route path="/" element={<Home />} /> */}
+        <Route
+          path="/"
+          element={
+            <RedirectIfAuthenticated>
+              <Home />
+            </RedirectIfAuthenticated>
+          }
+        />
+        {/* <Route path="/auth/login" element={<Login />} /> */}
+        <Route
+          path="/auth/login"
+          element={
+            <RedirectIfAuthenticated>
+              <Login />
+            </RedirectIfAuthenticated>
+          }
+        />
+        {/* <Route path="/auth/register" element={<Register />} /> */}
+        <Route
+          path="/auth/register"
+          element={
+            <RedirectIfAuthenticated>
+              <Register />
+            </RedirectIfAuthenticated>
+          }
+        />
         <Route
           path="/auth/resetpasswordrequest"
           element={<ResetPasswordRequest />}
         />
         <Route path="/auth/changepassword" element={<ChangePassword />} />
 
-        <Route path="/user/:id" element={<UserDashboard />} />
-        <Route path="/newsfeed" element={<Newsfeed />} />
+        <Route
+          path="/user/:id"
+          element={
+            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+        {/* <Route path="/user/:id" element={<UserDashboard />} /> */}
+        {/* <Route path="/newsfeed" element={<Newsfeed />} /> */}
+
+        <Route
+          path="/newsfeed"
+          element={
+            <ProtectedRoute allowedRoles={["PROFESSOR", "ADMIN", "STUDENT"]}>
+              <Newsfeed />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Protected routes */}
         <Route
@@ -267,7 +310,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route 
+        <Route
           path="/application/edit/:id"
           element={
             <ProtectedRoute allowedRoles={["STUDENT", "PROFESSOR", "ADMIN"]}>

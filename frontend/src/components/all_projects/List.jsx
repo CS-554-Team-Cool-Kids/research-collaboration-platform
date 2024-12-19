@@ -212,7 +212,13 @@ const AllProjectList = () => {
                   <div>
                     <h2>{selectedProject.title}</h2>
                     <p>{selectedProject.department}</p>
-                    <p>{selectedProject.description}</p>
+                    <p
+                      dangerouslySetInnerHTML={{
+                        __html: selectedProject.description,
+                      }}
+                    >
+                      {/* {selectedProject.description} */}
+                    </p>
                   </div>
                 ) : (
                   <p>Select a project to view its details.</p>

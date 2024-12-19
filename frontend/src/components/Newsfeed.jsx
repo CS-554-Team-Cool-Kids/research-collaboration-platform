@@ -222,23 +222,25 @@ const Newsfeed = () => {
         ) : (
           <p>No comments yet. Be the first to comment!</p>
         )}
-        <input
-          type="text"
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-        />
-        <button
-          onClick={() => handleAddComment(updateId)}
-          className="btn-view-comments"
-        >
-          Add
-        </button>
+        <div className="add-comment-section">
+          <input
+            type="text"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+          />
+          <button
+            onClick={() => handleAddComment(updateId)}
+            className="btn-view-comments"
+          >
+            Add
+          </button>
+        </div>
       </div>
     );
   };
 
   const renderUpdate = (update) => (
-    <div key={update._id} className="news-card">
+    <div key={update._id} className="news-card glassEffect">
       <div className="news-header">
         <div className="user-avatar">{update.posterUser.firstName[0]}</div>
         <div>
@@ -246,7 +248,7 @@ const Newsfeed = () => {
             {update.posterUser.firstName} {update.posterUser.lastName}
           </h3>
           <p className="news-meta">
-            {update.posterUser.role} · {update.posterUser.department}
+            {update.posterUser.role} · {update.posterUser.department.replaceAll("_", " ")}
           </p>
         </div>
       </div>
@@ -281,13 +283,15 @@ const Newsfeed = () => {
   return (
     <div className="newsfeed">
       <div className="newsfeed-content">
-        <h2>Newsfeed</h2>
-        <button
-          onClick={() => setShowAddPostForm((prev) => !prev)}
-          className="btn-new-post"
-        >
-          {showAddPostForm ? "Hide New Post" : "New Post"}
-        </button>
+        <div className="newsfeed-header">
+          <h2>Newsfeed</h2>
+          <button
+            onClick={() => setShowAddPostForm((prev) => !prev)}
+            className="btn-new-post"
+          >
+            {showAddPostForm ? "Hide New Post" : "New Post"}
+          </button>
+        </div>
         {showAddPostForm && renderAddPostForm()}
         {data.updates.length > 0 ? (
           data.updates.map((update) => renderUpdate(update))
