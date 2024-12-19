@@ -18,4 +18,17 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   return children;
 };
 
+const RedirectIfAuthenticated = ({ children }) => {
+  const { authState } = useAuth();
+
+  if (authState && authState.isAuthenticated) {
+    // Redirect authenticated users to the dashboard
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
 export default ProtectedRoute;
+
+export { RedirectIfAuthenticated };

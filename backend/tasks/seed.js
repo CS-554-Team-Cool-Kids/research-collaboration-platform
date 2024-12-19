@@ -803,8 +803,8 @@ const seedApplications = async () => {
       projectList[Math.floor(Math.random() * projectList.length)];
     application.applicantId = randomStudent._id.toString();
     application.projectId = randomProject._id.toString();
-    application.applicationDate = new Date();
-    application.lastUpdatedDate = new Date();
+    application.applicationDate = new Date().toISOString();
+    application.lastUpdatedDate = new Date().toISOString();
     application.status = "PENDING";
   }
   await applicationCollection.insertMany(applicationsList);
