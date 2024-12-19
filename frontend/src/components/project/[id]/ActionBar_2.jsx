@@ -48,53 +48,56 @@ const ActionBar = (props) => {
         <div className="nav-title">Management</div>
 
         <ul>
-          <li
-            className={`nav-item ${
-              isActive(`/project/${props.projectId}`) ? "active" : ""
-            }`}
+          <Link
+            to={`/project/${props.projectId}`}
+            className="nav-link d-flex p-0"
           >
-            <Link
-              to={`/project/${props.projectId}`}
-              className="nav-link d-flex p-0"
+            <li
+              className={`nav-item ${
+                isActive(`/project/${props.projectId}`) ? "active" : ""
+              }`}
             >
               <div className="iconSwitch">
                 <HomeIcon />
               </div>
               <span className="my-auto">Home</span>
-            </Link>
-          </li>
-          <li
-            className={`nav-item ${
-              isActive(`/project/${props.projectId}/team`) ? "active" : ""
-            }`}
+            </li>
+          </Link>
+          <Link
+            to={`/project/${props.projectId}/team`}
+            className="nav-link d-flex p-0"
           >
-            <Link
-              to={`/project/${props.projectId}/team`}
-              className="nav-link d-flex p-0"
+            <li
+              className={`nav-item ${
+                isActive(`/project/${props.projectId}/team`) ? "active" : ""
+              }`}
             >
               <div className="iconSwitch">
                 <Team />
               </div>
               <span className="my-auto">Team</span>
-            </Link>
-          </li>
+            </li>
+          </Link>
 
           {authState.user.role === "PROFESSOR" && (
-            <li
-              className={`nav-item ${
-                isActive(`/project/${props.projectId}/requests`) ? "active" : ""
-              }`}
+            <Link
+              to={`/project/${props.projectId}/requests`}
+              className="nav-link d-flex p-0"
             >
-              <Link
-                to={`/project/${props.projectId}/requests`}
-                className="nav-link d-flex p-0"
+              {" "}
+              <li
+                className={`nav-item ${
+                  isActive(`/project/${props.projectId}/requests`)
+                    ? "active"
+                    : ""
+                }`}
               >
                 <div className="iconSwitch">
                   <Requests />
                 </div>
                 <span className="my-auto">Requests</span>
-              </Link>
-            </li>
+              </li>
+            </Link>
           )}
         </ul>
 
