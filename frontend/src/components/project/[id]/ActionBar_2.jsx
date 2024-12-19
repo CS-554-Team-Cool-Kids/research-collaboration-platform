@@ -94,7 +94,7 @@ const ActionBar = (props) => {
           )}
         </ul>
 
-        <div className="nav-title">Channel</div>
+        {/* <div className="nav-title">Channel</div>
         <ul>
           <li
             className={`nav-item ${isActive("/channel/text") ? "active" : ""}`}
@@ -115,7 +115,7 @@ const ActionBar = (props) => {
             </div>
             <span>Announcement</span>
           </li>
-        </ul>
+        </ul> */}
       </nav>
     </div>
   );

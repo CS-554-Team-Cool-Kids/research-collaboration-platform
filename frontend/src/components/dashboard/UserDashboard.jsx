@@ -4,6 +4,7 @@ import {useQuery} from '@apollo/client';
 import queries from '../../queries';
 import ActionBar from '../common/ActionBar';
 import { useAuth } from "../../context/AuthContext";
+import moment from 'moment';
 
 const UserDashboard = () => {
 
@@ -34,7 +35,8 @@ const UserDashboard = () => {
       month: "2-digit",
       day: "2-digit",
     });
-    return formattedDate;
+    // return formattedDate;
+    return moment(formattedDate).format("MMM Do, YYYY");
   };
 
   // If loading
