@@ -5,6 +5,8 @@ import collabIcon from "../../assets/images/collab_icon.png";
 import chatIcon from "../../assets/images/chat_icon.png";
 import newsfeedIcon from "../../assets/images/newsfeed_icon.png";
 import noImage from "../../assets/images/no_image.png";
+import professors from "../../assets/images/professors.png";
+import students from "../../assets/images/students.png";
 
 const Home = () => {
   return (
@@ -94,7 +96,7 @@ const Home = () => {
               </Link>
             </div>
             <div className="tile-img">
-              <img src={noImage} alt="Professor Profile Sample" />
+              <img src={professors} alt="Professor Profile Sample" />
             </div>
           </div>
 
@@ -115,7 +117,7 @@ const Home = () => {
               </Link>
             </div>
             <div className="tile-img">
-              <img src={noImage} alt="Student Profile Sample" />
+              <img src={students} alt="Student Profile Sample" />
             </div>
           </div>
         </section>

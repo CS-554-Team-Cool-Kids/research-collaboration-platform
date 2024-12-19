@@ -335,6 +335,19 @@ nav .navbar-collapse {
   }
 }
 
+/* Navbar Logo */
+.navbar-brand img {
+  width: 50px; /* Adjust the width for smaller logo */
+  height: auto; /* Maintain aspect ratio */
+  cursor: pointer; /* Make the logo clickable */
+  transition: transform 0.3s ease, opacity 0.3s ease; /* Smooth hover effect */
+}
+
+.navbar-brand img:hover {
+  transform: scale(1.1); /* Slightly enlarge the logo on hover */
+  opacity: 0.8; /* Add a subtle dimming effect on hover */
+}
+
 /* ActionBar Styles
 ================================================== */
 .action-bar {
@@ -529,9 +542,13 @@ footer {
     flex-direction: row-reverse;
   }
   .tile-img img {
-    width: 300px;
+    width: 450px;
+    padding: 40px;
+    padding-bottom: 100px;
   }
 }
+
+
 
 /* User Dashboard Styles
 ================================================== */

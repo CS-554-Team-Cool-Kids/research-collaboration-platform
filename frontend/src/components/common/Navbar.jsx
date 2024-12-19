@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom"; // Import useLocation
 import { useAuth } from "../../context/AuthContext"; // Import your AuthContext
 import DarkMode from "../../assets/svg/DarkMode";
 import LightMode from "../../assets/svg/LightMode";
+import logo from "../../assets/images/logo.png";
 
 const Navbar = () => {
   const { authState, logout } = useAuth(); // Use the AuthContext to get authState and logout function
@@ -15,7 +16,9 @@ const Navbar = () => {
     <nav className="navbar navbar-expand-md sticky-top glassEffect">
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">
-          RCP_LOGO
+          <div>
+            <img src={logo} alt="RCP" />
+          </div>
         </Link>
         <button
           className="navbar-toggler"
