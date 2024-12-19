@@ -40,14 +40,21 @@ const GET_APPLICATIONS = gql`
   }
 `;
 const GET_UPDATES = gql`
-  query Update {
+  query Updates {
     updates {
       _id
-      comments {
-        _id
-        content
+      posterUser {
+        firstName
+        lastName
+        role
+        department
       }
+      subject
       content
+      project {
+        title
+      }
+      postedDate
       numOfComments
       postedDate
       posterUser {
@@ -60,6 +67,14 @@ const GET_UPDATES = gql`
         title
       }
       subject
+      comments {
+        _id
+        content
+        commenter {
+          firstName
+          lastName
+        }
+      }
     }
   }
 `;
@@ -151,16 +166,17 @@ const GET_UPDATE_BY_ID = gql`
   query GetUpdateById($id: String!) {
     getUpdateById(_id: $id) {
       _id
-      posterId
       subject
       content
-      projectId {
+      comments {
         _id
-        title
-        department
+        commenter {
+          firstName
+          lastName
+        }
+        content
+        postedDate
       }
-      postedDate
-      comments
       numOfComments
     }
   }
@@ -454,13 +470,17 @@ const ADD_UPDATE = gql`
       projectId: $projectId
     ) {
       _id
-      posterId
+      content
+      postedDate
       subject
-      constent
-      projectId
-      poastedDate
-      comments
-      numOfComments
+      posterUser {
+        firstName
+        lastName
+        role
+      }
+      project {
+        title
+      }
     }
   }
 `;
@@ -494,8 +514,8 @@ const EDIT_USER = gql`
     $department: Department
     $bio: String
     $role: Role
-    $email: String) 
-  {
+    $email: String
+  ) {
     editUser(
       _id: $id
       lastName: $lastName
@@ -503,8 +523,8 @@ const EDIT_USER = gql`
       department: $department
       bio: $bio
       role: $role
-      email: $email) 
-    {
+      email: $email
+    ) {
       _id
     }
   }
@@ -576,27 +596,9 @@ const EDIT_UPDATE = gql`
   }
 `;
 const EDIT_APPLICATION = gql`
-  mutation EditApplication(
-    $id: String!
-    $applicantId: String
-    $projectId: String
-    $lastUpdatedDate: String
-    $status: ApplicationStatus
-  ) {
-    editApplication(
-      _id: $id
-      applicantId: $applicantId
-      projectId: $projectId
-      lastUpdatedDate: $lastUpdatedDate
-      status: $status
-    ) {
+  mutation EditApplication($id: String!, $projectId: String) {
+    editApplication(_id: $id, projectId: $projectId) {
       _id
-      applicantId
-      projectId
-      applicationDate
-      lastUpdatedDate
-      status
-      comments
     }
   }
 `;
@@ -621,14 +623,14 @@ const REMOVE_PROJECT = gql`
 `;
 const REMOVE_UPDATE = gql`
   mutation RemoveUpdate($id: String!) {
-    removeUpdate(id: $id) {
+    removeUpdate(_id: $id) {
       _id
     }
   }
 `;
 const REMOVE_APPLICATION = gql`
   mutation RemoveApplication($id: String!) {
-    removeApplication(id: $id) {
+    removeApplication(_id: $id) {
       _id
     }
   }
@@ -666,6 +668,36 @@ const GET_ENUM_ROLE = gql`
   }
 `;
 
+const ADD_COMMENT = gql`
+  mutation AddComment(
+    $commenterId: String!
+    $destinationId: String!
+    $content: String!
+  ) {
+    addComment(
+      commenterId: $commenterId
+      destinationId: $destinationId
+      content: $content
+    ) {
+      _id
+      content
+      postedDate
+      commenter {
+        firstName
+        lastName
+      }
+    }
+  }
+`;
+
+const REMOVE_COMMENT = gql`
+  mutation RemoveComment($id: String!) {
+    removeComment(_id: $id) {
+      _id
+    }
+  }
+`;
+
 let exported = {
   GET_PROJECTS,
   GET_APPLICATIONS,
@@ -697,6 +729,8 @@ let exported = {
   LOGIN_MUTATION,
   GET_ENUM_DEPARTMENT,
   GET_ENUM_ROLE,
+  ADD_COMMENT,
+  REMOVE_COMMENT,
 };
 
 export default exported;

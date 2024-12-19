@@ -377,7 +377,7 @@ export const resolvers = {
         }
       }
 
-      // Helpers: check ObjectId
+      // Helpers: check ObjectId 
       helpers.checkArg(args._id, "string", "id");
 
       // Cache key constructor and check
@@ -1585,6 +1585,7 @@ export const resolvers = {
         );
       }
 
+      await redisClient.flushAll();
       //Return user without exposing password
       const { password, ...safeUser } = toAddUser; //Destructure: extract password, gather the rest of properties into safeuser
       return safeUser;
@@ -1732,6 +1733,7 @@ export const resolvers = {
         );
       }
 
+      await redisClient.flushAll();
       // Return updated user without exposing password
       const updatedUser = { ...userToUpdate, ...updateFields };
       const { password, ...safeUser } = updatedUser;
@@ -1861,6 +1863,7 @@ export const resolvers = {
         console.log(
           "Redis caches cleared for applications, updates, and comments."
         );
+        await redisClient.flushAll();
       } catch (error) {
         console.error("Failed to update Redis caches:", error);
         throw new GraphQLError(
@@ -1960,6 +1963,7 @@ export const resolvers = {
         await redisClient.set(cacheKey, JSON.stringify(newProject));
         // Delete the projects cache, as it's no longer accurate
         await redisClient.del("projects");
+        await redisClient.flushAll();
       } catch (error) {
         console.error("Failed to update Redis cache:", error);
         throw new GraphQLError(
@@ -2105,7 +2109,7 @@ export const resolvers = {
       try {
         // Delete the projects cache as it's now out of date
         await redisClient.del("projects");
-
+        await redisClient.flushAll();
         //Update the projects's individual cache;
         await redisClient.set(
           `project:${args._id}`,
@@ -2224,6 +2228,7 @@ export const resolvers = {
         console.log(
           "Redis caches cleared for project, updates, and applications."
         );
+        await redisClient.flushAll();
       } catch (error) {
         console.error("Failed to update Redis caches:", error);
         throw new GraphQLError(
@@ -2320,10 +2325,10 @@ export const resolvers = {
         //Set update into redis Cache; set to cacheKey
         //No expiration on cache
         const cacheKey = `update:${updateToAdd._id}`;
-        await redisClient.set(cacheKey, JSON.stringify(updateToAdd));
-
         // Delete cache for updates, as these are no longer accurate
         await redisClient.del("updates");
+        await redisClient.flushAll();
+        await redisClient.set(cacheKey, JSON.stringify(updateToAdd));
       } catch (error) {
         console.error("Failed to update Redis cache:", error);
         throw new GraphQLError(
@@ -2426,6 +2431,7 @@ export const resolvers = {
       // Update Redis cache
       try {
         await redisClient.del("updates"); // Clear updates cache
+        await redisClient.flushAll();
         await redisClient.set(
           `update:${args._id}`,
           JSON.stringify(updateToUpdate)
@@ -2528,6 +2534,8 @@ export const resolvers = {
 
         // Delete the general comments cache as it's outdated
         await redisClient.del("comments");
+
+        await redisClient.flushAll();
 
         // Delete individual comment caches
         for (let commentId of commentIds) {
@@ -2647,9 +2655,10 @@ export const resolvers = {
       try {
         //Add the individual application cache
         const cacheKey = `application:${applicationToAdd._id}`;
-        await redisClient.set(cacheKey, JSON.stringify(applicationToAdd));
         //Delete the applications cache, as this is now out of date.'
         await redisClient.del("applications");
+        await redisClient.flushAll();
+        await redisClient.set(cacheKey, JSON.stringify(applicationToAdd));
       } catch (error) {
         console.error("Failed to update Redis cache:", error);
         throw new GraphQLError(
@@ -2763,6 +2772,7 @@ export const resolvers = {
       try {
         // Delete the outdated cache
         await redisClient.del("applications");
+        await redisClient.flushAll();
 
         // Set the updated application in the cache
         const cacheKey = `application:${args._id}`;
@@ -2867,6 +2877,7 @@ export const resolvers = {
 
         // Delete the general comments cache as it's outdated
         await redisClient.del("comments");
+        await redisClient.flushAll();
 
         // Delete individual comment caches
         for (let commentId of commentIds) {
@@ -3024,8 +3035,10 @@ export const resolvers = {
       try {
         console.log("Updating Redis cache for comment...");
         const cacheKey = `comment:${newComment._id}`;
-        await redisClient.set(cacheKey, JSON.stringify(newComment));
         await redisClient.del("comments");
+        await redisClient.flushAll();
+        await redisClient.set(cacheKey, JSON.stringify(newComment));
+
         console.log("Redis cache updated successfully.");
       } catch (redisError) {
         console.error("Failed to update Redis cache:", redisError);
@@ -3139,9 +3152,10 @@ export const resolvers = {
 
       // Update Redis cache
       try {
+        await redisClient.del("comments");
+        await redisClient.flushAll();
         const cacheKey = `comment:${commentToUpdate._id}`;
         await redisClient.set(cacheKey, JSON.stringify(updatedComment));
-        await redisClient.del("comments");
       } catch (error) {
         console.error("Failed to update Redis cache:", error);
         throw new GraphQLError(
@@ -3210,6 +3224,7 @@ export const resolvers = {
       try {
         await redisClient.del(`comment:${args._id}`);
         await redisClient.del("comments");
+        await redisClient.flushAll();
       } catch (error) {
         console.error("Failed to update Redis cache:", error);
         throw new GraphQLError(

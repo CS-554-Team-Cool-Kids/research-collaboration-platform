@@ -4,9 +4,37 @@ import { useMutation, useQuery } from "@apollo/client";
 import queries from "../../queries.js";
 import { useAuth } from "../../context/AuthContext.jsx";
 
+const departmentOptions = [
+  { value: "ALL", label: "All" },
+  { value: "BIOMEDICAL_ENGINEERING", label: "Biomedical Engineering" },
+  {
+    value: "CHEMICAL_ENGINEERING_AND_MATERIALS_SCIENCE",
+    label: "Chemical Engineering And Materials Science",
+  },
+  {
+    value: "CHEMISTRY_AND_CHEMICAL_BIOLOGY",
+    label: "Chemistry And Chemical Biology",
+  },
+  {
+    value: "CIVIL_ENVIRONMENTAL_AND_OCEAN_ENGINEERING",
+    label: "Civil Environmental And Ocean Engineering",
+  },
+  { value: "COMPUTER_SCIENCE", label: "Computer Science" },
+  {
+    value: "ELECTRICAL_AND_COMPUTER_ENGINEERING",
+    label: "Electrical And Computer Engineering",
+  },
+  { value: "MATHEMATICAL_SCIENCES", label: "Mathematical Sciences" },
+  { value: "MECHANICAL_ENGINEERING", label: "Mechanical Engineering" },
+  { value: "PHYSICS", label: "Physics" },
+  { value: "SYSTEMS_AND_ENTERPRISES", label: "Systems And Enterprises" },
+];
+
 const AllProjectList = () => {
   const { authState } = useAuth();
   const userId = authState.user.id;
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("ALL");
 
   // Query to fetch all projects
   const {
@@ -92,27 +120,50 @@ const AllProjectList = () => {
                 <div className="col my-auto">
                   <h2>All Project List</h2>
                 </div>
+                <div className="col-3 my-auto">
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="searchTerm"
+                    placeholder="Search by Project Name"
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={searchTerm}
+                  />
+                </div>
+                <div className="col-3 my-auto">
+                  <select
+                    className="form-select"
+                    aria-label="Default select example"
+                    onChange={(e) => setSelectedDepartment(e.target.value)}
+                  >
+                    {departmentOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div className="col-auto d-flex">
-                  {selectedProject?._id ? (
+                  {authState.user.role === "STUDENT" && (
                     <div className="d-flex">
-                      {isUserEnrolled(selectedProject) ? (
-                        <button className="btn btn-success ms-2" disabled>
-                          Enrolled
-                        </button>
+                      {selectedProject?._id ? (
+                        isUserEnrolled(selectedProject) ? (
+                          <button className="btn btn-success ms-2" disabled>
+                            Enrolled
+                          </button>
+                        ) : (
+                          <button
+                            className="btn btn-info ms-2"
+                            onClick={() => handleEnroll(selectedProject)}
+                          >
+                            Enroll
+                          </button>
+                        )
                       ) : (
-                        <button
-                          className="btn btn-info ms-2"
-                          onClick={() => handleEnroll(selectedProject)}
-                        >
+                        <button className="btn btn-info ms-2 invisible">
                           Enroll
                         </button>
                       )}
-                    </div>
-                  ) : (
-                    <div className="d-flex">
-                      <button className="btn btn-info ms-2 invisible">
-                        Enroll
-                      </button>
                     </div>
                   )}
                 </div>
@@ -124,19 +175,35 @@ const AllProjectList = () => {
               {/* Left Side: Project List */}
               <div className="col-md-4 pe-0">
                 <ul className="chat-list">
-                  {projects.map((project, index) => (
-                    <li
-                      key={project._id}
-                      onClick={() => setSelectedProject(project)}
-                      className={
-                        selectedProject?._id === project._id ? "active" : ""
-                      }
-                    >
-                      <span className="chat-list-number">{index + 1}.</span>
-                      <p className="chat-list-header">{project.title}</p>
-                      <p>{project.department}</p>
-                    </li>
-                  ))}
+                  {projects
+                    .filter((p) =>
+                      p.title.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                    .filter((p) =>
+                      selectedDepartment === "ALL"
+                        ? true
+                        : p.department === selectedDepartment
+                    )
+                    .map((project, index) => (
+                      <li
+                        key={project._id}
+                        onClick={() => setSelectedProject(project)}
+                        className={
+                          selectedProject?._id === project._id ? "active" : ""
+                        }
+                      >
+                        <span className="chat-list-number">{index + 1}.</span>
+                        <p className="chat-list-header">{project.title}</p>
+                        <p>
+                          {
+                            departmentOptions.find(
+                              (department) =>
+                                department.value === project.department
+                            ).label
+                          }
+                        </p>
+                      </li>
+                    ))}
                 </ul>
               </div>
               {/* Right Side: Reading Pane */}
@@ -145,7 +212,13 @@ const AllProjectList = () => {
                   <div>
                     <h2>{selectedProject.title}</h2>
                     <p>{selectedProject.department}</p>
-                    <p>{selectedProject.description}</p>
+                    <p
+                      dangerouslySetInnerHTML={{
+                        __html: selectedProject.description,
+                      }}
+                    >
+                      {/* {selectedProject.description} */}
+                    </p>
                   </div>
                 ) : (
                   <p>Select a project to view its details.</p>

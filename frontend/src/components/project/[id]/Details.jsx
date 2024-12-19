@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { useQuery, useMutation } from "@apollo/client";
 import "../../../assets/css/sidebar.css";
+import htmlToDraft from 'html-to-draftjs';
+import {convertFromRaw} from 'draft-js';
 import queries from "../../../queries";
 
 const ProjectDetails = () => {
@@ -117,8 +119,9 @@ const ProjectDetails = () => {
 
           <div className="col-12">
             <div className="d-card glassEffect">
-              <div className="d-card-body">
-                {data?.getProjectById.description}
+              <div className="d-card-body"
+                   dangerouslySetInnerHTML={{ __html: data?.getProjectById?.description }}>
+
               </div>
             </div>
           </div>

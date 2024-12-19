@@ -3,19 +3,30 @@ import { Link, useLocation } from "react-router-dom"; // Import useLocation
 import { useAuth } from "../../context/AuthContext"; // Import your AuthContext
 import DarkMode from "../../assets/svg/DarkMode";
 import LightMode from "../../assets/svg/LightMode";
+import logo from "../../assets/images/logo.png";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const { authState, logout } = useAuth(); // Use the AuthContext to get authState and logout function
   const location = useLocation(); // Get the current location
 
+  const navigate = useNavigate();
+
   // Helper function to determine active route
   const isActive = (path) => location.pathname === path;
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <nav className="navbar navbar-expand-md sticky-top glassEffect">
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">
-          RCP_LOGO
+          <div>
+            <img src={logo} alt="RCP" />
+          </div>
         </Link>
         <button
           className="navbar-toggler"
@@ -30,16 +41,30 @@ const Navbar = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav">
-            {/* Always show Home */}
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${isActive("/") ? "active" : ""}`}
-                to="/"
-              >
-                Home
-              </Link>
-            </li>
+            {!authState.isAuthenticated && (
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${isActive("/") ? "active" : ""}`}
+                  to="/"
+                >
+                  Home
+                </Link>
+              </li>
+            )}
 
+            {/* Add Newsfeed as News */}
+            {authState.isAuthenticated && (
+              <li className="nav-item">
+                <Link
+                  className={`nav-link ${
+                    isActive("/newsfeed") ? "active" : ""
+                  }`}
+                  to="/newsfeed"
+                >
+                  News
+                </Link>
+              </li>
+            )}
             {/* Show links based on authentication */}
             {!authState.isAuthenticated ? (
               <>
@@ -76,6 +101,7 @@ const Navbar = () => {
                     Dashboard
                   </Link>
                 </li>
+                {/* Show links based on user role */}
                 <li className="nav-item">
                   <Link
                     className={`nav-link ${
@@ -86,6 +112,7 @@ const Navbar = () => {
                     Project Database
                   </Link>
                 </li>
+
                 <li className="nav-item">
                   <Link
                     className={`nav-link ${
@@ -96,21 +123,24 @@ const Navbar = () => {
                     My Projects
                   </Link>
                 </li>
-                <li className="nav-item">
-                  <Link
-                    className={`nav-link ${
-                      isActive("/application") ? "active" : ""
-                    }`}
-                    to="/application"
-                  >
-                    Application Status
-                  </Link>
-                </li>
+                {authState.user.role === "STUDENT" && (
+                  <li className="nav-item">
+                    <Link
+                      className={`nav-link ${
+                        isActive("/application") ? "active" : ""
+                      }`}
+                      to="/application"
+                    >
+                      Application Status
+                    </Link>
+                  </li>
+                )}
+
                 <li className="nav-item ms-5">
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={logout}
+                    onClick={handleLogout}
                   >
                     Logout
                   </button>

@@ -5,20 +5,6 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 function ApplicationList() {
-  /* 
-        Note: The props will be passing one of two things: user id (either professor or student) or the array of applications that will be displayed. Need to investigate and confirm the instances in which either would be passed.
-
-        This component will display:
-        1. List of applications associated with user
-            a. Student: List of applications student applied to
-            b. Professor: List of applications associated to professor
-        2. The list would consist of the following:
-            a. project name
-            b. application status
-            c. button to view the details, which would redirect to the application/detail page.
-            Note: the queries file was updated to ensure the necessary pieces of data are passed.
-    */
-
   const { authState } = useAuth();
   const id = authState.user.id;
   const userRole = authState.user.role;
@@ -28,7 +14,6 @@ function ApplicationList() {
     fetchPolicy: "network-only",
   });
 
-  const [applications, setApplications] = useState([]);
   const [selectedApplication, setSelectedApplication] = useState(null);
 
   // Mutation to remove an application
@@ -46,14 +31,17 @@ function ApplicationList() {
 
   const handleDelete = async () => {
     if (!selectedApplication?._id) return;
+
     const confirmDeletion = window.confirm(
-      `Are you sure you want to delete the project "${selectedProject.title}"?`
+      `Are you sure you want to delete the project "${selectedApplication.project.title}"?`
     );
     if (confirmDeletion) {
       try {
-        await removeApplication({ variables: { id: selectedApplication._id } });
+        let id = selectedApplication._id;
+        await removeApplication({ variables: { id: id } });
         await refetch();
       } catch (error) {
+        alert(`Deletion Failed: ${error}`);
         console.error("Deletion failed: ", error);
       }
     }
@@ -61,7 +49,7 @@ function ApplicationList() {
 
   useEffect(() => {
     if (data) {
-      setSelectedApplication(null); //REset selected application when data changes
+      setSelectedApplication(null); //Reset selected application when data changes
     }
   }, [data]);
 
