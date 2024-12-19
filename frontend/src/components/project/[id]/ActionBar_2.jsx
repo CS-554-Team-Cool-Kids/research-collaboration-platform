@@ -53,11 +53,14 @@ const ActionBar = (props) => {
               isActive(`/project/${props.projectId}`) ? "active" : ""
             }`}
           >
-            <Link to={`/project/${props.projectId}`} className="nav-link">
+            <Link
+              to={`/project/${props.projectId}`}
+              className="nav-link d-flex p-0"
+            >
               <div className="iconSwitch">
                 <HomeIcon />
               </div>
-              <span>Home</span>
+              <span className="my-auto">Home</span>
             </Link>
           </li>
           <li
@@ -65,30 +68,31 @@ const ActionBar = (props) => {
               isActive(`/project/${props.projectId}/team`) ? "active" : ""
             }`}
           >
-            <Link to={`/project/${props.projectId}/team`} className="nav-link">
+            <Link
+              to={`/project/${props.projectId}/team`}
+              className="nav-link d-flex p-0"
+            >
               <div className="iconSwitch">
                 <Team />
               </div>
-              <span>Team</span>
-              </Link>
+              <span className="my-auto">Team</span>
+            </Link>
           </li>
 
           {authState.user.role === "PROFESSOR" && (
             <li
               className={`nav-item ${
-                isActive(`/project/${props.projectId}/requests`)
-                  ? "active"
-                  : ""
+                isActive(`/project/${props.projectId}/requests`) ? "active" : ""
               }`}
             >
               <Link
                 to={`/project/${props.projectId}/requests`}
-                className="nav-link"
+                className="nav-link d-flex p-0"
               >
                 <div className="iconSwitch">
                   <Requests />
                 </div>
-                <span>Requests</span>
+                <span className="my-auto">Requests</span>
               </Link>
             </li>
           )}
@@ -99,7 +103,7 @@ const ActionBar = (props) => {
           <li
             className={`nav-item ${isActive("/channel/text") ? "active" : ""}`}
           >
-            <div className="iconSwitch">
+            <div className="iconSwitch d-flex">
               <ChatIcon />
             </div>
             <span>Text</span>
@@ -110,7 +114,7 @@ const ActionBar = (props) => {
               isActive("/channel/announcement") ? "active" : ""
             }`}
           >
-            <div className="iconSwitch">
+            <div className="iconSwitch d-flex">
               <AnnouncementIcon />
             </div>
             <span>Announcement</span>

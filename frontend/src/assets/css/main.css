@@ -321,7 +321,7 @@ nav .navbar-collapse {
   margin-bottom: auto;
 }
 
-.nav-item .nav-link,
+.navbar-collapse .nav-item .nav-link,
 .navbar-brand {
   padding-left: 20px !important;
   padding-right: 20px !important;
