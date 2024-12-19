@@ -83,7 +83,7 @@ const ProjectDetails = () => {
             <div className="d-card glassEffect">
               <div className="d-card-body text-center p-4">
                 <div className="text-truncate">
-                  <span className="fs-4 fw-bold">Team Count</span>
+                  <span className="fs-4 fw-bold">Team</span>
                   <span
                     className="ms-3 fs-1"
                     title={
@@ -103,7 +103,7 @@ const ProjectDetails = () => {
             <div className="d-card glassEffect">
               <div className="d-card-body text-center p-4">
                 <div>
-                  <span className="fs-4 fw-bold">Application Count</span>
+                  <span className="fs-4 fw-bold">Applications</span>
                   <span
                     className="ms-3 fs-1 fw-regular"
                     title={data?.getProjectById.numOfApplications}

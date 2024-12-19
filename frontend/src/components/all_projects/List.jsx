@@ -56,10 +56,16 @@ const AllProjectList = () => {
     }
   }, [projectsData]);
 
-  if (projectsLoading || userLoading) return <p className="loader">Loading projects...</p>;
+  if (projectsLoading || userLoading)
+    return <p className="loader">Loading projects...</p>;
   if (projectsError)
     return <p>Error loading projects: {projectsError.message}</p>;
-  if (userError) return <p className="error-message">Error loading user data: {userError.message}</p>;
+  if (userError)
+    return (
+      <p className="error-message">
+        Error loading user data: {userError.message}
+      </p>
+    );
 
   const projects = projectsData?.projects || [];
   const userApplications = userData?.getUserById?.applications || [];
@@ -113,7 +119,7 @@ const AllProjectList = () => {
               </div>
             </div>
           </div>
-          <div className="d-card-body p-0">
+          <div className="d-card-body mb-3 p-0">
             <div className="row">
               {/* Left Side: Project List */}
               <div className="col-md-4 pe-0">

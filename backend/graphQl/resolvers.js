@@ -3,6 +3,7 @@
 //GraphQLError: Used for handling GraphQL-specific errors
 import { GraphQLError } from "graphql";
 import admin from "firebase-admin";
+import dotenv from "dotenv";
 
 //MongoDB: collections for users, projects, updates, and applications
 import {
@@ -23,8 +24,14 @@ import { createClient } from "redis";
 import * as helpers from "./helpers.js";
 
 //REDIS CLIENT SET UP
+dotenv.config();
 
-const redisClient = createClient();
+const redisClient = createClient({
+  socket: {
+    host: process.env.redis_ip, // Service name from docker-compose.yml
+    port: process.env.redis_port, // Default Redis port
+  },
+});
 
 //Catch any Redis client errors and log them for debugging
 redisClient.on("error", (err) => console.error("Redis Client Error", err));
