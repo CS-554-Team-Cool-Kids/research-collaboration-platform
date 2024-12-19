@@ -59,6 +59,14 @@ Frontend runs on **http://localhost:5173**
 
 #### 3. **Set Up the Backend**
 
+#### Make sure redis is running properly
+
+```bash
+redis-stack-server
+```
+
+Redis runs on port **6379**.
+
 ```bash
 cd backend
 npm install
@@ -121,5 +129,4 @@ This project is licensed under the MIT License.
 ### Acknowledgments
 
 Special thanks to the team for their hard work and collaboration!
-
 ---
