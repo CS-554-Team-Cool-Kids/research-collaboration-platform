@@ -121,7 +121,7 @@ Registered Users to use for direct login:
 
 ### Deployed Project
 
-View the deployed project here: [**Insert Deployed Link Here**]
+View the deployed project here: http://9.169.245.205:8080/
 
 ---
 
