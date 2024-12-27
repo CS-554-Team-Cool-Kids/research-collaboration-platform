@@ -116,13 +116,6 @@ Registered Users to use for direct login:
 3. email: bjohnson@stevens.edu, password: Bob#1987, role: "PROFESSOR"
 4. email: ljohnson@stevens.edu, password: Liam2023@, role: "STUDENT"
 
-
----
-
-### Deployed Project
-
-View the deployed project here: **http://react.ahh7angxctcngae0.eastus2.azurecontainer.io:8080/**
-
 ---
 
 ### Contribution
